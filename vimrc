@@ -64,6 +64,7 @@ set hlsearch
 set incsearch
 
 set laststatus=2
+set backspace=indent,eol,start
 
 " Folding
 set foldmarker={,}
