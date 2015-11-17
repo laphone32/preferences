@@ -21,6 +21,7 @@ Plugin 'scrooloose/nerdtree'
 Plugin 'Xuyuanp/nerdtree-git-plugin'
 Plugin 'Valloric/YouCompleteMe'
 Plugin 'itchyny/lightline.vim'
+Plugin 'airblade/vim-rooter'
 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
@@ -182,7 +183,7 @@ let g:NERDTreeIndicatorMapCustom = {
     \ "Clean"     : "V",
     \ "Unknown"   : "?"
     \ }
-set shell=sh
+set shell=bash
 
 """""""""""""""""""""""""""""""""""""" lightline
 let g:lightline = {
@@ -313,4 +314,7 @@ endfunction
 let g:unite_force_overwrite_statusline = 0
 let g:vimfiler_force_overwrite_statusline = 0
 let g:vimshell_force_overwrite_statusline = 0
+
+" vim-rooter
+let g:rooter_silent_chdir = 1
 
