@@ -16,7 +16,6 @@ Plugin 'tpope/vim-fugitive'
 Plugin 'L9'
 Plugin 'Raimondi/delimitMate'
 Plugin 'kien/ctrlp.vim'
-Plugin 'othree/vim-autocomplpop'
 Plugin 'scrooloose/nerdtree'
 Plugin 'Xuyuanp/nerdtree-git-plugin'
 Plugin 'Valloric/YouCompleteMe'
@@ -152,6 +151,7 @@ imap <A-l> <ESC>:tabn<CR>
 map <A-h> :tabp<CR>
 imap <A-h> <ESC>:tabp<CR>
 map <C-n> :NERDTreeToggle<CR>
+map <C-b> :CtrlPBuffer<CR>
 
 map <F8> :vertical diffsplit 
 map <F9> :set cursorline!<CR>
@@ -163,14 +163,14 @@ noremap x "9x
 
 """""""""""""""""""""""""""""""""""" CtrlP
 set wildignore=*.swp,*.class,*.so
-let g:ctrlp_use_caching = 0
 
 """""""""""""""""""""""""""""""""""" YouCompleteMe
-let g:ycm_filetype_whitelist = {'cpp' : 1, 'hpp' : 1}
+let g:ycm_filetype_whitelist = {'cpp' : 1, 'hpp' : 1, 'java' : 1, 'python' : 1}
 let g:ycm_autoclose_preview_window_after_insertion = 1
 let g:ycm_autoclose_preview_window_after_completion = 1
 let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
 let g:ycm_confirm_extra_conf = 1
+let g:EclimCompletionMethod = 'omnifunc'
 
 """""""""""""""""""""""""""""""""""" NERDTree
 let g:NERDTreeIndicatorMapCustom = {
