@@ -174,14 +174,14 @@ let g:EclimCompletionMethod = 'omnifunc'
 
 """""""""""""""""""""""""""""""""""" NERDTree
 let g:NERDTreeIndicatorMapCustom = {
-    \ "Modified"  : "*",
-    \ "Staged"    : "+",
-    \ "Untracked" : "^",
-    \ "Renamed"   : ">",
-    \ "Unmerged"  : "=",
-    \ "Deleted"   : "x",
-    \ "Dirty"     : "X",
-    \ "Clean"     : "V",
+    \ "Modified"  : "✹",
+    \ "Staged"    : "✚",
+    \ "Untracked" : "✭",
+    \ "Renamed"   : "➜",
+    \ "Unmerged"  : "═",
+    \ "Deleted"   : "✖",
+    \ "Dirty"     : "✗",
+    \ "Clean"     : "✔︎",
     \ "Unknown"   : "?"
     \ }
 set shell=bash
