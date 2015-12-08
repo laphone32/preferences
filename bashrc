@@ -8,5 +8,5 @@ export GIT_EDITOR=vim
 setcolor.sh Normal
 
 alias vim='vim --cmd "lang en_US.utf8" -u $PREFERENCES_DIR/vimrc'
-alias ssh='$PREFERENCES_BIN/sshell.sh'
 alias gvim='gvim --cmd "lang en_US.utf8" -u $PREFERENCES_DIR/vimrc'
+alias ssh='$PREFERENCES_BIN/sshell.sh'
