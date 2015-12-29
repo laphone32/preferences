@@ -22,6 +22,7 @@ Plugin 'Valloric/YouCompleteMe'
 Plugin 'itchyny/lightline.vim'
 Plugin 'airblade/vim-rooter'
 Plugin 'scrooloose/syntastic'
+Plugin 'AndrewRadev/linediff.vim'
 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
