@@ -73,7 +73,7 @@ set foldmarker={,}
 "set foldmethod=marker
 set foldmethod=syntax
 set foldlevel=0 " Close in default
-set foldnestmax=10
+set foldnestmax=15
 
 colorscheme desert
 
@@ -165,7 +165,7 @@ noremap dd "9dd
 noremap x "9x
 
 """""""""""""""""""""""""""""""""""" CtrlP
-set wildignore=*.swp,*.class,*.so
+set wildignore+=*.swp,*.class,*.so
 
 """""""""""""""""""""""""""""""""""" YouCompleteMe
 let g:ycm_filetype_whitelist = {'cpp' : 1, 'hpp' : 1, 'java' : 1, 'python' : 1}
