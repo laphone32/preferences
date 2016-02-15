@@ -168,7 +168,7 @@ noremap x "9x
 set wildignore+=*.swp,*.class,*.so
 
 """""""""""""""""""""""""""""""""""" YouCompleteMe
-let g:ycm_filetype_whitelist = {'cpp' : 1, 'hpp' : 1, 'java' : 1, 'python' : 1}
+let g:ycm_filetype_whitelist = {'cpp' : 1, 'hpp' : 1, 'java' : 1, 'python' : 1, 'sh' : 1, 'pom' : 1}
 let g:ycm_autoclose_preview_window_after_insertion = 1
 let g:ycm_autoclose_preview_window_after_completion = 1
 let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
