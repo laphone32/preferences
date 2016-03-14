@@ -153,7 +153,7 @@ map <A-l> :tabn<CR>
 imap <A-l> <ESC>:tabn<CR>
 map <A-h> :tabp<CR>
 imap <A-h> <ESC>:tabp<CR>
-map <C-n> :NERDTreeToggle<CR>
+map <C-n> :call NERDTreeToggleAndFind() <CR>
 map <C-b> :CtrlPBuffer<CR>
 
 map <F8> :vertical diffsplit 
@@ -188,6 +188,33 @@ let g:NERDTreeIndicatorMapCustom = {
     \ "Unknown"   : "?"
     \ }
 set shell=bash
+
+" returns true iff is NERDTree open/active
+function! IsNTOpen()        
+  return exists("t:NERDTreeBufName") && (bufwinnr(t:NERDTreeBufName) != -1)
+endfunction
+
+" calls NERDTreeFind iff NERDTree is active, current window contains a modifiable file, and we're not in vimdiff
+function! SyncTree()
+  if &modifiable && IsNTOpen() && strlen(expand('%')) > 0 && !&diff
+    let l:curwinnr = winnr()
+    NERDTreeFind
+    exec l:curwinnr . "wincmd w"
+"    wincmd p
+  endif
+endfunction
+
+" Open NERDTree in the directory of the current file (or /home if no file is open)
+function! NERDTreeToggleAndFind()
+  " If NERDTree is open in the current buffer
+  if IsNTOpen()
+    exe ":NERDTreeClose"
+  else
+    exe ":NERDTreeFind"
+  endif
+endfunction
+
+autocmd BufEnter * call SyncTree()
 
 """""""""""""""""""""""""""""""""""""" lightline
 let g:lightline = {
