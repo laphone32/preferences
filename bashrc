@@ -1,6 +1,7 @@
 
 PREFERENCES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PREFERENCES_BIN=$PREFERENCES_DIR/bin
+PS1="\[\033[0;32m\]\u\[\e[0m\]:\w\\[\033[0;33m\]$(__git_ps1)\[\e[0m\]\$ "
 
 export PATH=$PATH:$PREFERENCES_BIN
 
@@ -12,4 +13,5 @@ declare -x LS_COLORS="no=00:fi=00:di=01;36:ln=02;36:pi=40;33:so=01;35:do=01;35:b
 alias vim='vim --cmd "lang en_US.utf8" -u $PREFERENCES_DIR/vimrc'
 alias gvim='gvim --cmd "lang en_US.utf8" -u $PREFERENCES_DIR/vimrc'
 alias ssh='$PREFERENCES_BIN/sshell.sh'
+alias python='python3'
 
