@@ -1,7 +1,7 @@
 
 PREFERENCES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PREFERENCES_BIN=$PREFERENCES_DIR/bin
-PS1="\[\033[0;32m\]\u\[\e[0m\]:\w\\[\033[0;33m\]$(__git_ps1)\[\e[0m\]\$ "
+export PS1='\[\033[0;32m\]\u\[\e[0m\]:\w\[\033[0;33m\]$(__git_ps1)\[\e[0m\]$ '
 
 export PATH=$PATH:$PREFERENCES_BIN
 
