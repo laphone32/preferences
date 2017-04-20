@@ -9,7 +9,7 @@ do
 
     ( [[ $arguhost =~ ^- ]] ) || # Skip the ssh arguments
     ( [[ $arguhost =~ ^prod. ]] && $LAPHONE_PRODUCTION_TERM ) || # Production env. connection
-    ( [[ $arguhost =~ ^test. ]] && $LAPHONE_REMOTE_TERM ) || # Testing env. connection
+    ( [[ $arguhost =~ ^uat. ]] && $LAPHONE_UAT_TERM ) || # Testing env. connection
     $LAPHONE_REMOTE_TERM
 done
 

@@ -79,7 +79,7 @@ colorscheme desert
 
 " Set GUI fonts
 "set guifont=Monaco\ 18
-set guifont=Hermit\ bold\ 16
+set guifont=Hermit\ bold\ 18
 "set guifont=Monaco:h16
 "set guifont=Droid\ Sans\ Mono\ 20
 "set guifont=Source_Code_Pro:h14
