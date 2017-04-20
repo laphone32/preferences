@@ -1,6 +1,11 @@
 
 PREFERENCES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PREFERENCES_BIN=$PREFERENCES_DIR/bin
+
+# XTERM
+. $PREFERENCES_BIN/term_util.sh
+$LAPHONE_DEFAULT_TERM
+
 export PS1='\[\033[0;32m\]\u\[\e[0m\]:\w\[\033[0;33m\]$(__git_ps1)\[\e[0m\]$ '
 
 export PATH=$PATH:$PREFERENCES_BIN
@@ -14,7 +19,4 @@ alias gvim='gvim --cmd "lang en_US.utf8" -u $PREFERENCES_DIR/vimrc'
 alias ssh='$PREFERENCES_BIN/sshell.sh'
 alias python='python3'
 
-# XTERM
-. $PREFERENCES_BIN/term_util.sh
-$LAPHONE_DEFAULT_TERM
 

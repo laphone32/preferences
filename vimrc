@@ -78,7 +78,8 @@ set foldnestmax=15
 colorscheme desert
 
 " Set GUI fonts
-set guifont=Monaco\ 20
+"set guifont=Monaco\ 18
+set guifont=Hermit\ bold\ 16
 "set guifont=Monaco:h16
 "set guifont=Droid\ Sans\ Mono\ 20
 "set guifont=Source_Code_Pro:h14
@@ -98,11 +99,11 @@ set guioptions-=L
 " Disable all cursor blinking
 "set guicursor+=a:blinkon0
 " Startup in full screen size
-"" au GUIEnter * simalt ~x
+"au GUIEnter * simalt ~x
 if has("gui_running")
     " GUI is running or is about to start.
     " Maximize gvim window.
-    set lines=999 columns=999
+    set lines=99 columns=999
 endif
 
 " Using 256 colors
