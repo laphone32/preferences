@@ -2,6 +2,13 @@
 
 . term_util.sh
 
+function recover {
+    $LAPHONE_DEFAULT_TERM
+}
+
+trap recover EXIT;
+
+
 for argu in $@
 do
     # For the usage xxx@bind_addr
@@ -13,5 +20,5 @@ do
     $LAPHONE_REMOTE_TERM
 done
 
-ssh $@; $LAPHONE_DEFAULT_TERM
+ssh $@
 
