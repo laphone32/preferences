@@ -53,6 +53,7 @@ set shiftwidth=4
 set tabstop=4
 set expandtab
 set smarttab
+set autochdir
 
 set nobackup
 set smartindent
@@ -154,7 +155,8 @@ map <A-l> :tabn<CR>
 imap <A-l> <ESC>:tabn<CR>
 map <A-h> :tabp<CR>
 imap <A-h> <ESC>:tabp<CR>
-map <C-n> :call NERDTreeToggleAndFind() <CR>
+" map <C-n> :call NERDTreeToggleAndFind() <CR>
+map <C-n> :NERDTreeToggle<CR>
 map <C-b> :CtrlPBuffer<CR>
 
 map <F8> :vertical diffsplit 
