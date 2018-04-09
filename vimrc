@@ -171,12 +171,27 @@ noremap x "9x
 set wildignore+=*.swp,*.class,*.so
 
 """""""""""""""""""""""""""""""""""" YouCompleteMe
-let g:ycm_filetype_whitelist = {'cpp' : 1, 'hpp' : 1, 'java' : 1, 'python' : 1, 'sh' : 1, 'pom' : 1}
+let g:ycm_filetype_whitelist = {'c' : 1, 'h' : 1, 'cpp' : 1, 'hpp' : 1, 'java' : 1, 'python' : 1, 'sh' : 1, 'pom' : 1}
 let g:ycm_autoclose_preview_window_after_insertion = 1
 let g:ycm_autoclose_preview_window_after_completion = 1
 let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
 let g:ycm_confirm_extra_conf = 1
 let g:ycm_always_populate_location_list = 1
+
+" Semantic trigger
+let g:ycm_semantic_triggers =  {
+            \ 'c,cpp,python,java,go,erlang,perl': ['re!\w{2}'],
+            \ 'cs,lua,javascript': ['re!\w{2}'],
+            \ }
+
+
+" remove annoying preview window appearing on top of vim
+let g:ycm_add_preview_to_completeopt = 0
+set completeopt-=preview
+
+" Color
+highlight PMenu ctermfg=0 ctermbg=242 guifg=black guibg=darkgrey
+highlight PMenuSel ctermfg=242 ctermbg=8 guifg=darkgrey guibg=black
 
 """""""""""""""""""""""""""""""""""" NERDTree
 let g:NERDTreeIndicatorMapCustom = {
