@@ -190,8 +190,8 @@ let g:ycm_add_preview_to_completeopt = 0
 set completeopt-=preview
 
 " Color
-highlight PMenu ctermfg=0 ctermbg=242 guifg=black guibg=darkgrey
-highlight PMenuSel ctermfg=242 ctermbg=8 guifg=darkgrey guibg=black
+highlight Pmenu ctermfg=0 ctermbg=242 guifg=black guibg=gray45
+highlight PmenuSel ctermfg=242 ctermbg=8 guifg=gray45 guibg=black
 
 """""""""""""""""""""""""""""""""""" NERDTree
 let g:NERDTreeIndicatorMapCustom = {
