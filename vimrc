@@ -236,7 +236,7 @@ autocmd BufEnter * call SyncTree()
 
 """""""""""""""""""""""""""""""""""""" lightline
 let g:lightline = {
-      \ 'colorscheme': 'jellybeans',
+      \ 'colorscheme': 'wombat',
       \ 'active': {
       \   'left': [ [ 'mode', 'paste' ], [ 'fugitive', 'filename' ], ['ctrlpmark'] ],
       \   'right': [ [ 'syntastic', 'lineinfo' ], ['percent'], [ 'fileformat', 'fileencoding', 'filetype' ] ]
@@ -378,5 +378,4 @@ let g:EclimJavaSearchSingleResult = 'edit'
 let g:EclimJavaCallHierarchyDefaultAction = 'edit'
 let g:EclimMakeLCD = 1
 let g:EclimCompletionMethod = 'omnifunc'
-
 
