@@ -70,6 +70,9 @@ set incsearch
 set laststatus=2
 set backspace=indent,eol,start
 
+" No beep
+set noeb vb t_vb=
+
 " Folding
 set foldmarker={,}
 "set foldmethod=marker
@@ -101,7 +104,7 @@ set guioptions-=L
 " Disable all cursor blinking
 "set guicursor+=a:blinkon0
 " Startup in full screen size
-"au GUIEnter * simalt ~x
+au GUIEnter * simalt ~x
 if has("gui_running")
     " GUI is running or is about to start.
     " Maximize gvim window.
@@ -175,7 +178,7 @@ set wildignore+=*.swp,*.class,*.so
 let g:ycm_filetype_whitelist = {'c' : 1, 'h' : 1, 'cpp' : 1, 'hpp' : 1, 'java' : 1, 'python' : 1, 'sh' : 1, 'pom' : 1}
 let g:ycm_autoclose_preview_window_after_insertion = 1
 let g:ycm_autoclose_preview_window_after_completion = 1
-let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
+let g:ycm_global_ycm_extra_conf = '~/preferences/ycm_extra_conf.py'
 let g:ycm_confirm_extra_conf = 1
 let g:ycm_always_populate_location_list = 1
 
