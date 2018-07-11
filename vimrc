@@ -173,6 +173,8 @@ noremap x "9x
 
 """""""""""""""""""""""""""""""""""" CtrlP
 set wildignore+=*.swp,*.class,*.so
+let g:ctrlp_user_command = ['.git', 'cd %s && git ls-files --recurse-submodules']
+let g:ctrlp_root_markers = ['.gitmodules']
 
 """""""""""""""""""""""""""""""""""" YouCompleteMe
 let g:ycm_filetype_whitelist = {'c' : 1, 'h' : 1, 'cpp' : 1, 'hpp' : 1, 'java' : 1, 'python' : 1, 'sh' : 1, 'pom' : 1}

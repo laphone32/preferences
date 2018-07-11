@@ -8,3 +8,9 @@ export LAPHONE_PRODUCTION_TERM="$SETTERM --fg=white --bg=#691B1B --title=>>>PROD
 export LAPHONE_UAT_TERM="$SETTERM --fg=white --bg=#245524 --title=>>>UAT<<<"
 export LAPHONE_REMOTE_TERM="$SETTERM --fg=white --bg=#34346565a4a4 --title=>>>REMOTE<<<"
 
+function recover {
+    $LAPHONE_DEFAULT_TERM
+}
+
+trap recover EXIT;
+
