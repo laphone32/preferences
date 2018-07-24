@@ -13,12 +13,12 @@ Plug 'Raimondi/delimitMate'
 Plug 'ctrlpvim/ctrlp.vim'
 Plug 'scrooloose/nerdtree'
 Plug 'Xuyuanp/nerdtree-git-plugin'
-Plug 'Valloric/YouCompleteMe'
+Plug 'Valloric/YouCompleteMe', {'do' : './install.py --all'}
 Plug 'itchyny/lightline.vim'
 Plug 'airblade/vim-rooter'
 Plug 'scrooloose/syntastic'
 Plug 'AndrewRadev/linediff.vim'
-Plug 'JalaiAmitahl/maven-compiler.vim', {'do' : './install.py --all'}
+Plug 'JalaiAmitahl/maven-compiler.vim'
 Plug 'docker/docker' , {'rtp' : '/contrib/syntax/vim/', 'for' : 'dockerfile'}
 call plug#end()
 
