@@ -128,7 +128,17 @@ def FlagsForClangComplete(root):
 
 def FlagsForInclude(root):
     try:
-        include_path = FindNearest(root, 'include')
+        try:
+            include_path = os.path.abspath(os.path.join(FindNearest(root, '.git'), os.pardir))
+            while True:
+                parent = os.path.abspath(os.path.join(include_path, os.pardir))
+                if not os.path.isfile(os.path.join(parent, '.gitmodules')):
+                    break;
+
+                include_path = parent
+        except:
+            include_path = FindNearest(root, 'include')
+
         flags = []
         for dirroot, dirnames, filenames in os.walk(include_path):
             for dir_path in dirnames:
