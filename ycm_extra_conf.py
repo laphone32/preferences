@@ -21,23 +21,17 @@ BASE_FLAGS = [
 
 SOURCE_EXTENSIONS = [
         '.cpp',
-        '.cxx',
         '.cc',
         '.c',
-        '.m',
-        '.mm'
         ]
 
 SOURCE_DIRECTORIES = [
         'src',
-        'lib'
         ]
 
 HEADER_EXTENSIONS = [
         '.h',
-        '.hxx',
         '.hpp',
-        '.hh'
         ]
 
 HEADER_DIRECTORIES = [

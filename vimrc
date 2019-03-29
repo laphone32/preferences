@@ -10,7 +10,6 @@ call plug#begin('~/.vim/bundle')
 Plug 'tpope/vim-fugitive'
 Plug 'vim-scripts/L9'
 Plug 'Raimondi/delimitMate'
-Plug 'ctrlpvim/ctrlp.vim'
 Plug 'scrooloose/nerdtree'
 Plug 'Xuyuanp/nerdtree-git-plugin'
 Plug 'Valloric/YouCompleteMe', {'do' : './install.py --all'}
@@ -20,6 +19,8 @@ Plug 'scrooloose/syntastic'
 Plug 'AndrewRadev/linediff.vim'
 Plug 'JalaiAmitahl/maven-compiler.vim'
 Plug 'docker/docker' , {'rtp' : '/contrib/syntax/vim/', 'for' : 'dockerfile'}
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --bin' }
+Plug 'junegunn/fzf.vim'
 call plug#end()
 
 " For Delphi
@@ -140,9 +141,10 @@ map <A-l> :tabn<CR>
 imap <A-l> <ESC>:tabn<CR>
 map <A-h> :tabp<CR>
 imap <A-h> <ESC>:tabp<CR>
-" map <C-n> :call NERDTreeToggleAndFind() <CR>
+"map <C-n> :call NERDTreeToggleAndFind() <CR>
 map <C-n> :NERDTreeToggle<CR>
-map <C-b> :CtrlPBuffer<CR>
+map <C-p> :FZF<CR>
+map <C-b> :History<CR>
 
 map <F8> :vertical diffsplit 
 map <F9> :set cursorline!<CR>
@@ -153,9 +155,33 @@ noremap dd "9dd
 noremap x "9x
 
 """""""""""""""""""""""""""""""""""" CtrlP
-set wildignore+=*.swp,*.class,*.so
+set wildignore+=*.sw*,*.class,*.so,**/build/**
 let g:ctrlp_user_command = ['.git', 'cd %s && git ls-files --recurse-submodules']
 let g:ctrlp_root_markers = ['.gitmodules']
+let g:ctrlp_max_files = 0
+let g:ctrlp_custom_ignore = {
+  \ 'dir':  '\v[\/]\.(git|hg|svn)$',
+  \ 'file': '\v\.(exe|so|dll)$',
+  \ 'link': 'some_bad_symbolic_links',
+  \ }
+
+"""""""""""""""""""""""""""""""""""" FZF
+let g:fzf_colors =
+\ { 'fg':      ['fg', 'Normal'],
+  \ 'bg':      ['bg', 'Normal'],
+  \ 'hl':      ['fg', 'Comment'],
+  \ 'fg+':     ['fg', 'CursorLine', 'CursorColumn', 'Normal'],
+  \ 'bg+':     ['bg', 'CursorLine', 'CursorColumn'],
+  \ 'hl+':     ['fg', 'Statement'],
+  \ 'info':    ['fg', 'PreProc'],
+  \ 'border':  ['fg', 'Ignore'],
+  \ 'prompt':  ['fg', 'Conditional'],
+  \ 'pointer': ['fg', 'Exception'],
+  \ 'marker':  ['fg', 'Keyword'],
+  \ 'spinner': ['fg', 'Label'],
+  \ 'header':  ['fg', 'Comment'] }
+let g:fzf_history_dir = '~/.local/share/fzf-history'
+
 
 """""""""""""""""""""""""""""""""""" YouCompleteMe
 let g:ycm_filetype_whitelist = {'c' : 1, 'h' : 1, 'cpp' : 1, 'hpp' : 1, 'java' : 1, 'python' : 1, 'sh' : 1, 'pom' : 1}
@@ -352,7 +378,9 @@ let g:vimfiler_force_overwrite_statusline = 0
 let g:vimshell_force_overwrite_statusline = 0
 
 " vim-rooter
+let g:rooter_change_directory_for_non_project_files = 'current'
 let g:rooter_silent_chdir = 1
+let g:rooter_patterns = ['.gitmodules', '.git/']
 
 " Syntastic
 let g:syntastic_always_populate_loc_list = 1
