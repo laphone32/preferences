@@ -144,7 +144,7 @@ imap <A-h> <ESC>:tabp<CR>
 "map <C-n> :call NERDTreeToggleAndFind() <CR>
 map <C-n> :NERDTreeToggle<CR>
 map <C-p> :FZF<CR>
-map <C-b> :History<CR>
+map <C-b> :Buffer<CR>
 
 map <F8> :vertical diffsplit 
 map <F9> :set cursorline!<CR>
