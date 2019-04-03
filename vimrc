@@ -187,8 +187,8 @@ let g:fzf_history_dir = '~/.local/share/fzf-history'
 let g:ycm_filetype_whitelist = {'c' : 1, 'h' : 1, 'cpp' : 1, 'hpp' : 1, 'java' : 1, 'python' : 1, 'sh' : 1, 'pom' : 1}
 let g:ycm_autoclose_preview_window_after_insertion = 1
 let g:ycm_autoclose_preview_window_after_completion = 1
-let g:ycm_global_ycm_extra_conf = '~/preferences/ycm_extra_conf.py'
-let g:ycm_confirm_extra_conf = 1
+"let g:ycm_global_ycm_extra_conf = '~/preferences/ycm_extra_conf.py'
+" let g:ycm_confirm_extra_conf = 1
 let g:ycm_always_populate_location_list = 1
 
 " Semantic trigger
