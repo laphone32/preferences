@@ -12,7 +12,7 @@ Plug 'vim-scripts/L9'
 Plug 'Raimondi/delimitMate'
 Plug 'scrooloose/nerdtree'
 Plug 'Xuyuanp/nerdtree-git-plugin'
-Plug 'Valloric/YouCompleteMe', {'do' : './install.py --all'}
+Plug 'Valloric/YouCompleteMe', {'do' : './install.py --clangd-completer'}
 Plug 'itchyny/lightline.vim'
 Plug 'airblade/vim-rooter'
 Plug 'scrooloose/syntastic'
@@ -188,8 +188,12 @@ let g:ycm_filetype_whitelist = {'c' : 1, 'h' : 1, 'cpp' : 1, 'hpp' : 1, 'java' :
 let g:ycm_autoclose_preview_window_after_insertion = 1
 let g:ycm_autoclose_preview_window_after_completion = 1
 "let g:ycm_global_ycm_extra_conf = '~/preferences/ycm_extra_conf.py'
-" let g:ycm_confirm_extra_conf = 1
+let g:ycm_confirm_extra_conf = 1
 let g:ycm_always_populate_location_list = 1
+" Let clangd fully control code completion
+let g:ycm_clangd_uses_ycmd_caching = 0
+" Use installed clangd, not YCM-bundled clangd which doesn't get updates.
+let g:ycm_clangd_binary_path = exepath("clangd")
 
 " Semantic trigger
 let g:ycm_semantic_triggers =  {
