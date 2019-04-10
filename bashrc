@@ -6,7 +6,10 @@ PREFERENCES_BIN=$PREFERENCES_DIR/bin
 . $PREFERENCES_BIN/term_util.sh
 $LAPHONE_DEFAULT_TERM
 
-export PS1='\[\033[0;32m\]\u\[\e[0m\]:\w\[\033[0;33m\]$(__git_ps1)\[\e[0m\]$ '
+export GIT_PS1_SHOWDIRTYSTATE=1
+export GIT_PS1_SHOWSTASHSTATE=1
+
+export PS1='\[\033[0;32m\]\u\[\e[0m\]:\w\[\033[0;33m\]$(__git_ps1)\[\e[0m\]# '
 
 export PATH=$PATH:$PREFERENCES_BIN
 
