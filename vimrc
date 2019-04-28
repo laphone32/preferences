@@ -12,7 +12,7 @@ Plug 'vim-scripts/L9'
 Plug 'Raimondi/delimitMate'
 Plug 'scrooloose/nerdtree'
 Plug 'Xuyuanp/nerdtree-git-plugin'
-Plug 'Valloric/YouCompleteMe', {'do' : './install.py --clangd-completer'}
+Plug 'Valloric/YouCompleteMe', {'do' : 'python install.py --clangd-completer'}
 Plug 'itchyny/lightline.vim'
 Plug 'airblade/vim-rooter'
 Plug 'scrooloose/syntastic'
