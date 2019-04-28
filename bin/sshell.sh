@@ -1,6 +1,7 @@
 #!/bin/bash
 
-. term_util.sh
+HERE="$(dirname "$0")"
+. $HERE/term_util.sh
 
 for argu in $@
 do
