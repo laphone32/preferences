@@ -7,10 +7,10 @@ function setTerm {
 }
 
 export LAPHONE_DEFAULT_TERM="setTerm white #555557575353 [LOCAL]"
-export LAPHONE_PRODUCTION_TERM="setTerm white #691B1B >>>PROD<<<"
-export LAPHONE_UAT_TERM="setTerm white #245524 >>>UAT<<<"
-export LAPHONE_REMOTE_TERM="setTerm white #34346565a4a4 >>>REMOTE<<<"
-export LAPHONE_LOCAL_TERM="setTerm white #0b0a2b >>>LOCALHOST<<<"
+export LAPHONE_PRODUCTION_TERM="setTerm white #691B1B >PROD<"
+export LAPHONE_UAT_TERM="setTerm white #245524 >UAT<"
+export LAPHONE_REMOTE_TERM="setTerm white #34346565a4a4 >REMOTE<"
+export LAPHONE_DOCKER_TERM="setTerm white #0b0a2b >DOCKER<"
 
 function recover {
     $LAPHONE_DEFAULT_TERM
