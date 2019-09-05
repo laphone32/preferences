@@ -1,0 +1,16 @@
+# Local gitignore
+
+# vim
+*.swp
+*.swo
+
+# MACOSX
+**/.DS_Store
+
+# python
+*.pyc
+*.pyo
+
+# redis
+**/dump.rdb
+
