@@ -13,6 +13,8 @@ if [ -f $BASH_PROFILE_NAME ]; then
     echo "PREFERENCES_BIN=$PREFERENCES_DIR/bin" >> $BASH_PROFILE_NAME
     echo "source $PREFERENCES_DIR/bashrc" >>  $BASH_PROFILE_NAME
     echo "" >>  $BASH_PROFILE_NAME
+else
+    echo "Cannot find neither .bashrc nor .bash_profile"
 fi
 
 git config --global core.excludesfile $PREFERENCES_DIR/gitignore
