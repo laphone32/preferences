@@ -23,6 +23,15 @@ Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --bin' }
 Plug 'junegunn/fzf.vim'
 call plug#end()
 
+" Detect OS - Linux | Windows | Darwin
+if !exists("g:os")
+    if has("win64") || has("win32") || has("win16")
+        let g:os = "Windows"
+    else
+        let g:os = substitute(system('uname'), '\n', '', '')
+    endif
+endif
+
 " For Delphi
 let pascal_delphi = 1
 
@@ -43,7 +52,12 @@ set smartindent
 set autoindent
 set nocursorline
 set fileformats=unix,dos
-set clipboard=unnamedplus
+
+if g:os == "Linux"
+    set clipboard=unnamedplus
+else
+    set clipboard=unnamed
+endif
 
 set ruler
 set hlsearch
