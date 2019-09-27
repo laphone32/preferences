@@ -1,0 +1,8 @@
+
+source ~/preferences/vimrc
+
+set clipboard+=ideaput
+
+map <C-p> :action GotoFile<CR>
+map <C-b> :action RecentFiles<CR>
+

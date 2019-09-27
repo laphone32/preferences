@@ -164,6 +164,8 @@ map <F8> :vertical diffsplit
 map <F9> :set cursorline!<CR>
 map <F10> :set cursorcolumn!<CR>
 
+map <A-F12> :terminal<CR>
+
 " Do not cover the register for the content operated by `dd' and `x'
 noremap dd "9dd
 noremap x "9x
