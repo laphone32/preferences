@@ -12,4 +12,5 @@ nnoremap gi :action GotoImplementation<CR>
 nnoremap gu :action FindUsages<CR>
 
 nnoremap gb :action Back<CR>
+nnoremap gf :action Forward<CR>
 
