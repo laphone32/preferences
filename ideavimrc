@@ -18,4 +18,6 @@ nnoremap ge :action GotoNextError<CR>
 nnoremap gb :action Back<CR>
 nnoremap gf :action Forward<CR>
 
+""" Debugger
+nnoremap dr :action Resume<CR>
 
