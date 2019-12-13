@@ -27,4 +27,8 @@ alias gvim='gvim --cmd "lang en_US.UTF-8" -u $PREFERENCES_DIR/vimrc'
 alias ssh='$PREFERENCES_BIN/sshell.sh'
 alias python='python3'
 
+# ripgrep
+if type rg &> /dev/null; then
+    export FZF_DEFAULT_COMMAND='rg --files --hidden'
+fi
 

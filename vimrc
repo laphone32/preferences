@@ -12,15 +12,17 @@ Plug 'vim-scripts/L9'
 Plug 'Raimondi/delimitMate'
 Plug 'scrooloose/nerdtree'
 Plug 'Xuyuanp/nerdtree-git-plugin'
-Plug 'Valloric/YouCompleteMe', {'do' : 'python3 install.py --clangd-completer'}
+" Plug 'Valloric/YouCompleteMe', {'do' : 'python3 install.py --clangd-completer'}
 Plug 'itchyny/lightline.vim'
 Plug 'airblade/vim-rooter'
-Plug 'scrooloose/syntastic'
+" Plug 'scrooloose/syntastic'
 Plug 'AndrewRadev/linediff.vim'
 Plug 'JalaiAmitahl/maven-compiler.vim'
 Plug 'docker/docker' , {'rtp' : '/contrib/syntax/vim/', 'for' : 'dockerfile'}
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --bin' }
 Plug 'junegunn/fzf.vim'
+Plug 'derekwyatt/vim-scala'
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
 call plug#end()
 
 " Detect OS - Linux | Windows | Darwin
@@ -79,11 +81,13 @@ set foldnestmax=15
 colorscheme desert
 
 " Set GUI fonts
-"set guifont=Monaco\ 18
-set guifont=Hermit\ bold\ 18
-"set guifont=Monaco:h16
-"set guifont=Droid\ Sans\ Mono\ 20
-"set guifont=Source_Code_Pro:h14
+if g:os == 'Linux'
+    " Monaco / Hermit / Droid Sans Mono / Source Code Pro 
+    set guifont=Hermit\ bold\ 20
+else
+    set guifont=Hermit:h20
+endif
+
 " Without toolbar
 set guioptions-=T
 " Without gui tabbar, always use modified text tabbar
@@ -100,7 +104,7 @@ set guioptions-=L
 " Disable all cursor blinking
 "set guicursor+=a:blinkon0
 " Startup in full screen size
-au GUIEnter * simalt ~x
+" au GUIEnter * simalt ~x
 if has("gui_running")
     " GUI is running or is about to start.
     " Maximize gvim window.
@@ -115,15 +119,28 @@ set ambiwidth=double
 
 " To know the filetype of *.pc
 filetype plugin on
-autocmd BufRead,BufEnter *.pc set filetype=esqlc
+augroup esqlGroup
+  autocmd! 
+  autocmd BufRead,BufEnter *.pc set filetype=esqlc
+augroup end
+
+" Treat *.sbt as scala
+augroup scalaGroup
+  autocmd!
+  au BufRead,BufNewFile *.sbt set filetype=scala
+  autocmd FileType json syntax match Comment +\/\/.\+$+
+augroup end
 
 " Start in the line last read
 if has("autocmd")
-	autocmd BufRead *.txt set tw=1024
-	autocmd BufReadPost *
-		\ if line("'\"") > 0 && line ("'\"") <= line("$") |
-		\   exe "normal g'\"" |
-		\ endif
+    augroup lastReadGroup
+      autocmd!
+      autocmd BufRead *.txt set tw=1024
+      autocmd BufReadPost *
+          \ if line("'\"") > 0 && line ("'\"") <= line("$") |
+          \   exe "normal g'\"" |
+          \ endif
+    augroup end
 endif
 
 " Key-mappings for changing tabs
@@ -155,8 +172,10 @@ map <A-l> :tabn<CR>
 imap <A-l> <ESC>:tabn<CR>
 map <A-h> :tabp<CR>
 imap <A-h> <ESC>:tabp<CR>
-"map <C-n> :call NERDTreeToggleAndFind() <CR>
+
+"    map <C-n> :call NERDTreeToggleAndFind() <CR>
 map <C-n> :NERDTreeToggle<CR>
+
 map <C-p> :FZF<CR>
 map <C-b> :Buffer<CR>
 
@@ -189,7 +208,7 @@ let g:fzf_history_dir = '~/.local/share/fzf-history'
 
 
 """""""""""""""""""""""""""""""""""" YouCompleteMe
-let g:ycm_filetype_whitelist = {'c' : 1, 'h' : 1, 'cpp' : 1, 'hpp' : 1, 'java' : 1, 'python' : 1, 'sh' : 1, 'pom' : 1}
+let g:ycm_filetype_whitelist = {'c' : 1, 'h' : 1, 'cpp' : 1, 'hpp' : 1, 'java' : 1, 'python' : 1, 'sh' : 1, 'pom' : 1, 'scala' : 1}
 let g:ycm_autoclose_preview_window_after_insertion = 1
 let g:ycm_autoclose_preview_window_after_completion = 1
 let g:ycm_confirm_extra_conf = 1
@@ -206,10 +225,61 @@ let g:ycm_semantic_triggers =  {
             \ 'cs,lua,javascript': ['re!\w{2}'],
             \ }
 
+let g:ycm_language_server = [
+            \ { 'name': 'scala',
+            \   'filetypes': [ 'scala' ],
+            \   'cmdline': [ 'metals-vim' ],
+            \   'project_root_files': [ 'build.sbt' ]
+            \ }
+            \ ]
+
 
 " remove annoying preview window appearing on top of vim
 let g:ycm_add_preview_to_completeopt = 0
-set completeopt-=preview
+" set completeopt-=preview
+" nmap <silent> gd :YcmCompleter GoToDeclaration<CR>
+" nmap <silent> gy <Plug>(coc-type-definition)
+" nmap <silent> gi :YcmCompleter GoToImplementation<CR>
+" nmap <silent> gr :YcmCompleter GoToReferences<CR>
+ 
+" Metals
+command! -nargs=0 MetalsImport :call CocRequestAsync('metals', 'workspace/executeCommand', { 'command': 'build-import' })
+command! -nargs=0 MetalsDoctor :call CocRequestAsync('metals', 'workspace/executeCommand', { 'command': 'doctor-run' })
+command! -nargs=0 MetalsConnect :call CocRequestAsync('metals', 'workspace/executeCommand', { 'command': 'build-connect' })
+
+" COC
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
+
+" Use man for show documentation in preview window
+nnoremap <silent> gh :call <SID>show_documentation()<CR>
+
+function! s:show_documentation()
+  if &filetype == 'vim'
+    execute 'h '.expand('<cword>')
+  else
+    call CocAction('doHover')
+  endif
+endfunction
+
+" use enter to confirm the completion
+inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+
+" Close the preview window when completion is done.
+autocmd! CompleteDone * if pumvisible() == 0 | pclose | endif
+
+augroup cocGroup
+  autocmd!
+  " Setup formatexpr specified filetype(s).
+  autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
+  " Update signature help on jump placeholder
+  autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
+  autocmd CursorHold * silent call CocActionAsync('highlight')
+augroup end
+
+set updatetime=300
 
 " Color
 highlight Pmenu ctermfg=0 ctermbg=242 guifg=black guibg=gray45
@@ -254,7 +324,10 @@ function! NERDTreeToggleAndFind()
   endif
 endfunction
 
-autocmd BufEnter * call SyncTree()
+augroup nerdTreeGroup
+  autocmd!
+  autocmd BufEnter * call SyncTree()
+augroup end
 
 """""""""""""""""""""""""""""""""""""" lightline
 let g:lightline = {
@@ -402,4 +475,7 @@ let g:EclimJavaSearchSingleResult = 'edit'
 let g:EclimJavaCallHierarchyDefaultAction = 'edit'
 let g:EclimMakeLCD = 1
 let g:EclimCompletionMethod = 'omnifunc'
+
+" scala-vim
+let g:scala_scaladoc_indent = 1
 

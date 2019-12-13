@@ -1,0 +1,21 @@
+{
+  "languageserver": {
+    "metals": {
+      "command": "metals-vim",
+      "rootPatterns": ["build.sbt"],
+      "filetypes": ["scala", "sbt"]
+    },
+    "clangd": {
+      "command": "clangd",
+      "args": ["--background-index"],
+      "rootPatterns": ["compile_flags.txt", "compile_command.json", ".vim/", ".git"],
+      "filetypes": ["c", "cpp", "objc", "objcpp"]
+    }
+  },
+  // Needed for type formatting on multiline strings
+  "coc.preferences.formatOnType": true,
+  "suggest.noselect": false,
+  "suggest.enablePreview": true,
+  "suggest.acceptSuggestionOnCommitCharacter": true,
+  "diagnostic.refreshOnInsertMode": true
+}

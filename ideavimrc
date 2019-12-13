@@ -21,8 +21,8 @@ nnoremap gu :action FindUsages<CR>
 nnoremap ge :action GotoNextError<CR>
 
 """ Locations
-nnoremap gb :action Back<CR>
-nnoremap gf :action Forward<CR>
+nnoremap <C-o> :action Back<CR>
+nnoremap <C-i> :action Forward<CR>
 
 """ Debugger
 nnoremap dr :action Resume<CR>

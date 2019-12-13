@@ -14,3 +14,7 @@
 # redis
 **/dump.rdb
 
+# metals
+**/.metals/
+**/.bloop/
+
