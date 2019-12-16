@@ -339,11 +339,11 @@ let g:NERDTreeStatusline = -1
 let g:lightline = {
       \ 'colorscheme': 'wombat',
       \ 'active': {
-      \   'left': [ [ 'mode', 'paste' ], [ 'fugitive', 'filename', 'cocerror' ] ],
+      \   'left': [ [ 'mode', 'paste' ], [ 'gitbranch', 'filename', 'cocerror' ] ],
       \   'right': [ [ 'lineinfo' ], ['percent'], [ 'fileformat', 'fileencoding', 'filetype' ] ]
       \ },
       \ 'component_function': {
-      \   'fugitive': 'LightLineFugitive',
+      \   'gitbranch': 'LightLineGitBranch',
       \   'filename': 'LightLineFilename',
       \   'fileformat': 'LightLineFileformat',
       \   'filetype': 'LightLineFiletype',
@@ -376,7 +376,7 @@ function! LightLineFilename()
         \ ('' != LightLineModified() ? ' ' . LightLineModified() : '')
 endfunction
   
-function! LightLineFugitive()
+function! LightLineGitBranch()
   try
     if expand('%:t') !~? 'location\|NERD' && exists('*fugitive#head')
       let mark = ''  " edit here for cool mark
@@ -403,7 +403,7 @@ endfunction
 function! LightLineMode()
   let fname = expand('%:t')
   return fname == 'location' ? 'Locations' :
-        \ fname =~ 'NERD_tree' ? 'NERDTree' :
+        \ fname =~ 'NERD_tree' ? 'NERD' :
         \ winwidth(0) > 60 ? lightline#mode() : ''
 endfunction
 
