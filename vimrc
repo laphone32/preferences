@@ -339,7 +339,7 @@ let g:NERDTreeStatusline = -1
 let g:lightline = {
       \ 'colorscheme': 'wombat',
       \ 'active': {
-      \   'left': [ [ 'mode', 'paste' ], [ 'fugitive', 'filename', 'cocstatus' ] ],
+      \   'left': [ [ 'mode', 'paste' ], [ 'fugitive', 'filename', 'cocerror' ] ],
       \   'right': [ [ 'lineinfo' ], ['percent'], [ 'fileformat', 'fileencoding', 'filetype' ] ]
       \ },
       \ 'component_function': {
@@ -349,7 +349,10 @@ let g:lightline = {
       \   'filetype': 'LightLineFiletype',
       \   'fileencoding': 'LightLineFileencoding',
       \   'mode': 'LightLineMode',
-      \   'cocstatus': 'coc#status',
+      \   'cocerror': 'LightLineCocError',
+      \ },
+      \ 'component_type': {
+      \ 'cocerror': 'error',
       \ },
       \ 'subseparator': { 'left': '|', 'right': '|' }
       \ }
@@ -402,6 +405,19 @@ function! LightLineMode()
   return fname == 'location' ? 'Locations' :
         \ fname =~ 'NERD_tree' ? 'NERDTree' :
         \ winwidth(0) > 60 ? lightline#mode() : ''
+endfunction
+
+function! LightLineCocError()
+  let s:error_sign = '❌ '
+  let info = get(b:, 'coc_diagnostic_info', {})
+  if empty(info)
+    return ''
+  endif
+  let errmsgs = []
+  if get(info, 'error', 0)
+    call add(errmsgs, s:error_sign . info['error'])
+  endif
+  return trim(join(errmsgs, ' ') . ' ' . get(g:, 'coc_status', ''))
 endfunction
 
 augroup lightlineGroup
