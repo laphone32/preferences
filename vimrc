@@ -241,12 +241,12 @@ let g:fzf_history_dir = '~/.local/share/fzf-history'
 "" nmap <silent> gi :YcmCompleter GoToImplementation<CR>
 "" nmap <silent> gr :YcmCompleter GoToReferences<CR>
  
-" Metals
+"""""""""""""""""""""""""""""""""""" Metals
 command! -nargs=0 MetalsImport :call CocRequestAsync('metals', 'workspace/executeCommand', { 'command': 'build-import' })
 command! -nargs=0 MetalsDoctor :call CocRequestAsync('metals', 'workspace/executeCommand', { 'command': 'doctor-run' })
 command! -nargs=0 MetalsConnect :call CocRequestAsync('metals', 'workspace/executeCommand', { 'command': 'build-connect' })
 
-" COC
+"""""""""""""""""""""""""""""""""""" Coc
 nmap <silent> gd <Plug>(coc-definition)
 nmap <silent> gy <Plug>(coc-type-definition)
 nmap <silent> gi <Plug>(coc-implementation)
@@ -326,6 +326,9 @@ endfunction
 augroup nerdTreeGroup
   autocmd!
   autocmd BufEnter * call SyncTree()
+  autocmd StdinReadPre * let s:std_in=1
+  autocmd VimEnter * if argc() == 0 && !exists("s:std_in") && v:this_session == "" | NERDTree | endif
+  autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
 augroup end
 
 " Let statusline handle the status line
@@ -335,7 +338,7 @@ let g:NERDTreeStatusline = -1
 let g:lightline = {
       \ 'colorscheme': 'wombat',
       \ 'active': {
-      \   'left': [ [ 'mode', 'paste' ], [ 'fugitive', 'filename' ] ],
+      \   'left': [ [ 'mode', 'paste' ], [ 'fugitive', 'filename', 'cocstatus' ] ],
       \   'right': [ [ 'lineinfo' ], ['percent'], [ 'fileformat', 'fileencoding', 'filetype' ] ]
       \ },
       \ 'component_function': {
@@ -345,6 +348,7 @@ let g:lightline = {
       \   'filetype': 'LightLineFiletype',
       \   'fileencoding': 'LightLineFileencoding',
       \   'mode': 'LightLineMode',
+      \   'cocstatus': 'coc#status',
       \ },
       \ 'subseparator': { 'left': '|', 'right': '|' }
       \ }
@@ -362,16 +366,15 @@ endfunction
 
 function! LightLineFilename()
   let fname = expand('%:t')
-  return fname == '__Tagbar__' ? g:lightline.fname :
-        \ fname =~ '__Gundo\|NERD_tree' ? '' :
+  return fname =~ 'location\|NERD_tree' ? '' :
         \ ('' != LightLineReadonly() ? LightLineReadonly() . ' ' : '') .
         \ ('' != fname ? fname : '[No Name]') .
         \ ('' != LightLineModified() ? ' ' . LightLineModified() : '')
 endfunction
-
+  
 function! LightLineFugitive()
   try
-    if expand('%:t') !~? 'Tagbar\|Gundo\|NERD' && exists('*fugitive#head')
+    if expand('%:t') !~? 'Gundo\|NERD' && exists('*fugitive#head')
       let mark = ''  " edit here for cool mark
       let _ = fugitive#head()
       return strlen(_) ? mark._ : ''
@@ -395,19 +398,15 @@ endfunction
 
 function! LightLineMode()
   let fname = expand('%:t')
-  return fname == '__Tagbar__' ? 'Tagbar' :
-        \ fname == '__Gundo__' ? 'Gundo' :
-        \ fname == '__Gundo_Preview__' ? 'Gundo Preview' :
+  return fname == 'location' ? 'Locations' :
         \ fname =~ 'NERD_tree' ? 'NERDTree' :
         \ winwidth(0) > 60 ? lightline#mode() : ''
 endfunction
 
-let g:tagbar_status_func = 'TagbarStatusFunc'
-
-function! TagbarStatusFunc(current, sort, fname, ...) abort
-    let g:lightline.fname = a:fname
-  return lightline#statusline(0)
-endfunction
+augroup lightlineGroup
+  autocmd!
+  autocmd User CocDiagnosticChange call lightline#update()
+augroup end
 
 " vim-rooter
 let g:rooter_change_directory_for_non_project_files = 'current'
