@@ -251,6 +251,7 @@ nmap <silent> gd <Plug>(coc-definition)
 nmap <silent> gy <Plug>(coc-type-definition)
 nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
+nmap <silent> dl :CocList diagnostics<CR>
 
 " Use man for show documentation in preview window
 nnoremap <silent> gh :call <SID>show_documentation()<CR>
@@ -374,7 +375,7 @@ endfunction
   
 function! LightLineFugitive()
   try
-    if expand('%:t') !~? 'Gundo\|NERD' && exists('*fugitive#head')
+    if expand('%:t') !~? 'location\|NERD' && exists('*fugitive#head')
       let mark = ''  " edit here for cool mark
       let _ = fugitive#head()
       return strlen(_) ? mark._ : ''
