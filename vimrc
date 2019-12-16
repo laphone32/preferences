@@ -15,7 +15,6 @@ Plug 'Xuyuanp/nerdtree-git-plugin'
 " Plug 'Valloric/YouCompleteMe', {'do' : 'python3 install.py --clangd-completer'}
 Plug 'itchyny/lightline.vim'
 Plug 'airblade/vim-rooter'
-" Plug 'scrooloose/syntastic'
 Plug 'AndrewRadev/linediff.vim'
 Plug 'JalaiAmitahl/maven-compiler.vim'
 Plug 'docker/docker' , {'rtp' : '/contrib/syntax/vim/', 'for' : 'dockerfile'}
@@ -337,7 +336,7 @@ let g:lightline = {
       \ 'colorscheme': 'wombat',
       \ 'active': {
       \   'left': [ [ 'mode', 'paste' ], [ 'fugitive', 'filename' ], ['ctrlpmark'] ],
-      \   'right': [ [ 'syntastic', 'lineinfo' ], ['percent'], [ 'fileformat', 'fileencoding', 'filetype' ] ]
+      \   'right': [ [ 'lineinfo' ], ['percent'], [ 'fileformat', 'fileencoding', 'filetype' ] ]
       \ },
       \ 'component_function': {
       \   'fugitive': 'LightLineFugitive',
@@ -347,12 +346,6 @@ let g:lightline = {
       \   'fileencoding': 'LightLineFileencoding',
       \   'mode': 'LightLineMode',
       \   'ctrlpmark': 'CtrlPMark',
-      \ },
-      \ 'component_expand': {
-      \   'syntastic': 'SyntasticStatuslineFlag',
-      \ },
-      \ 'component_type': {
-      \   'syntastic': 'error',
       \ },
       \ 'subseparator': { 'left': '|', 'right': '|' }
       \ }
@@ -443,25 +436,10 @@ function! TagbarStatusFunc(current, sort, fname, ...) abort
   return lightline#statusline(0)
 endfunction
 
-augroup AutoSyntastic
-  autocmd!
-  autocmd BufWritePost *.c,*.cpp call s:syntastic()
-augroup END
-function! s:syntastic()
-  SyntasticCheck
-  call lightline#update()
-endfunction
-
 " vim-rooter
 let g:rooter_change_directory_for_non_project_files = 'current'
 let g:rooter_silent_chdir = 1
 let g:rooter_patterns = ['.gitmodules', '.git/']
-
-" Syntastic
-let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_loc_list = 1
-let g:syntastic_check_on_open = 1
-let g:syntastic_check_on_wq = 0
 
 " Eclim
 let g:EclimJavaSearchSingleResult = 'edit'
