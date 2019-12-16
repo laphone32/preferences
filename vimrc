@@ -208,39 +208,39 @@ let g:fzf_history_dir = '~/.local/share/fzf-history'
 
 
 """""""""""""""""""""""""""""""""""" YouCompleteMe
-let g:ycm_filetype_whitelist = {'c' : 1, 'h' : 1, 'cpp' : 1, 'hpp' : 1, 'java' : 1, 'python' : 1, 'sh' : 1, 'pom' : 1, 'scala' : 1}
-let g:ycm_autoclose_preview_window_after_insertion = 1
-let g:ycm_autoclose_preview_window_after_completion = 1
-let g:ycm_confirm_extra_conf = 1
-let g:ycm_always_populate_location_list = 1
-" Let clangd fully control code completion
-let g:ycm_clangd_uses_ycmd_caching = 0
-" Use installed clangd, not YCM-bundled clangd which doesn't get updates.
-let g:ycm_clangd_binary_path = exepath("clangd")
-let g:ycm_clangd_args = ['-background-index']
-
-" Semantic trigger
-let g:ycm_semantic_triggers =  {
-            \ 'c,cpp,python,java,go,erlang,perl': ['re!\w{2}'],
-            \ 'cs,lua,javascript': ['re!\w{2}'],
-            \ }
-
-let g:ycm_language_server = [
-            \ { 'name': 'scala',
-            \   'filetypes': [ 'scala' ],
-            \   'cmdline': [ 'metals-vim' ],
-            \   'project_root_files': [ 'build.sbt' ]
-            \ }
-            \ ]
-
-
-" remove annoying preview window appearing on top of vim
-let g:ycm_add_preview_to_completeopt = 0
-" set completeopt-=preview
-" nmap <silent> gd :YcmCompleter GoToDeclaration<CR>
-" nmap <silent> gy <Plug>(coc-type-definition)
-" nmap <silent> gi :YcmCompleter GoToImplementation<CR>
-" nmap <silent> gr :YcmCompleter GoToReferences<CR>
+"let g:ycm_filetype_whitelist = {'c' : 1, 'h' : 1, 'cpp' : 1, 'hpp' : 1, 'java' : 1, 'python' : 1, 'sh' : 1, 'pom' : 1, 'scala' : 1}
+"let g:ycm_autoclose_preview_window_after_insertion = 1
+"let g:ycm_autoclose_preview_window_after_completion = 1
+"let g:ycm_confirm_extra_conf = 1
+"let g:ycm_always_populate_location_list = 1
+"" Let clangd fully control code completion
+"let g:ycm_clangd_uses_ycmd_caching = 0
+"" Use installed clangd, not YCM-bundled clangd which doesn't get updates.
+"let g:ycm_clangd_binary_path = exepath("clangd")
+"let g:ycm_clangd_args = ['-background-index']
+"
+"" Semantic trigger
+"let g:ycm_semantic_triggers =  {
+"            \ 'c,cpp,python,java,go,erlang,perl': ['re!\w{2}'],
+"            \ 'cs,lua,javascript': ['re!\w{2}'],
+"            \ }
+"
+"let g:ycm_language_server = [
+"            \ { 'name': 'scala',
+"            \   'filetypes': [ 'scala' ],
+"            \   'cmdline': [ 'metals-vim' ],
+"            \   'project_root_files': [ 'build.sbt' ]
+"            \ }
+"            \ ]
+"
+"
+"" remove annoying preview window appearing on top of vim
+"let g:ycm_add_preview_to_completeopt = 0
+"" set completeopt-=preview
+"" nmap <silent> gd :YcmCompleter GoToDeclaration<CR>
+"" nmap <silent> gy <Plug>(coc-type-definition)
+"" nmap <silent> gi :YcmCompleter GoToImplementation<CR>
+"" nmap <silent> gr :YcmCompleter GoToReferences<CR>
  
 " Metals
 command! -nargs=0 MetalsImport :call CocRequestAsync('metals', 'workspace/executeCommand', { 'command': 'build-import' })
@@ -329,6 +329,9 @@ augroup nerdTreeGroup
   autocmd BufEnter * call SyncTree()
 augroup end
 
+" Let statusline handle the status line
+let g:NERDTreeStatusline = -1
+
 """""""""""""""""""""""""""""""""""""" lightline
 let g:lightline = {
       \ 'colorscheme': 'wombat',
@@ -367,9 +370,6 @@ function! LightLineFilename()
   return fname == 'ControlP' ? g:lightline.ctrlp_item :
         \ fname == '__Tagbar__' ? g:lightline.fname :
         \ fname =~ '__Gundo\|NERD_tree' ? '' :
-        \ &ft == 'vimfiler' ? vimfiler#get_status_string() :
-        \ &ft == 'unite' ? unite#get_status_string() :
-        \ &ft == 'vimshell' ? vimshell#get_status_string() :
         \ ('' != LightLineReadonly() ? LightLineReadonly() . ' ' : '') .
         \ ('' != fname ? fname : '[No Name]') .
         \ ('' != LightLineModified() ? ' ' . LightLineModified() : '')
@@ -377,7 +377,7 @@ endfunction
 
 function! LightLineFugitive()
   try
-    if expand('%:t') !~? 'Tagbar\|Gundo\|NERD' && &ft !~? 'vimfiler' && exists('*fugitive#head')
+    if expand('%:t') !~? 'Tagbar\|Gundo\|NERD' && exists('*fugitive#head')
       let mark = ''  " edit here for cool mark
       let _ = fugitive#head()
       return strlen(_) ? mark._ : ''
@@ -406,9 +406,6 @@ function! LightLineMode()
         \ fname == '__Gundo__' ? 'Gundo' :
         \ fname == '__Gundo_Preview__' ? 'Gundo Preview' :
         \ fname =~ 'NERD_tree' ? 'NERDTree' :
-        \ &ft == 'unite' ? 'Unite' :
-        \ &ft == 'vimfiler' ? 'VimFiler' :
-        \ &ft == 'vimshell' ? 'VimShell' :
         \ winwidth(0) > 60 ? lightline#mode() : ''
 endfunction
 
@@ -454,10 +451,6 @@ function! s:syntastic()
   SyntasticCheck
   call lightline#update()
 endfunction
-
-let g:unite_force_overwrite_statusline = 0
-let g:vimfiler_force_overwrite_statusline = 0
-let g:vimshell_force_overwrite_statusline = 0
 
 " vim-rooter
 let g:rooter_change_directory_for_non_project_files = 'current'
