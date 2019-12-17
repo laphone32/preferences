@@ -177,6 +177,7 @@ map <C-n> :NERDTreeToggle<CR>
 
 map <C-p> :FZF<CR>
 map <C-b> :Buffer<CR>
+map <C-f> :Rg<CR>
 
 map <F8> :vertical diffsplit 
 map <F9> :set cursorline!<CR>
@@ -204,6 +205,12 @@ let g:fzf_colors =
   \ 'spinner': ['fg', 'Label'],
   \ 'header':  ['fg', 'Comment'] }
 let g:fzf_history_dir = '~/.local/share/fzf-history'
+
+augroup fzfGroup
+    autocmd! FileType fzf
+    autocmd  FileType fzf set laststatus=0 noshowmode noruler
+  \| autocmd BufLeave <buffer> set laststatus=2 showmode ruler
+augroup end
 
 
 """""""""""""""""""""""""""""""""""" YouCompleteMe
