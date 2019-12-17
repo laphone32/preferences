@@ -77,6 +77,8 @@ set foldmethod=syntax
 set foldlevel=0 " Close in default
 set foldnestmax=15
 
+" Using 256 colors
+set t_Co=256
 colorscheme desert
 
 " Set GUI fonts
@@ -110,8 +112,6 @@ if has("gui_running")
     set lines=99 columns=999
 endif
 
-" Using 256 colors
-set t_Co=256
 
 " For chinese
 set ambiwidth=double
@@ -283,7 +283,7 @@ set updatetime=300
 
 " Color
 highlight Pmenu ctermfg=0 ctermbg=242 guifg=black guibg=gray45
-highlight PmenuSel ctermfg=242 ctermbg=8 guifg=gray45 guibg=black
+highlight PmenuSel ctermfg=234 ctermbg=245 guifg=gray45 guibg=black
 
 """""""""""""""""""""""""""""""""""" NERDTree
 let g:NERDTreeIndicatorMapCustom = {
@@ -403,7 +403,7 @@ endfunction
 function! LightLineMode()
   let fname = expand('%:t')
   return fname == 'location' ? 'Locations' :
-        \ fname =~ 'NERD_tree' ? 'NERD' :
+        \ fname =~ 'NERD_tree' ? 'NERDTree' :
         \ winwidth(0) > 60 ? lightline#mode() : ''
 endfunction
 
@@ -429,6 +429,7 @@ augroup end
 let g:rooter_change_directory_for_non_project_files = 'current'
 let g:rooter_silent_chdir = 1
 let g:rooter_patterns = ['.gitmodules', '.git/']
+let g:rooter_resolve_links = 1
 
 " Eclim
 let g:EclimJavaSearchSingleResult = 'edit'
@@ -436,6 +437,6 @@ let g:EclimJavaCallHierarchyDefaultAction = 'edit'
 let g:EclimMakeLCD = 1
 let g:EclimCompletionMethod = 'omnifunc'
 
-" scala-vim
+" vim-scala
 let g:scala_scaladoc_indent = 1
 
