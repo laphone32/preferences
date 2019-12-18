@@ -19,9 +19,5 @@
     }
   },
   // Needed for type formatting on multiline strings
-  "coc.preferences.formatOnType": true,
-  "suggest.noselect": false,
-  "suggest.enablePreview": true,
-  "suggest.acceptSuggestionOnCommitCharacter": true,
-  "diagnostic.refreshOnInsertMode": true
+  "suggest.enablePreview": true
 }

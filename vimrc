@@ -206,13 +206,6 @@ let g:fzf_colors =
   \ 'header':  ['fg', 'Comment'] }
 let g:fzf_history_dir = '~/.local/share/fzf-history'
 
-augroup fzfGroup
-    autocmd! FileType fzf
-    autocmd  FileType fzf set laststatus=0 noshowmode noruler
-  \| autocmd BufLeave <buffer> set laststatus=2 showmode ruler
-augroup end
-
-
 """""""""""""""""""""""""""""""""""" YouCompleteMe
 "let g:ycm_filetype_whitelist = {'c' : 1, 'h' : 1, 'cpp' : 1, 'hpp' : 1, 'java' : 1, 'python' : 1, 'sh' : 1, 'pom' : 1, 'scala' : 1}
 "let g:ycm_autoclose_preview_window_after_insertion = 1
@@ -346,8 +339,8 @@ let g:NERDTreeStatusline = -1
 let g:lightline = {
       \ 'colorscheme': 'wombat',
       \ 'active': {
-      \   'left': [ [ 'mode', 'paste' ], [ 'gitbranch', 'filename', 'cocerror' ] ],
-      \   'right': [ [ 'lineinfo' ], ['percent'], [ 'fileformat', 'fileencoding', 'filetype' ] ]
+      \   'left': [ [ 'mode', 'paste' ], [ 'gitbranch', 'filename' ] ],
+      \   'right': [ [ 'hinter_error', 'hinter_warning', 'hinter_hint', 'hinter_info' ], [ 'lineinfo' ], [ 'percent' ], [ 'fileformat', 'fileencoding', 'filetype' ] ]
       \ },
       \ 'component_function': {
       \   'gitbranch': 'LightLineGitBranch',
@@ -356,10 +349,18 @@ let g:lightline = {
       \   'filetype': 'LightLineFiletype',
       \   'fileencoding': 'LightLineFileencoding',
       \   'mode': 'LightLineMode',
-      \   'cocerror': 'LightLineCocError',
+      \ },
+      \ 'component_expand': {
+      \   'hinter_error': 'LightLineCocError',
+      \   'hinter_warning': 'LightLineCocWarning',
+      \   'hinter_hint': 'LightLineCocHint',
+      \   'hinter_info': 'LightLineCocInfo',
       \ },
       \ 'component_type': {
-      \ 'cocerror': 'error',
+      \   'hinter_error': 'error',
+      \   'hinter_warning': 'warning',
+      \   'hinter_hint': 'tabsel',
+      \   'hinter_info': 'middle',
       \ },
       \ 'subseparator': { 'left': '|', 'right': '|' }
       \ }
@@ -372,7 +373,7 @@ function! LightLineModified()
 endfunction
 
 function! LightLineReadonly()
-  return &ft !~? 'help' && &readonly ? 'RO' : ''
+  return &ft !~? 'help' && &readonly ? '=' : ''
 endfunction
 
 function! LightLineFilename()
@@ -414,17 +415,28 @@ function! LightLineMode()
         \ winwidth(0) > 60 ? lightline#mode() : ''
 endfunction
 
-function! LightLineCocError()
-  let s:error_sign = '❌ '
+function! s:LightLineCocDiagnostic(kind) abort
   let info = get(b:, 'coc_diagnostic_info', {})
-  if empty(info)
+  if empty(info) || get(info, a:kind, 0) == 0
     return ''
   endif
-  let errmsgs = []
-  if get(info, 'error', 0)
-    call add(errmsgs, s:error_sign . info['error'])
-  endif
-  return trim(join(errmsgs, ' ') . ' ' . get(g:, 'coc_status', ''))
+  return '•' . info[a:kind]
+endfunction
+
+function! LightLineCocError() abort
+  return s:LightLineCocDiagnostic('error')
+endfunction
+
+function! LightLineCocWarning() abort
+  return s:LightLineCocDiagnostic('warning')
+endfunction
+
+function! LightLineCocInfo() abort
+  return s:LightLineCocDiagnostic('information')
+endfunction
+
+function! LightLineCocHint() abort
+  return s:LightLineCocDiagnostic('hint')
 endfunction
 
 augroup lightlineGroup
