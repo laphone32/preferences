@@ -172,7 +172,6 @@ imap <A-l> <ESC>:tabn<CR>
 map <A-h> :tabp<CR>
 imap <A-h> <ESC>:tabp<CR>
 
-"    map <C-n> :call NERDTreeToggleAndFind() <CR>
 map <C-n> :NERDTreeToggle<CR>
 
 map <C-p> :FZF<CR>
@@ -301,36 +300,22 @@ let g:NERDTreeIndicatorMapCustom = {
 set shell=bash
 
 " returns true iff is NERDTree open/active
-function! IsNTOpen()        
+function! s:isNTOpen()
   return exists("t:NERDTreeBufName") && (bufwinnr(t:NERDTreeBufName) != -1)
 endfunction
 
 " calls NERDTreeFind iff NERDTree is active, current window contains a modifiable file, and we're not in vimdiff
-function! SyncTree()
-  if &modifiable && IsNTOpen() && strlen(expand('%')) > 0 && !&diff
-    let l:curwinnr = winnr()
+function! s:syncTree()
+  if &modifiable && s:isNTOpen() && strlen(expand('%')) > 0 && !&diff && bufname('%') !~# 'NERD_tree'
     NERDTreeFind
-    exec l:curwinnr . "wincmd w"
-"    wincmd p
-  endif
-endfunction
-
-" Open NERDTree in the directory of the current file (or /home if no file is open)
-function! NERDTreeToggleAndFind()
-  " If NERDTree is open in the current buffer
-  if IsNTOpen()
-    exe ":NERDTreeClose"
-  else
-    exe ":NERDTreeFind"
+    wincmd p
   endif
 endfunction
 
 augroup nerdTreeGroup
   autocmd!
-  autocmd BufEnter * call SyncTree()
-  autocmd StdinReadPre * let s:std_in=1
-  autocmd VimEnter * if argc() == 0 && !exists("s:std_in") && v:this_session == "" | NERDTree | endif
-  autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
+  autocmd BufEnter * call s:syncTree()
+  autocmd BufEnter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
 augroup end
 
 " Let statusline handle the status line
