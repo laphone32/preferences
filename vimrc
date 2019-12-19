@@ -255,7 +255,6 @@ nmap <silent> dl :CocList diagnostics<CR>
 
 " Use man for show documentation in preview window
 nnoremap <silent> gh :call <SID>show_documentation()<CR>
-
 function! s:show_documentation()
   if &filetype == 'vim'
     execute 'h '.expand('<cword>')
@@ -263,6 +262,11 @@ function! s:show_documentation()
     call CocAction('doHover')
   endif
 endfunction
+
+" Remap for do codeAction of current line
+nmap <silent>ac  <Plug>(coc-codeaction)
+" Fix autofix problem of current line
+nmap <silent>af  <Plug>(coc-fix-current)
 
 " use enter to confirm the completion
 inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
