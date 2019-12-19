@@ -19,5 +19,6 @@
     }
   },
   // Needed for type formatting on multiline strings
+  "suggest.noselect": false,
   "suggest.enablePreview": true
 }
