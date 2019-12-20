@@ -368,7 +368,8 @@ endfunction
 
 function! LightLineFilename()
   let fname = expand('%:t')
-  return fname =~ 'location\|NERD_tree' ? '' :
+  return &filetype ==# 'qf' ? '' :
+        \ fname =~ 'location\|NERD_tree' ? '' :
         \ ('' != LightLineReadonly() ? LightLineReadonly() . ' ' : '') .
         \ ('' != fname ? fname : '[No Name]') .
         \ ('' != LightLineModified() ? ' ' . LightLineModified() : '')
@@ -400,7 +401,8 @@ endfunction
 
 function! LightLineMode()
   let fname = expand('%:t')
-  return fname == 'location' ? 'Locations' :
+  return &filetype ==# 'qf' ? 'QuickFix' :
+        \ fname == 'location' ? 'Locations' :
         \ fname =~ 'NERD_tree' ? 'NERDTree' :
         \ winwidth(0) > 60 ? lightline#mode() : ''
 endfunction
