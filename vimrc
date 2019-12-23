@@ -299,6 +299,8 @@ let g:NERDTreeIndicatorMapCustom = {
     \ }
 set shell=bash
 
+let NERDTreeQuitOnOpen=1
+
 " returns true iff is NERDTree open/active
 function! s:isNTOpen()
   return exists("t:NERDTreeBufName") && (bufwinnr(t:NERDTreeBufName) != -1)
