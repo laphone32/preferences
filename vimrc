@@ -241,11 +241,6 @@ let g:fzf_history_dir = '~/.local/share/fzf-history'
 "" nmap <silent> gi :YcmCompleter GoToImplementation<CR>
 "" nmap <silent> gr :YcmCompleter GoToReferences<CR>
  
-"""""""""""""""""""""""""""""""""""" Metals
-command! -nargs=0 MetalsImport :call CocRequestAsync('metals', 'workspace/executeCommand', { 'command': 'build-import' })
-command! -nargs=0 MetalsDoctor :call CocRequestAsync('metals', 'workspace/executeCommand', { 'command': 'doctor-run' })
-command! -nargs=0 MetalsConnect :call CocRequestAsync('metals', 'workspace/executeCommand', { 'command': 'build-connect' })
-
 """""""""""""""""""""""""""""""""""" Coc
 nmap <silent> gd <Plug>(coc-definition)
 nmap <silent> gc <Plug>(coc-declaration)

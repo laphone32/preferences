@@ -17,7 +17,8 @@ else
     echo "Cannot find neither .bashrc nor .bash_profile"
 fi
 
-ln -s $PREFERENCES_DIR $HOME/.ideavimrc
+ln -s $PREFERENCES_DIR/ideavimrc $HOME/.ideavimrc
+ln -s $PREFERENCES_DIR/coc-settings.json $HOME/.vim/coc-settings.json
 
 git config --global core.excludesfile $PREFERENCES_DIR/gitignore
 
