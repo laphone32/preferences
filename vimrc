@@ -21,6 +21,7 @@ Plug 'docker/docker' , {'rtp' : '/contrib/syntax/vim/', 'for' : 'dockerfile'}
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --bin' }
 Plug 'junegunn/fzf.vim'
 Plug 'derekwyatt/vim-scala'
+Plug 'ckipp01/coc-metals', {'do': 'yarn install --frozen-lockfile'}
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 call plug#end()
 
