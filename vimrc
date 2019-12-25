@@ -127,7 +127,6 @@ augroup end
 augroup scalaGroup
   autocmd!
   au BufRead,BufNewFile *.sbt set filetype=scala
-  autocmd FileType json syntax match Comment +\/\/.\+$+
 augroup end
 
 " Start in the line last read
@@ -273,6 +272,7 @@ autocmd! CompleteDone * if pumvisible() == 0 | pclose | endif
 
 augroup cocGroup
   autocmd!
+  autocmd FileType json syntax match Comment +\/\/.\+$+
   " Setup formatexpr specified filetype(s).
   autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
   " Update signature help on jump placeholder
