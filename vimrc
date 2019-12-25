@@ -21,7 +21,6 @@ Plug 'docker/docker' , {'rtp' : '/contrib/syntax/vim/', 'for' : 'dockerfile'}
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --bin' }
 Plug 'junegunn/fzf.vim'
 Plug 'derekwyatt/vim-scala'
-Plug 'ckipp01/coc-metals', {'do': 'yarn install --frozen-lockfile'}
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 call plug#end()
 
@@ -247,9 +246,11 @@ nmap <silent> gc <Plug>(coc-declaration)
 nmap <silent> gy <Plug>(coc-type-definition)
 nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
+nmap <silent> <A-Cr> <Plug>(coc-fix-current)
+
 nmap <silent> dl :CocList diagnostics<CR>
 
-" Use man for show documentation in preview window
+" Use gh for show documentation in preview window
 nnoremap <silent> gh :call <SID>show_documentation()<CR>
 function! s:show_documentation()
   if &filetype == 'vim'
@@ -276,10 +277,18 @@ augroup cocGroup
   autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
   " Update signature help on jump placeholder
   autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
+  " Hightlight symbol under cursor on CursorHold
   autocmd CursorHold * silent call CocActionAsync('highlight')
 augroup end
 
 set updatetime=300
+
+let g:coc_global_extensions = [
+    \ 'coc-json',
+    \ 'coc-java',
+    \ 'coc-vimlsp',
+    \ 'coc-metals',
+    \]
 
 " Color
 highlight Pmenu ctermfg=0 ctermbg=242 guifg=black guibg=gray45
