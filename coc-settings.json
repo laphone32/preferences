@@ -5,8 +5,15 @@
       "args": ["--background-index"],
       "rootPatterns": [".git/", "compile_flags.txt", "compile_commands.json", ".vim/"],
       "filetypes": ["c", "cpp", "objc", "objcpp"]
+    },
+    "bash": {
+      "command": "bash-language-server",
+      "args": ["start"],
+      "filetypes": ["sh"],
+      "ignoredRootPaths": ["~"]
     }
   },
+
   // Needed for type formatting on multiline strings
   "suggest.noselect": false,
   "suggest.enablePreview": true,
