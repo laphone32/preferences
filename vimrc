@@ -173,9 +173,9 @@ imap <A-h> <ESC>:tabp<CR>
 
 map <C-n> :NERDTreeToggle<CR>
 
-map <C-p> :FZF<CR>
-map <C-b> :Buffer<CR>
-map <C-f> :Rg<CR>
+map <C-p><C-p> :FZF<CR>
+map <C-p><C-b> :Buffer<CR>
+map <C-p><C-f> :Rg<CR>
 
 map <F8> :vertical diffsplit 
 map <F9> :set cursorline!<CR>
@@ -252,7 +252,7 @@ nmap <silent> dl :CocList diagnostics<CR>
 " Use gh for show documentation in preview window
 nnoremap <silent> gh :call <SID>show_documentation()<CR>
 function! s:show_documentation()
-  if &filetype == 'vim'
+  if (index(['vim','help'], &filetype) >= 0)
     execute 'h '.expand('<cword>')
   else
     call CocAction('doHover')

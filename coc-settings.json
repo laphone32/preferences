@@ -10,6 +10,7 @@
   // Needed for type formatting on multiline strings
   "suggest.noselect": false,
   "suggest.enablePreview": true,
+  "diagnostic.refreshOnInsertMode": true,
 
   // Metals
   "metals.serverVersion": "0.7.6+623-1fa0e58e-SNAPSHOT"
