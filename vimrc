@@ -171,12 +171,6 @@ imap <A-l> <ESC>:tabn<CR>
 map <A-h> :tabp<CR>
 imap <A-h> <ESC>:tabp<CR>
 
-map <C-n> :NERDTreeToggle<CR>
-
-map <C-p><C-p> :FZF<CR>
-map <C-p><C-b> :Buffer<CR>
-map <C-p><C-f> :Rg<CR>
-
 map <F8> :vertical diffsplit 
 map <F9> :set cursorline!<CR>
 map <F10> :set cursorcolumn!<CR>
@@ -203,6 +197,11 @@ let g:fzf_colors =
   \ 'spinner': ['fg', 'Label'],
   \ 'header':  ['fg', 'Comment'] }
 let g:fzf_history_dir = '~/.local/share/fzf-history'
+
+command! -bang -nargs=? -complete=dir Files call fzf#vim#files(<q-args>, fzf#vim#with_preview(), <bang>0)
+map <C-p><C-p> :Files<CR>
+map <C-p><C-b> :Buffer<CR>
+map <C-p><C-f> :Rg<CR>
 
 """""""""""""""""""""""""""""""""""" YouCompleteMe
 "let g:ycm_filetype_whitelist = {'c' : 1, 'h' : 1, 'cpp' : 1, 'hpp' : 1, 'java' : 1, 'python' : 1, 'sh' : 1, 'pom' : 1, 'scala' : 1}
@@ -309,6 +308,8 @@ let g:NERDTreeIndicatorMapCustom = {
 set shell=bash
 
 let NERDTreeQuitOnOpen=1
+
+map <C-n> :NERDTreeToggle<CR>
 
 " returns true iff is NERDTree open/active
 function! s:isNTOpen()
