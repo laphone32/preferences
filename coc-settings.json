@@ -20,6 +20,6 @@
   "diagnostic.refreshOnInsertMode": true,
 
   // Metals
-  "metals.serverVersion": "0.7.6+623-1fa0e58e-SNAPSHOT"
+  "metals.serverVersion": "0.7.6+662-a664f1c5-SNAPSHOT"
 }
 
