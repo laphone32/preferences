@@ -19,7 +19,10 @@
   "suggest.enablePreview": true,
   "diagnostic.refreshOnInsertMode": true,
 
+  // Customise
+  "diagnostic.warningSign": "!!",
+
   // Metals
-  "metals.serverVersion": "0.7.6+685-bfc56b90-SNAPSHOT"
+  "metals.serverVersion": "0.7.6+693-13249e4e-SNAPSHOT"
 }
 
