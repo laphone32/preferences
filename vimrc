@@ -141,6 +141,19 @@ if has("autocmd")
     augroup end
 endif
 
+" Remove the tailling white spaces automatically on every save without altering search history and cursor
+function! <SID>StripTaillingWhiteSpaces()
+    if !&binary && &filetype != 'diff'
+        let pos = getpos(".")
+        keeppatterns %s/\s\+$//e
+        call cursor(pos)
+    endif
+endfunction
+augroup removeTaillingWhiteSpaceGroup
+    autocmd!
+    autocmd FileType c,cpp,java,scala,python,perl,bash,sh autocmd BufWritePre <buffer> :call <SID>StripTaillingWhiteSpaces()
+augroup end
+
 " Key-mappings for changing tabs
 map <A-q> :tabnew 
 imap <A-q> <ESC>:tabnew 

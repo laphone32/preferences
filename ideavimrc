@@ -4,15 +4,15 @@ source ~/preferences/vimrc
 set clipboard+=ideaput
 
 """ CtrlP like
-map <C-p> :action GotoFile<CR>
-map <C-b> :action RecentFiles<CR>
-map <C-f> :action FindInPath<CR>
+map <C-p><C-p> :action GotoFile<CR>
+map <C-p><C-b> :action RecentFiles<CR>
+map <C-p><C-f> :action FindInPath<CR>
 
 """ search in file content
 map <A-F12> :action ActivateTerminalToolWindow<CR>
 
 """ NerdTree
-map <C-n> :action ActivateProjectToolWindow<CR>
+noremap <C-n> :action ActivateProjectToolWindow<CR>
 
 """ Code analysis
 nnoremap gd :action GotoDeclaration<CR>
