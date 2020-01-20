@@ -23,6 +23,6 @@
   "diagnostic.warningSign": "!!",
 
   // Metals
-  "metals.serverVersion": "0.8.0+11-0ea800ce-SNAPSHOT"
+  "metals.serverVersion": "0.8.0+36-671d085e-SNAPSHOT"
 }
 
