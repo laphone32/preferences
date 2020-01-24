@@ -151,7 +151,7 @@ function! <SID>StripTaillingWhiteSpaces()
 endfunction
 augroup removeTaillingWhiteSpaceGroup
     autocmd!
-    autocmd FileType c,cpp,java,scala,python,perl,bash,sh autocmd BufWritePre <buffer> :call <SID>StripTaillingWhiteSpaces()
+    autocmd FileType c,cpp,java,scala,sbt,python,perl,bash,sh autocmd BufWritePre <buffer> :call <SID>StripTaillingWhiteSpaces()
 augroup end
 
 " Key-mappings for changing tabs
@@ -257,7 +257,6 @@ nmap <silent> gc <Plug>(coc-declaration)
 nmap <silent> gy <Plug>(coc-type-definition)
 nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
-nmap <silent> <A-Cr> <Plug>(coc-fix-current)
 
 nmap <silent> dl :CocList diagnostics<CR>
 
@@ -275,6 +274,9 @@ endfunction
 nmap <silent>ac  <Plug>(coc-codeaction)
 " Fix autofix problem of current line
 nmap <silent>af  <Plug>(coc-fix-current)
+" Rename current symbol/word
+nmap <silent>ar  <Plug>(coc-rename)
+
 
 " use enter to confirm the completion
 inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
@@ -347,8 +349,10 @@ augroup end
 let g:NERDTreeStatusline = -1
 
 """""""""""""""""""""""""""""""""""""" lightline
+"""""  'colorscheme': 'wombat',
+""""" 'colorscheme': 'jellybeans',
 let g:lightline = {
-      \ 'colorscheme': 'wombat',
+      \ 'colorscheme': 'nord',
       \ 'active': {
       \   'left': [ [ 'mode', 'paste' ], [ 'gitbranch', 'filename' ] ],
       \   'right': [ [ 'hinter_error', 'hinter_warning', 'hinter_hint', 'hinter_info' ], [ 'lineinfo' ], [ 'percent' ], [ 'fileformat', 'fileencoding', 'filetype' ] ]
@@ -460,14 +464,14 @@ augroup end
 " vim-rooter
 let g:rooter_change_directory_for_non_project_files = 'current'
 let g:rooter_silent_chdir = 1
-let g:rooter_patterns = ['.gitmodules', '.git/']
+let g:rooter_patterns = ['.gitmodules', '.git/', 'build.sbt', 'CMakeLists.txt']
 let g:rooter_resolve_links = 1
 
 " Eclim
-let g:EclimJavaSearchSingleResult = 'edit'
-let g:EclimJavaCallHierarchyDefaultAction = 'edit'
-let g:EclimMakeLCD = 1
-let g:EclimCompletionMethod = 'omnifunc'
+"let g:EclimJavaSearchSingleResult = 'edit'
+"let g:EclimJavaCallHierarchyDefaultAction = 'edit'
+"let g:EclimMakeLCD = 1
+"let g:EclimCompletionMethod = 'omnifunc'
 
 " vim-scala
 let g:scala_scaladoc_indent = 1
