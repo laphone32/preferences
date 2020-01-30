@@ -116,6 +116,9 @@ endif
 " For chinese
 set ambiwidth=double
 
+" Don't give |ins-completion-menu| messages.
+set shortmess+=c
+
 " To know the filetype of *.pc
 filetype plugin on
 augroup esqlGroup
@@ -281,9 +284,6 @@ nmap <silent>ar  <Plug>(coc-rename)
 " use enter to confirm the completion
 inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
 
-" Close the preview window when completion is done.
-autocmd! CompleteDone * if pumvisible() == 0 | pclose | endif
-
 augroup cocGroup
   autocmd!
   autocmd FileType json syntax match Comment +\/\/.\+$+
@@ -322,7 +322,13 @@ let g:NERDTreeIndicatorMapCustom = {
     \ }
 set shell=bash
 
+" Auto quit when choosing file to open
 let NERDTreeQuitOnOpen=1
+" Let statusline handle the status line
+let g:NERDTreeStatusline = -1
+" Sync the tree root and vim root
+let NERDTreeChDirMode=2
+
 
 map <C-n> :NERDTreeToggle<CR>
 
@@ -345,12 +351,7 @@ augroup nerdTreeGroup
   autocmd BufEnter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
 augroup end
 
-" Let statusline handle the status line
-let g:NERDTreeStatusline = -1
-
 """""""""""""""""""""""""""""""""""""" lightline
-"""""  'colorscheme': 'wombat',
-""""" 'colorscheme': 'jellybeans',
 let g:lightline = {
       \ 'colorscheme': 'nord',
       \ 'active': {
