@@ -9,7 +9,7 @@
     "bash": {
       "command": "bash-language-server",
       "args": ["start"],
-      "filetypes": ["sh"],
+      "filetypes": ["sh", "bash"],
       "ignoredRootPaths": ["~"]
     }
   },
@@ -23,7 +23,7 @@
   "diagnostic.warningSign": "!!",
 
   // Metals
-  "metals.serverVersion": "0.8.0+136-557b46b4-SNAPSHOT",
+  "metals.serverVersion": "0.8.0+158-654f2858-SNAPSHOT",
   "metals.bloop-sbt-already-installed": "false"
 }
 
