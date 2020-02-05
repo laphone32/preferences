@@ -356,7 +356,11 @@ let g:lightline = {
       \ 'colorscheme': 'nord',
       \ 'active': {
       \   'left': [ [ 'mode', 'paste' ], [ 'gitbranch', 'filename' ] ],
-      \   'right': [ [ 'hinter_error', 'hinter_warning', 'hinter_hint', 'hinter_info' ], [ 'lineinfo' ], [ 'percent' ], [ 'fileformat', 'fileencoding', 'filetype' ] ]
+      \   'right': [ [ 'hinter_error', 'hinter_warning', 'hinter_hint', 'hinter_info' ], [ 'lineinfo' ], [ 'fileformat', 'fileencoding', 'filetype' ] ]
+      \ },
+      \ 'inactive': {
+      \   'left': [ [ 'gitbranch', 'filename' ] ],
+      \   'right': [ [ 'lineinfo' ], [ 'fileformat', 'fileencoding', 'filetype' ] ]
       \ },
       \ 'component_function': {
       \   'gitbranch': 'LightLineGitBranch',
@@ -365,6 +369,7 @@ let g:lightline = {
       \   'filetype': 'LightLineFiletype',
       \   'fileencoding': 'LightLineFileencoding',
       \   'mode': 'LightLineMode',
+      \   'lineinfo': 'LightLineLineInfo'
       \ },
       \ 'component_expand': {
       \   'hinter_error': 'LightLineCocError',
@@ -403,7 +408,7 @@ endfunction
   
 function! LightLineGitBranch()
   try
-    if expand('%:t') !~? 'location\|NERD' && exists('*fugitive#head')
+    if expand('%:t') !~? 'location\|NERD' && exists('*fugitive#head') && winwidth(0) > 70
       let mark = ''  " edit here for cool mark
       let _ = fugitive#head()
       return strlen(_) ? mark._ : ''
@@ -431,6 +436,12 @@ function! LightLineMode()
         \ fname == 'location' ? 'Locations' :
         \ fname =~ 'NERD_tree' ? 'NERDTree' :
         \ winwidth(0) > 60 ? lightline#mode() : ''
+endfunction
+
+function! LightLineLineInfo()
+  let fname = expand('%:t')
+  return &filetype ==# 'qf' ? '' :
+        \ fname =~ 'location\|NERD_tree' ? '' : printf("%3d:%-2d", line('.'), col('.'))
 endfunction
 
 function! s:LightLineCocDiagnostic(kind) abort

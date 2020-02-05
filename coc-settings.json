@@ -11,7 +11,12 @@
       "args": ["start"],
       "filetypes": ["sh", "bash"],
       "ignoredRootPaths": ["~"]
-    }
+    },
+    "groovy": {
+      "command": "java",
+      "args" : ["-jar", "/Users/jlin/tmp/groovy-language-server/build/libs/groovy-language-server.jar"],
+      "filetypes": ["groovy"]
+     }
   },
 
   // Needed for type formatting on multiline strings
@@ -23,7 +28,7 @@
   "diagnostic.warningSign": "!!",
 
   // Metals
-  "metals.serverVersion": "0.8.0+158-654f2858-SNAPSHOT",
+  "metals.serverVersion": "0.8.0+167-0422778f-SNAPSHOT",
   "metals.bloop-sbt-already-installed": "false"
 }
 

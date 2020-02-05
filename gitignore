@@ -22,3 +22,7 @@
 # scala worksheet
 *.sc
 
+# java related
+*.classpath
+*.project
+
