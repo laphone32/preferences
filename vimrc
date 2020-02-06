@@ -360,7 +360,7 @@ let g:lightline = {
       \ },
       \ 'inactive': {
       \   'left': [ [ 'gitbranch', 'filename' ] ],
-      \   'right': [ [ 'lineinfo' ], [ 'fileformat', 'fileencoding', 'filetype' ] ]
+      \   'right': [ [ 'lineinfo' ] ]
       \ },
       \ 'component_function': {
       \   'gitbranch': 'LightLineGitBranch',
@@ -397,51 +397,54 @@ function! LightLineReadonly()
   return &ft !~? 'help' && &readonly ? '=' : ''
 endfunction
 
-function! LightLineFilename()
+function! FilenameIsNormal()
   let fname = expand('%:t')
-  return &filetype ==# 'qf' ? '' :
-        \ fname =~ 'location\|NERD_tree' ? '' :
+  return [!(&filetype ==# 'qf' || fname =~ 'location\|NERD_tree'), fname]
+endfunction
+
+function! LightLineFilename()
+  let fname = FilenameIsNormal()
+  return fname[0] == 0 ? '' :
         \ ('' != LightLineReadonly() ? LightLineReadonly() . ' ' : '') .
-        \ ('' != fname ? fname : '[No Name]') .
+        \ ('' != fname[1] ? fname[1] : '[No Name]') .
         \ ('' != LightLineModified() ? ' ' . LightLineModified() : '')
 endfunction
-  
+
+function! WinWidthIsEnough(...)
+  let length = a:0 > 0 ? a:1 : 70
+  return winwidth(0) > length
+endfunction
+
 function! LightLineGitBranch()
-  try
-    if expand('%:t') !~? 'location\|NERD' && exists('*fugitive#head') && winwidth(0) > 70
-      let mark = ''  " edit here for cool mark
-      let _ = fugitive#head()
-      return strlen(_) ? mark._ : ''
-    endif
-  catch
-  endtry
-  return ''
+  if FilenameIsNormal()[0] && WinWidthIsEnough()
+    let mark = ''  " edit here for cool mark
+    let branch = FugitiveHead()
+    return strlen(branch) ? mark.branch : ''
+  else
+    return ''
+  endif
 endfunction
 
 function! LightLineFileformat()
-  return winwidth(0) > 70 ? &fileformat : ''
+  return WinWidthIsEnough() ? &fileformat : ''
 endfunction
 
 function! LightLineFiletype()
-  return winwidth(0) > 70 ? (strlen(&filetype) ? &filetype : 'no ft') : ''
+  return WinWidthIsEnough() ? (strlen(&filetype) ? &filetype : 'no ft') : ''
 endfunction
 
 function! LightLineFileencoding()
-  return winwidth(0) > 70 ? (strlen(&fenc) ? &fenc : &enc) : ''
+  return WinWidthIsEnough() ? (strlen(&fenc) ? &fenc : &enc) : ''
 endfunction
 
 function! LightLineMode()
-  let fname = expand('%:t')
-  return &filetype ==# 'qf' ? 'QuickFix' :
-        \ fname == 'location' ? 'Locations' :
-        \ fname =~ 'NERD_tree' ? 'NERDTree' :
-        \ winwidth(0) > 60 ? lightline#mode() : ''
+  let fname = FilenameIsNormal()
+  return fname[0] == 0 ? fname[1] : 
+        \ WinWidthIsEnough(60) ? lightline#mode() : ''
 endfunction
 
 function! LightLineLineInfo()
-  let fname = expand('%:t')
-  return &filetype ==# 'qf' ? '' :
-        \ fname =~ 'location\|NERD_tree' ? '' : printf("%3d:%-2d", line('.'), col('.'))
+  return FilenameIsNormal()[0] == 0 ? '' : printf("%3d:%-2d", line('.'), col('.'))
 endfunction
 
 function! s:LightLineCocDiagnostic(kind) abort
@@ -470,7 +473,7 @@ endfunction
 
 augroup lightlineGroup
   autocmd!
-  autocmd User CocDiagnosticChange call lightline#update()
+  autocmd User CocStatusChange,CocDiagnosticChange call lightline#update()
 augroup end
 
 " vim-rooter
