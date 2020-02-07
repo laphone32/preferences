@@ -18,8 +18,8 @@ Plug 'airblade/vim-rooter'
 Plug 'AndrewRadev/linediff.vim'
 Plug 'JalaiAmitahl/maven-compiler.vim'
 Plug 'docker/docker' , {'rtp' : '/contrib/syntax/vim/', 'for' : 'dockerfile'}
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --bin' }
-Plug 'junegunn/fzf.vim'
+"Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --bin' }
+"Plug 'junegunn/fzf.vim'
 Plug 'derekwyatt/vim-scala'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 call plug#end()
@@ -198,26 +198,26 @@ noremap dd "9dd
 noremap x "9x
 
 """""""""""""""""""""""""""""""""""" FZF
-let g:fzf_colors =
-\ { 'fg':      ['fg', 'Normal'],
-  \ 'bg':      ['bg', 'Normal'],
-  \ 'hl':      ['fg', 'Comment'],
-  \ 'fg+':     ['fg', 'CursorLine', 'CursorColumn', 'Normal'],
-  \ 'bg+':     ['bg', 'CursorLine', 'CursorColumn'],
-  \ 'hl+':     ['fg', 'Statement'],
-  \ 'info':    ['fg', 'PreProc'],
-  \ 'border':  ['fg', 'Ignore'],
-  \ 'prompt':  ['fg', 'Conditional'],
-  \ 'pointer': ['fg', 'Exception'],
-  \ 'marker':  ['fg', 'Keyword'],
-  \ 'spinner': ['fg', 'Label'],
-  \ 'header':  ['fg', 'Comment'] }
-let g:fzf_history_dir = '~/.local/share/fzf-history'
-
-command! -bang -nargs=? -complete=dir Files call fzf#vim#files(<q-args>, fzf#vim#with_preview(), <bang>0)
-map <C-p><C-p> :Files<CR>
-map <C-p><C-b> :Buffer<CR>
-map <C-p><C-f> :Rg<CR>
+"let g:fzf_colors =
+"\ { 'fg':      ['fg', 'Normal'],
+"  \ 'bg':      ['bg', 'Normal'],
+"  \ 'hl':      ['fg', 'Comment'],
+"  \ 'fg+':     ['fg', 'CursorLine', 'CursorColumn', 'Normal'],
+"  \ 'bg+':     ['bg', 'CursorLine', 'CursorColumn'],
+"  \ 'hl+':     ['fg', 'Statement'],
+"  \ 'info':    ['fg', 'PreProc'],
+"  \ 'border':  ['fg', 'Ignore'],
+"  \ 'prompt':  ['fg', 'Conditional'],
+"  \ 'pointer': ['fg', 'Exception'],
+"  \ 'marker':  ['fg', 'Keyword'],
+"  \ 'spinner': ['fg', 'Label'],
+"  \ 'header':  ['fg', 'Comment'] }
+"let g:fzf_history_dir = '~/.local/share/fzf-history'
+"
+"command! -bang -nargs=? -complete=dir Files call fzf#vim#files(<q-args>, fzf#vim#with_preview(), <bang>0)
+"map <C-p><C-p> :Files<CR>
+"map <C-p><C-b> :Buffer<CR>
+"map <C-p><C-f> :Rg<CR>
 
 """""""""""""""""""""""""""""""""""" YouCompleteMe
 "let g:ycm_filetype_whitelist = {'c' : 1, 'h' : 1, 'cpp' : 1, 'hpp' : 1, 'java' : 1, 'python' : 1, 'sh' : 1, 'pom' : 1, 'scala' : 1}
@@ -260,6 +260,9 @@ nmap <silent> gc <Plug>(coc-declaration)
 nmap <silent> gy <Plug>(coc-type-definition)
 nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
+map <C-p><C-p> :CocList grep<CR>
+map <C-p><C-b> :CocList buffers<CR>
+map <C-p><C-f> :CocList files<CR>
 
 nmap <silent> dl :CocList diagnostics<CR>
 
@@ -298,6 +301,7 @@ augroup end
 set updatetime=300
 
 let g:coc_global_extensions = [
+    \ 'coc-lists',
     \ 'coc-json',
     \ 'coc-java',
     \ 'coc-vimlsp',
@@ -390,24 +394,23 @@ let g:lightline = {
 set noshowmode
 
 function! LightLineModified()
-  return &ft =~ 'help' ? '' : &modified ? '+' : &modifiable ? '' : '-'
+  return &modified ? '+' : &modifiable ? '' : ' -'
 endfunction
 
 function! LightLineReadonly()
-  return &ft !~? 'help' && &readonly ? '=' : ''
+  return &readonly ? '= ' : ''
 endfunction
 
-function! FilenameIsNormal()
-  let fname = expand('%:t')
-  return [!(&filetype ==# 'qf' || fname =~ 'location\|NERD_tree'), fname]
+function! FileIsNormal()
+  return &ft !~ 'qf\|help\|list\|nerdtree'
 endfunction
 
 function! LightLineFilename()
-  let fname = FilenameIsNormal()
-  return fname[0] == 0 ? '' :
-        \ ('' != LightLineReadonly() ? LightLineReadonly() . ' ' : '') .
-        \ ('' != fname[1] ? fname[1] : '[No Name]') .
-        \ ('' != LightLineModified() ? ' ' . LightLineModified() : '')
+  let fname = expand('%:t')
+  return !FileIsNormal() ? '' :
+        \ LightLineReadonly() .
+        \ ('' != fname ? fname : '[No Name]') .
+        \ LightLineModified()
 endfunction
 
 function! WinWidthIsEnough(...)
@@ -416,7 +419,7 @@ function! WinWidthIsEnough(...)
 endfunction
 
 function! LightLineGitBranch()
-  if FilenameIsNormal()[0] && WinWidthIsEnough()
+  if FileIsNormal() && WinWidthIsEnough()
     let mark = ''  " edit here for cool mark
     let branch = FugitiveHead()
     return strlen(branch) ? mark.branch : ''
@@ -438,13 +441,12 @@ function! LightLineFileencoding()
 endfunction
 
 function! LightLineMode()
-  let fname = FilenameIsNormal()
-  return fname[0] == 0 ? fname[1] : 
+  return !FileIsNormal() ? expand('%:t') : 
         \ WinWidthIsEnough(60) ? lightline#mode() : ''
 endfunction
 
 function! LightLineLineInfo()
-  return FilenameIsNormal()[0] == 0 ? '' : printf("%3d:%-2d", line('.'), col('.'))
+  return !FileIsNormal() ? '' : printf("%3d:%-2d", line('.'), col('.'))
 endfunction
 
 function! s:LightLineCocDiagnostic(kind) abort

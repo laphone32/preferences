@@ -25,10 +25,13 @@
   "diagnostic.refreshOnInsertMode": true,
 
   // Customise
+  "diagnostic.errorSign": ">>",
   "diagnostic.warningSign": "!!",
+  "diagnostic.infoSign": "->",
+  "diagnostic.hintSign": "**",
 
   // Metals
-  "metals.serverVersion": "0.8.0+169-ccc8f752-SNAPSHOT",
+  "metals.serverVersion": "0.8.0+177-64c982f4-SNAPSHOT",
   "metals.bloop-sbt-already-installed": "false"
 }
 
