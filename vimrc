@@ -402,7 +402,7 @@ function! LightLineReadonly()
 endfunction
 
 function! FileIsNormal()
-  return &ft !~ 'qf\|help\|list\|nerdtree'
+  return &ft !~ 'qf\|help\|list\|nerdtree\|vim-plug'
 endfunction
 
 function! LightLineFilename()
