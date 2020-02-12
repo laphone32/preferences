@@ -10,13 +10,13 @@ call plug#begin('~/.vim/bundle')
 Plug 'tpope/vim-fugitive'
 Plug 'vim-scripts/L9'
 Plug 'Raimondi/delimitMate'
-Plug 'scrooloose/nerdtree'
+Plug 'preservim/nerdtree'
 Plug 'Xuyuanp/nerdtree-git-plugin'
 " Plug 'Valloric/YouCompleteMe', {'do' : 'python3 install.py --clangd-completer'}
 Plug 'itchyny/lightline.vim'
 Plug 'airblade/vim-rooter'
 Plug 'AndrewRadev/linediff.vim'
-Plug 'JalaiAmitahl/maven-compiler.vim'
+"Plug 'JalaiAmitahl/maven-compiler.vim'
 Plug 'docker/docker' , {'rtp' : '/contrib/syntax/vim/', 'for' : 'dockerfile'}
 "Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --bin' }
 "Plug 'junegunn/fzf.vim'
@@ -82,8 +82,8 @@ set t_Co=256
 colorscheme desert
 
 " Set GUI fonts
+" Monaco / Hermit / Droid Sans Mono / Source Code Pro 
 if g:os == 'Linux'
-    " Monaco / Hermit / Droid Sans Mono / Source Code Pro 
     set guifont=Hermit\ bold\ 20
 else
     set guifont=Hermit:h20
@@ -99,7 +99,7 @@ set guioptions-=m
 set guioptions-=a
 set guioptions-=A
 set guioptions-=aA
-" Disable scrolls
+" Disable scrollbars
 set guioptions-=r
 set guioptions-=L
 " Disable all cursor blinking
@@ -119,17 +119,14 @@ set ambiwidth=double
 " Don't give |ins-completion-menu| messages.
 set shortmess+=c
 
-" To know the filetype of *.pc
+" FileTypes
 filetype plugin on
-augroup esqlGroup
+augroup fileTypeGroup
   autocmd! 
+  " *.pc as esql
   autocmd BufRead,BufEnter *.pc set filetype=esqlc
-augroup end
-
-" Treat *.sbt as scala
-augroup scalaGroup
-  autocmd!
-  au BufRead,BufNewFile *.sbt set filetype=scala
+  " *.sbt as scala
+  autocmd BufRead,BufNewFile *.sbt set filetype=scala
 augroup end
 
 " Start in the line last read
@@ -260,10 +257,10 @@ nmap <silent> gc <Plug>(coc-declaration)
 nmap <silent> gy <Plug>(coc-type-definition)
 nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
-map <C-p><C-p> :CocList grep<CR>
-map <C-p><C-b> :CocList buffers<CR>
-map <C-p><C-f> :CocList files<CR>
 
+map <C-p><C-p> :CocList files<CR>
+map <C-p><C-b> :CocList buffers<CR>
+map <C-p><C-f> :CocList grep<CR>
 nmap <silent> dl :CocList diagnostics<CR>
 
 " Use gh for show documentation in preview window
@@ -276,7 +273,7 @@ function! s:show_documentation()
   endif
 endfunction
 
-" Remap for do codeAction of current line
+" Remap for doing codeAction of current line
 nmap <silent>ac  <Plug>(coc-codeaction)
 " Fix autofix problem of current line
 nmap <silent>af  <Plug>(coc-fix-current)
@@ -402,7 +399,7 @@ function! LightLineReadonly()
 endfunction
 
 function! FileIsNormal()
-  return &ft !~ 'qf\|help\|list\|nerdtree\|vim-plug'
+  return &filetype !~ 'qf\|help\|list\|nerdtree\|vim-plug'
 endfunction
 
 function! LightLineFilename()
@@ -483,12 +480,6 @@ let g:rooter_change_directory_for_non_project_files = 'current'
 let g:rooter_silent_chdir = 1
 let g:rooter_patterns = ['.gitmodules', '.git/', 'build.sbt', 'CMakeLists.txt']
 let g:rooter_resolve_links = 1
-
-" Eclim
-"let g:EclimJavaSearchSingleResult = 'edit'
-"let g:EclimJavaCallHierarchyDefaultAction = 'edit'
-"let g:EclimMakeLCD = 1
-"let g:EclimCompletionMethod = 'omnifunc'
 
 " vim-scala
 let g:scala_scaladoc_indent = 1
