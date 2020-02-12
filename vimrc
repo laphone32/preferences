@@ -8,7 +8,7 @@ endif
 
 call plug#begin('~/.vim/bundle')
 Plug 'tpope/vim-fugitive'
-Plug 'vim-scripts/L9'
+"Plug 'vim-scripts/L9'
 Plug 'Raimondi/delimitMate'
 Plug 'preservim/nerdtree'
 Plug 'Xuyuanp/nerdtree-git-plugin'
@@ -360,7 +360,7 @@ let g:lightline = {
       \   'right': [ [ 'hinter_error', 'hinter_warning', 'hinter_hint', 'hinter_info' ], [ 'lineinfo' ], [ 'fileformat', 'fileencoding', 'filetype' ] ]
       \ },
       \ 'inactive': {
-      \   'left': [ [ 'gitbranch', 'filename' ] ],
+      \   'left': [ [ 'filename' ] ],
       \   'right': [ [ 'lineinfo' ] ]
       \ },
       \ 'component_function': {
