@@ -151,7 +151,7 @@ function! <SID>StripTaillingWhiteSpaces()
 endfunction
 augroup removeTaillingWhiteSpaceGroup
     autocmd!
-    autocmd FileType c,cpp,java,scala,sbt,python,perl,bash,sh autocmd BufWritePre <buffer> :call <SID>StripTaillingWhiteSpaces()
+    autocmd FileType c,cpp,java,scala,sbt,python,perl,bash,sh,groovy autocmd BufWritePre <buffer> :call <SID>StripTaillingWhiteSpaces()
 augroup end
 
 " Key-mappings for changing tabs
