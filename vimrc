@@ -20,7 +20,7 @@ Plug 'AndrewRadev/linediff.vim'
 Plug 'docker/docker' , {'rtp' : '/contrib/syntax/vim/', 'for' : 'dockerfile'}
 "Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --bin' }
 "Plug 'junegunn/fzf.vim'
-Plug 'derekwyatt/vim-scala'
+"Plug 'derekwyatt/vim-scala'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 call plug#end()
 
@@ -482,5 +482,5 @@ let g:rooter_patterns = ['.gitmodules', '.git/', 'build.sbt', 'CMakeLists.txt']
 let g:rooter_resolve_links = 1
 
 " vim-scala
-let g:scala_scaladoc_indent = 1
+"let g:scala_scaladoc_indent = 1
 
