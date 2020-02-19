@@ -31,7 +31,7 @@
   "diagnostic.hintSign": "**",
 
   // Metals
-  "metals.serverVersion": "0.8.0+265-75dca940-SNAPSHOT",
+  "metals.serverVersion": "0.8.0+274-102c62c5-SNAPSHOT",
   "metals.bloop-sbt-already-installed": "false"
 }
 

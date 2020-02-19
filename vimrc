@@ -8,20 +8,23 @@ endif
 
 call plug#begin('~/.vim/bundle')
 Plug 'tpope/vim-fugitive'
-"Plug 'vim-scripts/L9'
 Plug 'Raimondi/delimitMate'
 Plug 'preservim/nerdtree'
 Plug 'Xuyuanp/nerdtree-git-plugin'
-" Plug 'Valloric/YouCompleteMe', {'do' : 'python3 install.py --clangd-completer'}
 Plug 'itchyny/lightline.vim'
 Plug 'airblade/vim-rooter'
 Plug 'AndrewRadev/linediff.vim'
+Plug 'derekwyatt/vim-scala'
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+
+" Retired plugins
+"Plug 'vim-scripts/L9'
+"Plug 'Valloric/YouCompleteMe', {'do' : 'python3 install.py --clangd-completer'}
 "Plug 'JalaiAmitahl/maven-compiler.vim'
-Plug 'docker/docker' , {'rtp' : '/contrib/syntax/vim/', 'for' : 'dockerfile'}
 "Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --bin' }
 "Plug 'junegunn/fzf.vim'
-"Plug 'derekwyatt/vim-scala'
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
+"Plug 'docker/docker' , {'rtp' : '/contrib/syntax/vim/', 'for' : 'dockerfile'}
+
 call plug#end()
 
 " Detect OS - Linux | Windows | Darwin
@@ -303,6 +306,7 @@ let g:coc_global_extensions = [
     \ 'coc-java',
     \ 'coc-vimlsp',
     \ 'coc-metals',
+    \ 'coc-docker',
     \]
 
 " Color
@@ -482,5 +486,5 @@ let g:rooter_patterns = ['.gitmodules', '.git/', 'build.sbt', 'CMakeLists.txt']
 let g:rooter_resolve_links = 1
 
 " vim-scala
-"let g:scala_scaladoc_indent = 1
+let g:scala_scaladoc_indent = 1
 
