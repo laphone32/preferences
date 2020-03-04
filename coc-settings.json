@@ -14,7 +14,7 @@
     },
     "groovy": {
       "command": "java",
-      "args" : ["-jar", "/Users/jlin/tmp/groovy-language-server/build/libs/groovy-language-server.jar"],
+      "args" : ["-jar", "/Users/jlin/tmp/projects/groovy-language-server/build/libs/groovy-language-server.jar"],
       "filetypes": ["groovy"]
      }
   },
@@ -31,7 +31,7 @@
   "diagnostic.hintSign": "**",
 
   // Metals
-  "metals.serverVersion": "0.8.0+274-102c62c5-SNAPSHOT",
+  "metals.serverVersion": "0.8.1+8-8ad231d8-SNAPSHOT",
   "metals.bloop-sbt-already-installed": "false"
 }
 
