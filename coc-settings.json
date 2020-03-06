@@ -16,6 +16,15 @@
       "command": "java",
       "args" : ["-jar", "/Users/jlin/tmp/projects/groovy-language-server/build/libs/groovy-language-server.jar"],
       "filetypes": ["groovy"]
+     },
+    "golang": {
+      "command": "gopls",
+      "rootPatterns": ["go.mod", ".vim/", ".git/", ".hg/"],
+      "filetypes": ["go"],
+      "initializationOptions": {
+        "usePlaceholders": true,
+        "completeUnimported": true
+      }
      }
   },
 
@@ -31,7 +40,7 @@
   "diagnostic.hintSign": "**",
 
   // Metals
-  "metals.serverVersion": "0.8.1+13-aa297e70-SNAPSHOT",
+  "metals.serverVersion": "0.8.1+15-0a689a86-SNAPSHOT",
   "metals.bloop-sbt-already-installed": "false"
 }
 
