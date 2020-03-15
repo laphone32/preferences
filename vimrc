@@ -395,7 +395,7 @@ let g:lightline = {
 set noshowmode
 
 function! LightLineModified()
-  return &modified ? '+' : &modifiable ? '' : ' -'
+  return &modified ? ' +' : &modifiable ? '' : ' -'
 endfunction
 
 function! LightLineReadonly()
