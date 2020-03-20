@@ -477,6 +477,7 @@ endfunction
 augroup lightlineGroup
   autocmd!
   autocmd User CocStatusChange,CocDiagnosticChange call lightline#update()
+  autocmd BufRead call lightline#update()
 augroup end
 
 " vim-rooter
