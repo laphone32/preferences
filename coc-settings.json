@@ -1,11 +1,5 @@
 {
   "languageserver": {
-    "clangd": {
-      "command": "clangd",
-      "args": ["--background-index"],
-      "rootPatterns": [".git/", "compile_flags.txt", "compile_commands.json", ".vim/"],
-      "filetypes": ["c", "cpp", "objc", "objcpp"]
-    },
     "bash": {
       "command": "bash-language-server",
       "args": ["start"],
@@ -17,15 +11,6 @@
       "args" : ["-jar", "/Users/jlin/tmp/projects/groovy-language-server/build/libs/groovy-language-server.jar"],
       "filetypes": ["groovy"]
      },
-    "golang": {
-      "command": "gopls",
-      "rootPatterns": ["go.mod", ".vim/", ".git/", ".hg/"],
-      "filetypes": ["go"],
-      "initializationOptions": {
-        "usePlaceholders": true,
-        "completeUnimported": true
-      }
-     }
   },
 
   // Needed for type formatting on multiline strings
@@ -39,8 +24,17 @@
   "diagnostic.infoSign": "->",
   "diagnostic.hintSign": "**",
 
+  // Clangd
+  "clangd.arguments": ["--background-index"],
+
   // Metals
-  "metals.serverVersion": "0.8.3+103-775d2bff-SNAPSHOT",
-  "metals.bloop-sbt-already-installed": "false"
+  "metals.serverVersion": "0.8.3+139-1e5c917e-SNAPSHOT",
+  "metals.bloop-sbt-already-installed": "false",
+
+  // gopls
+  "go.goplsOptions": {
+    "usePlaceholders": true,
+    "completeUnimported": true
+  },
 }
 

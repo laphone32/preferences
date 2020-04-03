@@ -307,6 +307,8 @@ let g:coc_global_extensions = [
     \ 'coc-vimlsp',
     \ 'coc-metals',
     \ 'coc-docker',
+    \ 'coc-clangd',
+    \ 'coc-go'
     \]
 
 " Color
