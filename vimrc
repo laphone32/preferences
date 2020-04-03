@@ -261,9 +261,10 @@ nmap <silent> gy <Plug>(coc-type-definition)
 nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
 
-map <C-p><C-p> :CocList files<CR>
-map <C-p><C-b> :CocList buffers<CR>
-map <C-p><C-f> :CocList grep<CR>
+nmap <silent> <C-p><C-p> :CocList files<CR>
+nmap <silent> <C-p><C-b> :CocList buffers<CR>
+nmap <silent> <C-p><C-f> :CocList grep<CR>
+nmap <silent> <C-p><C-s> :CocList -I symbols<CR>
 nmap <silent> dl :CocList diagnostics<CR>
 
 " Use gh for show documentation in preview window
