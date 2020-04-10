@@ -313,8 +313,8 @@ let g:coc_global_extensions = [
     \]
 
 " Color
-highlight Pmenu ctermfg=0 ctermbg=242 guifg=black guibg=gray45
-highlight PmenuSel ctermfg=234 ctermbg=245 guifg=gray45 guibg=black
+"highlight Pmenu ctermfg=0 ctermbg=242 guifg=black guibg=gray45
+"highlight PmenuSel ctermfg=234 ctermbg=245 guifg=gray45 guibg=black
 
 """""""""""""""""""""""""""""""""""" NERDTree
 let g:NERDTreeIndicatorMapCustom = {
