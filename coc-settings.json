@@ -28,7 +28,7 @@
   "clangd.arguments": ["--background-index"],
 
   // Metals
-  "metals.serverVersion": "0.8.3+176-14c95365-SNAPSHOT",
+  "metals.serverVersion": "0.8.4+41-0c9fb9c9-SNAPSHOT",
   "metals.bloop-sbt-already-installed": "false",
 
   // gopls
