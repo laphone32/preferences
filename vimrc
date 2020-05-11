@@ -310,7 +310,8 @@ let g:coc_global_extensions = [
     \ 'coc-docker',
     \ 'coc-clangd',
     \ 'coc-go',
-    \ 'coc-tsserver'
+    \ 'coc-tsserver',
+    \ 'coc-sh'
     \]
 
 " Color
