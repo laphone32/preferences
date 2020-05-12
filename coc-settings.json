@@ -30,5 +30,8 @@
     "usePlaceholders": true,
     "completeUnimported": true
   },
+
+  // python
+  "python.jediEnabled": false
 }
 
