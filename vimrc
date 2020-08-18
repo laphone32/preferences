@@ -14,7 +14,6 @@ Plug 'Xuyuanp/nerdtree-git-plugin'
 Plug 'itchyny/lightline.vim'
 Plug 'airblade/vim-rooter'
 Plug 'AndrewRadev/linediff.vim'
-"Plug 'derekwyatt/vim-scala'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
 " Retired plugins
@@ -24,6 +23,7 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'}
 "Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --bin' }
 "Plug 'junegunn/fzf.vim'
 "Plug 'docker/docker' , {'rtp' : '/contrib/syntax/vim/', 'for' : 'dockerfile'}
+"Plug 'derekwyatt/vim-scala'
 
 call plug#end()
 
@@ -320,7 +320,7 @@ highlight Pmenu ctermfg=0 ctermbg=242 guifg=black guibg=gray45
 highlight PmenuSel ctermfg=234 ctermbg=38 guifg=gray45 guibg=LightBlue
 
 """""""""""""""""""""""""""""""""""" NERDTree
-let g:NERDTreeIndicatorMapCustom = {
+let g:NERDTreeGitStatusIndicatorMapCustom = {
     \ "Modified"  : "✹",
     \ "Staged"    : "✚",
     \ "Untracked" : "✭",
