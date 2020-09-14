@@ -26,9 +26,10 @@ alias vim='vim --cmd "lang en_US.UTF-8" -u $PREFERENCES_DIR/vimrc'
 alias gvim='gvim --cmd "lang en_US.UTF-8" -u $PREFERENCES_DIR/vimrc'
 alias ssh='$PREFERENCES_BIN/sshell.sh'
 alias python='python3'
+alias sbt='SBT_OPTS="-Xms512M -Xmx1024M -Xss2M -XX:MaxMetaspaceSize=1024M" sbt'
 
 # ripgrep
-if type rg &> /dev/null; then
-    export FZF_DEFAULT_COMMAND='rg --files --hidden'
-fi
+#if type rg &> /dev/null; then
+#    export FZF_DEFAULT_COMMAND='rg --files --hidden'
+#fi
 
