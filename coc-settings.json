@@ -1,10 +1,10 @@
 {
   "languageserver": {
-    "groovy": {
-      "command": "java",
-      "args" : ["-jar", "/Users/jlin/tmp/projects/groovy-language-server/build/libs/groovy-language-server.jar"],
-      "filetypes": ["groovy"]
-     },
+//    "groovy": {
+//      "command": "java",
+//      "args" : ["-jar", "/Users/jlin/tmp/projects/groovy-language-server/build/libs/groovy-language-server.jar"],
+//      "filetypes": ["groovy"]
+//     },
   },
 
   // Needed for type formatting on multiline strings
@@ -23,7 +23,7 @@
 
   // Metals
 //  "metals.serverVersion": "0.9.0+87-bab412a2-SNAPSHOT",
-  "metals.bloop-sbt-already-installed": "false",
+ // "metals.bloop-sbt-already-installed": "false",
 
   // gopls
   "go.goplsOptions": {

@@ -312,7 +312,9 @@ let g:coc_global_extensions = [
     \ 'coc-go',
     \ 'coc-tsserver',
     \ 'coc-sh',
-    \ 'coc-python'
+    \ 'coc-python',
+    \ 'coc-groovy',
+    \ 'coc-yaml'
     \]
 
 " Color
