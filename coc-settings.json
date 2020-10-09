@@ -1,10 +1,5 @@
 {
   "languageserver": {
-//    "groovy": {
-//      "command": "java",
-//      "args" : ["-jar", "/Users/jlin/tmp/projects/groovy-language-server/build/libs/groovy-language-server.jar"],
-//      "filetypes": ["groovy"]
-//     },
   },
 
   // Needed for type formatting on multiline strings
@@ -18,12 +13,14 @@
   "diagnostic.infoSign": "->",
   "diagnostic.hintSign": "**",
 
+  // coc-list
+  "list.source.files.excludePatterns": ["**/.bloop/*"],
+
   // Clangd
   "clangd.arguments": ["--background-index"],
 
   // Metals
-//  "metals.serverVersion": "0.9.0+87-bab412a2-SNAPSHOT",
- // "metals.bloop-sbt-already-installed": "false",
+  "metals.sbtScript": "sbt",
 
   // gopls
   "go.goplsOptions": {
