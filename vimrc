@@ -286,7 +286,16 @@ nmap <silent>ar  <Plug>(coc-rename)
 
 
 " use enter to confirm the completion
-inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm() : "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+
+if has('patch-8.2.0750')
+  nnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
+  nnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
+  inoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(1)\<cr>" : "\<Right>"
+  inoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(0)\<cr>" : "\<Left>"
+  vnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
+  vnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
+endif
 
 augroup cocGroup
   autocmd!
@@ -368,8 +377,8 @@ augroup end
 let g:lightline = {
       \ 'colorscheme': 'nord',
       \ 'active': {
-      \   'left': [ [ 'mode', 'paste' ], [ 'gitbranch', 'filename' ] ],
-      \   'right': [ [ 'hinter_error', 'hinter_warning', 'hinter_hint', 'hinter_info' ], [ 'lineinfo' ], [ 'fileformat', 'fileencoding', 'filetype' ] ]
+      \   'left': [ [ 'mode', 'paste' ], [ 'gitbranch', 'filename' ], [ 'cocstatus' ] ],
+      \   'right': [ [ 'lineinfo' ], [ 'fileformat', 'fileencoding', 'filetype' ] ]
       \ },
       \ 'inactive': {
       \   'left': [ [ 'filename' ] ],
@@ -382,19 +391,8 @@ let g:lightline = {
       \   'filetype': 'LightLineFiletype',
       \   'fileencoding': 'LightLineFileencoding',
       \   'mode': 'LightLineMode',
-      \   'lineinfo': 'LightLineLineInfo'
-      \ },
-      \ 'component_expand': {
-      \   'hinter_error': 'LightLineCocError',
-      \   'hinter_warning': 'LightLineCocWarning',
-      \   'hinter_hint': 'LightLineCocHint',
-      \   'hinter_info': 'LightLineCocInfo',
-      \ },
-      \ 'component_type': {
-      \   'hinter_error': 'error',
-      \   'hinter_warning': 'warning',
-      \   'hinter_hint': 'tabsel',
-      \   'hinter_info': 'middle',
+      \   'lineinfo': 'LightLineLineInfo',
+      \   'cocstatus': 'coc#status'
       \ },
       \ 'subseparator': { 'left': '|', 'right': '|' }
       \ }
@@ -456,30 +454,6 @@ endfunction
 
 function! LightLineLineInfo()
   return !FileIsNormal() ? '' : printf("%3d:%-2d", line('.'), col('.'))
-endfunction
-
-function! s:LightLineCocDiagnostic(kind) abort
-  let info = get(b:, 'coc_diagnostic_info', {})
-  if empty(info) || get(info, a:kind, 0) == 0
-    return ''
-  endif
-  return '•' . info[a:kind]
-endfunction
-
-function! LightLineCocError() abort
-  return s:LightLineCocDiagnostic('error')
-endfunction
-
-function! LightLineCocWarning() abort
-  return s:LightLineCocDiagnostic('warning')
-endfunction
-
-function! LightLineCocInfo() abort
-  return s:LightLineCocDiagnostic('information')
-endfunction
-
-function! LightLineCocHint() abort
-  return s:LightLineCocDiagnostic('hint')
 endfunction
 
 augroup lightlineGroup

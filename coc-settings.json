@@ -21,6 +21,7 @@
 
   // Metals
   "metals.sbtScript": "sbt",
+  "metals.statusBarEnabled": true,
 
   // gopls
   "go.goplsOptions": {
