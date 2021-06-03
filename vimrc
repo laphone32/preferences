@@ -327,6 +327,43 @@ let g:coc_global_extensions = [
     \ 'coc-cmake'
     \]
 
+let g:coc_user_config = {
+    \ 'suggest': {
+        \ 'noselect': v:false,
+        \ 'enablePreview': v:true,
+    \ },
+    \
+    \ 'diagnostic': {
+        \ 'refreshOnInsertMode': v:true,
+        \ 'errorSign': '>>',
+        \ 'warningSign': '!!',
+        \ 'infoSign': '->',
+        \ 'hintSign': '**',
+    \ },
+    \
+    \ 'list.source.files.excludePatterns': ['**/.bloop/*'],
+    \
+    \ 'clangd': {
+        \ 'arguments': ['--background-index'],
+    \ },
+    \
+    \ 'metals': {
+        \ 'sbtScript': 'sbt',
+        \ 'statusBarEnabled': v:true,
+    \ },
+    \
+    \ 'go': {
+        \ 'goplsOptions': {
+            \ 'usePlaceholders': v:true,
+            \ 'completeUnimported': v:true,
+        \ }
+    \ },
+    \
+    \ 'python': {
+        \ 'jediEnabled': v:false,
+    \ }
+  \ }
+
 " Color
 highlight Pmenu ctermfg=0 ctermbg=242 guifg=black guibg=gray45
 highlight PmenuSel ctermfg=234 ctermbg=38 guifg=gray45 guibg=LightBlue
