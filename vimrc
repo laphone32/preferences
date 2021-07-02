@@ -1,5 +1,6 @@
 
 set nocompatible
+
 """""""""""""""""""""""""""""""""""" Vim Plug
 if empty(glob('~/.vim/autoload/plug.vim'))
   silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
@@ -15,16 +16,6 @@ Plug 'itchyny/lightline.vim'
 Plug 'airblade/vim-rooter'
 Plug 'AndrewRadev/linediff.vim'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
-
-" Retired plugins
-"Plug 'vim-scripts/L9'
-"Plug 'Valloric/YouCompleteMe', {'do' : 'python3 install.py --clangd-completer'}
-"Plug 'JalaiAmitahl/maven-compiler.vim'
-"Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --bin' }
-"Plug 'junegunn/fzf.vim'
-"Plug 'docker/docker' , {'rtp' : '/contrib/syntax/vim/', 'for' : 'dockerfile'}
-"Plug 'derekwyatt/vim-scala'
-
 call plug#end()
 
 " Detect OS - Linux | Windows | Darwin
@@ -197,63 +188,6 @@ map <A-F12> :terminal<CR>
 noremap dd "9dd
 noremap x "9x
 
-"""""""""""""""""""""""""""""""""""" FZF
-"let g:fzf_colors =
-"\ { 'fg':      ['fg', 'Normal'],
-"  \ 'bg':      ['bg', 'Normal'],
-"  \ 'hl':      ['fg', 'Comment'],
-"  \ 'fg+':     ['fg', 'CursorLine', 'CursorColumn', 'Normal'],
-"  \ 'bg+':     ['bg', 'CursorLine', 'CursorColumn'],
-"  \ 'hl+':     ['fg', 'Statement'],
-"  \ 'info':    ['fg', 'PreProc'],
-"  \ 'border':  ['fg', 'Ignore'],
-"  \ 'prompt':  ['fg', 'Conditional'],
-"  \ 'pointer': ['fg', 'Exception'],
-"  \ 'marker':  ['fg', 'Keyword'],
-"  \ 'spinner': ['fg', 'Label'],
-"  \ 'header':  ['fg', 'Comment'] }
-"let g:fzf_history_dir = '~/.local/share/fzf-history'
-"
-"command! -bang -nargs=? -complete=dir Files call fzf#vim#files(<q-args>, fzf#vim#with_preview(), <bang>0)
-"map <C-p><C-p> :Files<CR>
-"map <C-p><C-b> :Buffer<CR>
-"map <C-p><C-f> :Rg<CR>
-
-"""""""""""""""""""""""""""""""""""" YouCompleteMe
-"let g:ycm_filetype_whitelist = {'c' : 1, 'h' : 1, 'cpp' : 1, 'hpp' : 1, 'java' : 1, 'python' : 1, 'sh' : 1, 'pom' : 1, 'scala' : 1}
-"let g:ycm_autoclose_preview_window_after_insertion = 1
-"let g:ycm_autoclose_preview_window_after_completion = 1
-"let g:ycm_confirm_extra_conf = 1
-"let g:ycm_always_populate_location_list = 1
-"" Let clangd fully control code completion
-"let g:ycm_clangd_uses_ycmd_caching = 0
-"" Use installed clangd, not YCM-bundled clangd which doesn't get updates.
-"let g:ycm_clangd_binary_path = exepath("clangd")
-"let g:ycm_clangd_args = ['-background-index']
-"
-"" Semantic trigger
-"let g:ycm_semantic_triggers =  {
-"            \ 'c,cpp,python,java,go,erlang,perl': ['re!\w{2}'],
-"            \ 'cs,lua,javascript': ['re!\w{2}'],
-"            \ }
-"
-"let g:ycm_language_server = [
-"            \ { 'name': 'scala',
-"            \   'filetypes': [ 'scala' ],
-"            \   'cmdline': [ 'metals-vim' ],
-"            \   'project_root_files': [ 'build.sbt' ]
-"            \ }
-"            \ ]
-"
-"
-"" remove annoying preview window appearing on top of vim
-"let g:ycm_add_preview_to_completeopt = 0
-"" set completeopt-=preview
-"" nmap <silent> gd :YcmCompleter GoToDeclaration<CR>
-"" nmap <silent> gy <Plug>(coc-type-definition)
-"" nmap <silent> gi :YcmCompleter GoToImplementation<CR>
-"" nmap <silent> gr :YcmCompleter GoToReferences<CR>
- 
 """""""""""""""""""""""""""""""""""" Coc
 nmap <silent> gd <Plug>(coc-definition)
 nmap <silent> gc <Plug>(coc-declaration)
@@ -500,12 +434,9 @@ augroup lightlineGroup
   autocmd BufRead call lightline#update()
 augroup end
 
-" vim-rooter
+"""""""""""""""""""""""""""""""""""""" vim-rooter
 let g:rooter_change_directory_for_non_project_files = 'current'
 let g:rooter_silent_chdir = 1
 let g:rooter_patterns = ['.gitmodules', '.git/', 'build.sbt', 'CMakeLists.txt']
 let g:rooter_resolve_links = 1
-
-" vim-scala
-let g:scala_scaladoc_indent = 1
 
