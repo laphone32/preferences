@@ -17,8 +17,8 @@ noremap <C-n> :action ActivateProjectToolWindow<CR>
 """ Code analysis
 nnoremap gd :action GotoDeclaration<CR>
 nnoremap gi :action GotoImplementation<CR>
-nnoremap gu :action FindUsages<CR>
-nnoremap ge :action GotoNextError<CR>
+nnoremap gr :action FindUsages<CR>
+"nnoremap ge :action GotoNextError<CR>
 
 """ Locations
 nnoremap <C-o> :action Back<CR>
