@@ -56,6 +56,8 @@ endif
 
 set ruler
 set hlsearch
+set ignorecase
+set smartcase
 set incsearch
 
 set laststatus=2
