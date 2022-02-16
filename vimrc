@@ -30,6 +30,7 @@ endif
 " For Delphi
 let pascal_delphi = 1
 
+set encoding=utf-8
 " English
 language mes en_US.UTF-8
 set langmenu=en_US.UTF-8
@@ -77,38 +78,6 @@ set foldnestmax=15
 set t_Co=256
 colorscheme desert
 
-" Set GUI fonts
-" Monaco / Hermit / Droid Sans Mono / Source Code Pro 
-if g:os == 'Linux'
-    set guifont=Hermit\ bold\ 20
-else
-    set guifont=Hermit:h20
-endif
-
-" Without toolbar
-set guioptions-=T
-" Without gui tabbar, always use modified text tabbar
-set guioptions-=e
-" Without menubar
-set guioptions-=m
-" Without auto select/copy
-set guioptions-=a
-set guioptions-=A
-set guioptions-=aA
-" Disable scrollbars
-set guioptions-=r
-set guioptions-=L
-" Disable all cursor blinking
-"set guicursor+=a:blinkon0
-" Startup in full screen size
-" au GUIEnter * simalt ~x
-if has("gui_running")
-    " GUI is running or is about to start.
-    " Maximize gvim window.
-    set lines=99 columns=999
-endif
-
-
 " For chinese
 set ambiwidth=double
 
@@ -150,9 +119,7 @@ augroup removeTaillingWhiteSpaceGroup
     autocmd FileType c,cpp,java,scala,sbt,python,perl,bash,sh,groovy autocmd BufWritePre <buffer> :call <SID>StripTaillingWhiteSpaces()
 augroup end
 
-" Key-mappings for changing tabs
-map <A-q> :tabnew 
-imap <A-q> <ESC>:tabnew 
+" Key-mappings for tab switching
 map <A-1> 1gt
 imap <A-1> <ESC>1gt
 map <A-2> 2gt
@@ -175,16 +142,14 @@ map <A-Right> :tabn<CR>
 imap <A-Right> <ESC>:tabn<CR>
 map <A-Left> :tabp<CR>
 imap <A-Left> <ESC>:tabp<CR>
-map <A-l> :tabn<CR>
-imap <A-l> <ESC>:tabn<CR>
-map <A-h> :tabp<CR>
-imap <A-h> <ESC>:tabp<CR>
 
 map <F8> :vertical diffsplit 
 map <F9> :set cursorline!<CR>
 map <F10> :set cursorcolumn!<CR>
 
 map <A-F12> :terminal<CR>
+
+let mapleader = '\'
 
 " Do not cover the register for the content operated by `dd' and `x'
 noremap dd "9dd
@@ -196,20 +161,18 @@ nmap <silent> gc <Plug>(coc-declaration)
 nmap <silent> gy <Plug>(coc-type-definition)
 nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
-
-nmap <silent> <C-p><C-p> :CocList files<CR>
-nmap <silent> <C-p><C-b> :CocList buffers<CR>
-nmap <silent> <C-p><C-f> :CocList grep<CR>
-nmap <silent> <C-p><C-s> :CocList -I symbols<CR>
-nmap <silent> dl :CocList diagnostics<CR>
+nmap <silent> g[ <Plug>(coc-diagnostic-prev)
+nmap <silent> g] <Plug>(coc-diagnostic-next)
 
 " Use gh for show documentation in preview window
 nnoremap <silent> gh :call <SID>show_documentation()<CR>
 function! s:show_documentation()
   if (index(['vim','help'], &filetype) >= 0)
     execute 'h '.expand('<cword>')
-  else
+  elseif (coc#rpc#ready())
     call CocActionAsync('doHover')
+  else
+    execute '!' . &keywordprg . " " . expand('<cword>')
   endif
 endfunction
 
@@ -219,16 +182,25 @@ nmap <silent>ac  <Plug>(coc-codeaction)
 nmap <silent>af  <Plug>(coc-fix-current)
 " Rename current symbol/word
 nmap <silent>ar  <Plug>(coc-rename)
+" Codelens
+nmap <silent>al <Plug>(coc-codelens-action)
 
+
+nmap <silent> <leader>p :CocList files<CR>
+nmap <silent> <leader>b :CocList buffers<CR>
+nmap <silent> <leader>f :CocList grep<CR>
+nmap <silent> <leader>s :CocList -I symbols<CR>
+nmap <silent> <leader>e :CocList diagnostics<CR>
+nmap <silent> <leader>\ :CocListResume<CR>
 
 " use enter to confirm the completion
-inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm() : "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+inoremap <silent><expr> <CR> pumvisible() ? coc#_select_confirm() : "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
 
 if has('patch-8.2.0750')
   nnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
   nnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
-  inoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(1)\<cr>" : "\<Right>"
-  inoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(0)\<cr>" : "\<Left>"
+  inoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? "\<C-r>=coc#float#scroll(1)\<CR>" : "\<Right>"
+  inoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? "\<C-r>=coc#float#scroll(0)\<CR>" : "\<Left>"
   vnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
   vnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
 endif
@@ -326,7 +298,7 @@ let g:NERDTreeStatusline = -1
 let NERDTreeChDirMode=2
 
 
-map <C-n> :NERDTreeToggle<CR>
+nmap <silent> <leader>n :NERDTreeToggle<CR>
 
 " returns true iff is NERDTree open/active
 function! s:isNTOpen()
