@@ -191,7 +191,7 @@ nmap <silent> <leader>b :CocList buffers<CR>
 nmap <silent> <leader>f :CocList grep<CR>
 nmap <silent> <leader>s :CocList -I symbols<CR>
 nmap <silent> <leader>e :CocList diagnostics<CR>
-nmap <silent> <leader>\ :CocListResume<CR>
+nmap <silent> <leader><leader> :CocListResume<CR>
 
 " use enter to confirm the completion
 inoremap <silent><expr> <CR> pumvisible() ? coc#_select_confirm() : "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
