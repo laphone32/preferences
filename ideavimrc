@@ -7,6 +7,7 @@ set clipboard+=ideaput
 map <leader>p :action GotoFile<CR>
 map <leader>b :action RecentFiles<CR>
 map <leader>f :action FindInPath<CR>
+map <leader>s :action GoToSymbol<CR>
 
 """ search in file content
 map <A-F12> :action ActivateTerminalToolWindow<CR>

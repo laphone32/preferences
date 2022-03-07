@@ -165,8 +165,8 @@ nmap <silent> g[ <Plug>(coc-diagnostic-prev)
 nmap <silent> g] <Plug>(coc-diagnostic-next)
 
 " Use gh for show documentation in preview window
-nnoremap <silent> gh :call <SID>show_documentation()<CR>
-function! s:show_documentation()
+nnoremap <silent> gh :call <SID>ShowDocumentation()<CR>
+function! s:ShowDocumentation()
   if (index(['vim','help'], &filetype) >= 0)
     execute 'h '.expand('<cword>')
   elseif (coc#rpc#ready())
@@ -177,21 +177,37 @@ function! s:show_documentation()
 endfunction
 
 " Remap for doing codeAction of current line
-nmap <silent>ac  <Plug>(coc-codeaction)
+nmap <silent>ac <Plug>(coc-codeaction)
 " Fix autofix problem of current line
-nmap <silent>af  <Plug>(coc-fix-current)
+nmap <silent>af <Plug>(coc-fix-current)
 " Rename current symbol/word
-nmap <silent>ar  <Plug>(coc-rename)
+nmap <silent>ar <Plug>(coc-rename)
 " Codelens
 nmap <silent>al <Plug>(coc-codelens-action)
 
 
 nmap <silent> <leader>p :CocList files<CR>
+vmap <silent> <leader>p :<C-u>call <SID>GrepFromSelected('files')<CR>
+
 nmap <silent> <leader>b :CocList buffers<CR>
+vmap <silent> <leader>b :<C-u>call <SID>GrepFromSelected('buffers')<CR>
+
 nmap <silent> <leader>f :CocList grep<CR>
-nmap <silent> <leader>s :CocList -I symbols<CR>
+vmap <silent> <leader>f :<C-u>call <SID>GrepFromSelected('grep')<CR>
+
+nmap <silent> <leader>s :CocList symbols<CR>
+vmap <silent> <leader>s :<C-u>call <SID>GrepFromSelected('symbols')<CR>
+
 nmap <silent> <leader>e :CocList diagnostics<CR>
 nmap <silent> <leader><leader> :CocListResume<CR>
+
+function! s:GrepFromSelected(dst)
+  let saved_unnamed_register = @@
+  normal! `<v`>y
+  let word = escape(substitute(@@, '\n$', '', 'g'), '| ')
+  let @@ = saved_unnamed_register
+  execute 'CocList --input='.word.' '.a:dst
+endfunction
 
 " use enter to confirm the completion
 inoremap <silent><expr> <CR> pumvisible() ? coc#_select_confirm() : "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
