@@ -199,7 +199,7 @@ vmap <silent> <leader>f :<C-u>call <SID>GrepFromSelected('grep')<CR>
 nmap <silent> <leader>s :CocList symbols<CR>
 vmap <silent> <leader>s :<C-u>call <SID>GrepFromSelected('symbols')<CR>
 
-nmap <silent> <leader>e :CocList diagnostics<CR>
+nmap <silent> <leader>d :CocList diagnostics<CR>
 nmap <silent> <leader><leader> :CocListResume<CR>
 
 function! s:GrepFromSelected(dst)
@@ -236,20 +236,22 @@ augroup end
 set updatetime=300
 
 let g:coc_global_extensions = [
-    \ 'coc-lists',
+    \ 'coc-clangd',
+    \ 'coc-cmake',
+    \ 'coc-docker',
+    \ 'coc-go',
+    \ 'coc-groovy',
     \ 'coc-json',
     \ 'coc-java',
-    \ 'coc-vimlsp',
+    \ 'coc-lists',
     \ 'coc-metals',
-    \ 'coc-docker',
-    \ 'coc-clangd',
-    \ 'coc-go',
-    \ 'coc-tsserver',
-    \ 'coc-sh',
     \ 'coc-python',
-    \ 'coc-groovy',
+    \ 'coc-sh',
+    \ 'coc-sql',
+    \ 'coc-thrift-syntax-support',
+    \ 'coc-tsserver',
+    \ 'coc-vimlsp',
     \ 'coc-yaml',
-    \ 'coc-cmake'
     \]
 
 let g:coc_user_config = {
