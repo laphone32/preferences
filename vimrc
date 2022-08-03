@@ -166,14 +166,12 @@ nmap <silent> g[ <Plug>(coc-diagnostic-prev)
 nmap <silent> g] <Plug>(coc-diagnostic-next)
 
 " Use gh for show documentation in preview window
-nnoremap <silent> gh :call <SID>ShowDocumentation()<CR>
-function! s:ShowDocumentation()
-  if (index(['vim','help'], &filetype) >= 0)
-    execute 'h '.expand('<cword>')
-  elseif (coc#rpc#ready())
+nnoremap <silent> gh :call ShowDocumentation()<CR>
+function! ShowDocumentation()
+  if CocAction('hasProvider', 'hover')
     call CocActionAsync('doHover')
   else
-    execute '!' . &keywordprg . " " . expand('<cword>')
+    call feedkeys('gh', 'in')
   endif
 endfunction
 
@@ -211,7 +209,7 @@ function! s:GrepFromSelected(dst)
 endfunction
 
 " use enter to confirm the completion
-inoremap <silent><expr> <CR> pumvisible() ? coc#_select_confirm() : "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm() : "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
 
 if has('patch-8.2.0750')
   nnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
