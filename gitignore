@@ -26,3 +26,6 @@
 *.classpath
 *.project
 
+# vscode
+.vscode
+
