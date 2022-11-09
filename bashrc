@@ -1,6 +1,6 @@
 
 # XTERM
-. $PREFERENCES_BIN/term_util.sh
+source $PREFERENCES_BIN/term_util.sh
 $LAPHONE_DEFAULT_TERM
 
 export GIT_PS1_SHOWDIRTYSTATE=1
@@ -22,9 +22,9 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     alias ls='gls --color'
 fi
 
-alias vim='vim --cmd "lang en_US.UTF-8" -u $PREFERENCES_DIR/vimrc'
+alias vim='$PREFERENCES_BIN/vim.sh'
 alias gvim='gvim --cmd "lang en_US.UTF-8" -u $PREFERENCES_DIR/gvimrc'
-alias ssh='$PREFERENCES_BIN/sshell.sh'
+alias ssh='$PREFERENCES_BIN/ssh.sh'
 alias python='python3'
 alias sbt='SBT_OPTS="-Xms512M -Xmx8G -Xss2M -XX:MaxMetaspaceSize=1024M" sbt'
 

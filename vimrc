@@ -17,6 +17,7 @@ Plug 'itchyny/lightline.vim'
 Plug 'airblade/vim-rooter'
 Plug 'AndrewRadev/linediff.vim'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'arcticicestudio/nord-vim'
 call plug#end()
 
 " Detect OS - Linux | Windows | Darwin
@@ -69,7 +70,7 @@ set backspace=indent,eol,start
 set noeb vb t_vb=
 
 " Folding
-set foldmarker={,}
+"set foldmarker={,}
 "set foldmethod=marker
 set foldmethod=syntax
 set foldlevel=0 " Close in default
@@ -77,7 +78,8 @@ set foldnestmax=15
 
 " Using 256 colors
 set t_Co=256
-colorscheme desert
+"colorscheme desert
+colorscheme nord
 
 " For chinese
 set ambiwidth=double
@@ -340,7 +342,7 @@ augroup end
 
 """""""""""""""""""""""""""""""""""""" lightline
 let g:lightline = {
-      \ 'colorscheme': 'seoul256',
+      \ 'colorscheme': 'nord',
       \ 'active': {
       \   'left': [ [ 'mode', 'paste' ], [ 'gitbranch', 'filename' ], [ 'cocstatus' ] ],
       \   'right': [ [ 'lineinfo' ], [ 'fileformat', 'fileencoding', 'filetype' ] ]
@@ -432,4 +434,8 @@ let g:rooter_change_directory_for_non_project_files = 'current'
 let g:rooter_silent_chdir = 1
 let g:rooter_patterns = ['.gitmodules', '.git/', 'build.sbt', 'CMakeLists.txt']
 let g:rooter_resolve_links = 1
+
+"""""""""""""""""""""""""""""""""""""" vim-nord
+let g:nord_uniform_diff_background = 1
+
 
