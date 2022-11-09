@@ -294,8 +294,8 @@ let g:coc_user_config = {
   \ }
 
 " Color
-highlight Pmenu ctermfg=0 ctermbg=242 guifg=black guibg=gray45
-highlight PmenuSel ctermfg=234 ctermbg=38 guifg=gray45 guibg=LightBlue
+"highlight Pmenu ctermfg=0 ctermbg=242 guifg=black guibg=gray45
+"highlight PmenuSel ctermfg=234 ctermbg=38 guifg=gray45 guibg=LightBlue
 
 """""""""""""""""""""""""""""""""""" NERDTree
 let g:NERDTreeGitStatusIndicatorMapCustom = {
