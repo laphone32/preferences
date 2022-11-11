@@ -3,6 +3,7 @@
 function setTerm {
     setColor $1
     setFont $1
+    setTitle $1
 }
 
 function recover {
