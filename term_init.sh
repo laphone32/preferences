@@ -29,15 +29,11 @@ else
     esac
 fi
 
-if [[ $(type -t setColor) != function ]]; then
-    function setColor { :; }
-    export -f setColor
-fi
+[[ $(type -t setColor) != function ]] && function setColor { :; }
+[[ $(type -t setFont) != function ]] && function setFont { :; }
 
-if [[ $(type -t setFont) != function ]]; then
-    function setFont { :; }
-    export -f setFont
-fi
+export -f setFont
+export -f setColor
 
 source $PREFERENCES_TERM/wrapper.sh
 setTerm default

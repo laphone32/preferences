@@ -33,5 +33,3 @@ function setFont {
     osascript -e "tell application \"Terminal\" to set the font size of window 1 to $size"
 }
 
-export -f setFont
-

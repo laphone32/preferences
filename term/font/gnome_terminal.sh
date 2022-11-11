@@ -35,5 +35,3 @@ function setFont {
     gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:$profile/ font "$font $size"
 }
 
-export -f setFont
-

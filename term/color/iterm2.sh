@@ -33,5 +33,3 @@ function setColor {
     echo -ne "\033]0;$title\007"
 }
 
-export -f setColor
-

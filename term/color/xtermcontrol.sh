@@ -38,5 +38,3 @@ function setColor {
     fi
 }
 
-export -f setColor
-
