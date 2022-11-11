@@ -1,8 +1,7 @@
 #/bin/bash
 
 function setTerm {
-    local profile="Default"
-    local title="[LOCAL]"
+    local profile title
 
     case $1 in
         "vim" )

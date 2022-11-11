@@ -1,14 +1,7 @@
 
-export PREFERENCES_BIN=$PREFERENCES_DIR/bin
-export PREFERENCES_TERM=$PREFERENCES_DIR/term
+PREFERENCES_BIN=$PREFERENCES_DIR/bin
 
-# TERM
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    source $PREFERENCES_TERM/iterm2.sh
-else
-    source $PREFERENCES_TERM/xtermcontrol.sh
-fi
-setTerm default
+source $PREFERENCES_DIR/term_init.sh
 
 export GIT_PS1_SHOWDIRTYSTATE=1
 export GIT_PS1_SHOWSTASHSTATE=1

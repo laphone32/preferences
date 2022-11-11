@@ -1,0 +1,27 @@
+# Follow the theme of Nord: https://www.nordtheme.com/
+# Ref: https://github.com/arcticicestudio/nord-gnome-terminal/blob/develop/src/nord.sh
+
+foreground="#D8DEE9"
+background="#2E3440"
+cursor="#3B4252" #"rgb(59,66,82)"
+#mouse-foreground="COLOR"
+#mouse-background="COLOR"
+#geometry="WIDTHxHEIGHT+XOFF+YOFF"
+#font="FONT"
+color0="#3B4252"
+color1="#BF616A"
+color2="#A3BE8C"
+color3="#EBCB8B"
+color4="#81A1C1"
+color5="#B48EAD"
+color6="#88C0D0"
+color7="#E5E9F0"
+color8="#4C566A"
+color9="#BF616A"
+color10="#A3BE8C"
+color11="#EBCB8B"
+color12="#81A1C1"
+color13="#B48EAD"
+color14="#8FBCBB"
+color15="#ECEFF4"
+
