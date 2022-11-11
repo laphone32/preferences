@@ -1,6 +1,6 @@
 #/bin/bash
 
-function setTerm {
+function setColor {
     local profile title
 
     case $1 in
@@ -33,5 +33,5 @@ function setTerm {
     echo -ne "\033]0;$title\007"
 }
 
-export -f setTerm
+export -f setColor
 

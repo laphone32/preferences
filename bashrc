@@ -13,6 +13,7 @@ export PATH=$HOME/bin:$PATH:$PREFERENCES_BIN
 export GIT_EDITOR=vim
 export EDITOR=vim
 
+export LC_COLLATE=C
 export LC_MESSAGES=C
 export GTEST_COLOR=1
 

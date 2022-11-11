@@ -1,8 +1,8 @@
 #/bin/bash
 
-function setTerm {
+function setColor {
     local file="" foreground="white" background title
-    local xtermPath="$PREFERENCES_TERM/xterm"
+    local colorPath="$PREFERENCES_TERM/color/xterm"
 
     case $1 in
         "vim")
@@ -34,9 +34,9 @@ function setTerm {
     if [[ $file == "" ]]; then
         xtermcontrol --fg=$foreground --bg=$background --title=$title
     else
-        xtermcontrol --file=$xtermPath/$file --title=$title
+        xtermcontrol --file=$colorPath/$file --title=$title
     fi
 }
 
-export -f setTerm
+export -f setColor
 

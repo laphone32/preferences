@@ -3,7 +3,8 @@
 
 foreground="#D8DEE9"
 background="#2E3440"
-cursor="#3B4252" #"rgb(59,66,82)"
+#cursor="#3B4252" #rgb(59,66,82)
+cursor="#88C0D0" #rgb(136,192,208)
 #mouse-foreground="COLOR"
 #mouse-background="COLOR"
 #geometry="WIDTHxHEIGHT+XOFF+YOFF"
