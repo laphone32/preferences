@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source $PREFERENCES_BIN/term_util.sh
+source $PREFERENCES_TERM/wrapper.sh
 
 for argu in $@
 do
@@ -8,10 +8,10 @@ do
     arguhost=${argu#*@}
 
     ( [[ $arguhost =~ ^- ]] ) || # Skip the ssh arguments
-    ( [[ $arguhost =~ ^prod. ]] && $LAPHONE_PRODUCTION_TERM ) || # Production env. connection
-    ( [[ $arguhost =~ ^uat. ]] && $LAPHONE_UAT_TERM ) || # Testing env. connection
-    ( [[ $arguhost =~ ^docker. ]] && $LAPHONE_DOCKER_TERM ) || # localhost env. connection
-    $LAPHONE_REMOTE_TERM
+    ( [[ $arguhost =~ ^prod. ]] && setTerm prod ) || # Production env. connection
+    ( [[ $arguhost =~ ^uat. ]] && setTerm uat ) || # Testing env. connection
+    ( [[ $arguhost =~ ^docker. ]] && setTerm docker ) || # localhost env. connection
+    setTerm remote
 done
 
 ssh $@

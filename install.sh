@@ -11,7 +11,6 @@ if [ -f $BASH_PROFILE_NAME ]; then
     echo -e "\n\
 #laphone preferences\n\
 export PREFERENCES_DIR=$PREFERENCES_DIR\n\
-export PREFERENCES_BIN=$PREFERENCES_DIR/bin\n\
 source $PREFERENCES_DIR/bashrc\n\
 \n" >> $BASH_PROFILE_NAME
 else

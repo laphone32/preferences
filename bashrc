@@ -1,7 +1,14 @@
 
-# XTERM
-source $PREFERENCES_BIN/term_util.sh
-$LAPHONE_DEFAULT_TERM
+export PREFERENCES_BIN=$PREFERENCES_DIR/bin
+export PREFERENCES_TERM=$PREFERENCES_DIR/term
+
+# TERM
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    source $PREFERENCES_TERM/iterm2.sh
+else
+    source $PREFERENCES_TERM/xtermcontrol.sh
+fi
+setTerm default
 
 export GIT_PS1_SHOWDIRTYSTATE=1
 export GIT_PS1_SHOWSTASHSTATE=1
@@ -23,6 +30,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 fi
 
 alias vim='$PREFERENCES_BIN/vim.sh'
+alias vimdiff='$PREFERENCES_BIN/vimdiff.sh'
 alias gvim='gvim --cmd "lang en_US.UTF-8" -u $PREFERENCES_DIR/gvimrc'
 alias ssh='$PREFERENCES_BIN/ssh.sh'
 alias python='python3'
