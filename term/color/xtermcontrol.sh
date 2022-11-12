@@ -2,11 +2,11 @@
 
 function setColor {
     local file="" foreground="white" background
-    local colorPath="$PREFERENCES_TERM/color/xterm"
+    local colorPath="$PREFERENCES_TERM/color/profile"
 
     case $1 in
         "vim")
-            file="nord-xtermcontrol"
+            file="vim"
             ;;
         "prod")
             background="#691B1B"
