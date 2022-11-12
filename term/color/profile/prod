@@ -1,0 +1,46 @@
+# Follow the theme SolarizedDarculain https://gogh-co.github.io/Gogh/
+
+foreground="#D8DEE9"
+background="#762423"
+#cursor="#3B4252" #rgb(59,66,82)
+cursor="#88C0D0" #rgb(136,192,208)
+#mouse-foreground="COLOR"
+#mouse-background="COLOR"
+#geometry="WIDTHxHEIGHT+XOFF+YOFF"
+#font="FONT"
+
+# RedAlert
+color0="000000"
+color1="d62e4e"
+color2="71be6b"
+color3="beb86b"
+color4="489bee"
+color5="e979d7"
+color6="6bbeb8"
+color7="d6d6d6"
+color8="262626"
+color9="e02553"
+color10="aff08c"
+color11="dfddb7"
+color12="65aaf1"
+color13="ddb7df"
+color14="b7dfdd"
+color15="ffffff" 
+# SolarizedDarcula
+#color0="25292a"
+#color1="f24840"
+#color2="629655"
+#color3="b68800"
+#color4="2075c7"
+#color5="797fd4"
+#color6="15968d"
+#color7="d2d8d9"
+#color8="25292a"
+#color9="f24840"
+#color10="629655"
+#color11="b68800"
+#color12="2075c7"
+#color13="797fd4"
+#color14="15968d"
+#color15="d2d8d9"
+

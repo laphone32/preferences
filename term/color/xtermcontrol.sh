@@ -1,15 +1,16 @@
 #/bin/bash
 
 function setColor {
-    local file="" foreground="white" background
+    local profile="" foreground="white" background
     local colorPath="$PREFERENCES_TERM/color/profile"
 
     case $1 in
         "vim")
-            file="vim"
+            profile="vim"
             ;;
         "prod")
-            background="#691B1B"
+            profile="prod"
+#            background="#691B1B"
             ;;
         "uat")
             background="#245524"
@@ -21,14 +22,15 @@ function setColor {
             background="#0b0a2b"
             ;;
         *)
-            background="#555557575353"
+            profile="default"
+#            background="#555557575353"
             ;;
     esac
 
-    if [[ $file == "" ]]; then
+    if [[ $profile == "" ]]; then
         xtermcontrol --fg=$foreground --bg=$background
     else
-        xtermcontrol --file=$colorPath/$file
+        xtermcontrol --file=$colorPath/$profile
     fi
 }
 
