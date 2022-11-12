@@ -3,7 +3,6 @@
 
 foreground="#D8DEE9"
 background="#2E3440"
-#cursor="#3B4252" #rgb(59,66,82)
 cursor="#88C0D0" #rgb(136,192,208)
 #mouse-foreground="COLOR"
 #mouse-background="COLOR"
@@ -25,4 +24,10 @@ color12="#81A1C1"
 color13="#B48EAD"
 color14="#8FBCBB"
 color15="#ECEFF4"
+
+bold="#D8DEE9"
+cursorFg="#3B4252" #rgb(59,66,82)
+cursorBg="#D8DEE9" #rgb(216,222,233)
+hightlightFg="#2E3440" #rgb(46,52,64)
+hightlightBg="#88C0D0" #rgb(136,192,208)
 
