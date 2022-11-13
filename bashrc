@@ -3,7 +3,7 @@ PREFERENCES_BIN=$PREFERENCES_DIR/bin
 
 source $PREFERENCES_DIR/term_init.sh
 
-if type __git_ps1 | grep -q '^function$' 2>/dev/null; then
+if type -t __git_ps1 | grep -q '^function$' 2>/dev/null; then
     export GIT_PS1_SHOWDIRTYSTATE=1
     export GIT_PS1_SHOWSTASHSTATE=1
 

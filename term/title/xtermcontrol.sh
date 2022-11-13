@@ -4,8 +4,7 @@ function setTitle {
     source $PREFERENCES_TERM/title/titles.sh
 
     local title="${1}_title"
-    title=${!title:=$default_title}
 
-    xtermcontrol --title=$title
+    xtermcontrol --title=${!title:-$default_title}
 }
 
