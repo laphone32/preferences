@@ -10,7 +10,7 @@ do
     ( [[ $arguhost =~ ^- ]] ) || # Skip the ssh arguments
     ( [[ $arguhost =~ ^prod. ]] && setTerm prod ) || # Production env. connection
     ( [[ $arguhost =~ ^uat. ]] && setTerm uat ) || # Testing env. connection
-    ( [[ $arguhost =~ ^docker. ]] && setTerm docker ) || # localhost env. connection
+    ( [[ $arguhost =~ ^docker. ]] && setTerm container ) || # localhost env. connection
     setTerm remote
 done
 

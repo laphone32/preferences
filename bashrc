@@ -3,10 +3,12 @@ PREFERENCES_BIN=$PREFERENCES_DIR/bin
 
 source $PREFERENCES_DIR/term_init.sh
 
-export GIT_PS1_SHOWDIRTYSTATE=1
-export GIT_PS1_SHOWSTASHSTATE=1
+if type __git_ps1 | grep -q '^function$' 2>/dev/null; then
+    export GIT_PS1_SHOWDIRTYSTATE=1
+    export GIT_PS1_SHOWSTASHSTATE=1
 
-export PS1='\[\033[0;32m\]\u\[\e[0m\]:\w\[\033[0;33m\]$(__git_ps1)\[\e[0m\]# '
+    export PS1='\[\033[0;32m\]\u\[\e[0m\]:\w\[\033[0;33m\]$(__git_ps1)\[\e[0m\]# '
+fi
 
 export PATH=$HOME/bin:$PATH:$PREFERENCES_BIN
 
@@ -25,7 +27,7 @@ fi
 
 alias vim='$PREFERENCES_BIN/vim.sh'
 alias vimdiff='$PREFERENCES_BIN/vimdiff.sh'
-alias gvim='gvim --cmd "lang en_US.UTF-8" -u $PREFERENCES_DIR/gvimrc'
+alias gvim='gvim --cmd "lang en_US.UTF-8" -u $PREFERENCES_DIR/vim/gvimrc'
 alias ssh='$PREFERENCES_BIN/ssh.sh'
 alias python='python3'
 alias sbt='SBT_OPTS="-Xms512M -Xmx8G -Xss2M -XX:MaxMetaspaceSize=1024M" sbt'

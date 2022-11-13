@@ -1,28 +1,10 @@
 #/bin/bash
 
 function setTitle {
-    local background title
+    source $PREFERENCES_TERM/title/titles.sh
 
-    case $1 in
-        "vim")
-            title="[Vim]"
-            ;;
-        "prod")
-            title="> PROD <"
-            ;;
-        "uat")
-            title="> UAT <"
-            ;;
-        "remote")
-            title="> REMOTE <"
-            ;;
-        "docker")
-            title="> Container <"
-            ;;
-        *)
-            title="[LOCAL]"
-            ;;
-    esac
+    local title="${1}_title"
+    title=${!title:=$default_title}
 
     xtermcontrol --title=$title
 }

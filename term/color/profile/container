@@ -1,0 +1,34 @@
+# Follow the theme Earthsong https://gogh-co.github.io/Gogh/
+
+foreground="#D8DEE9"
+background="#292520"
+cursor="#88C0D0" #rgb(136,192,208)
+#mouse-foreground="COLOR"
+#mouse-background="COLOR"
+#geometry="WIDTHxHEIGHT+XOFF+YOFF"
+#font="FONT"
+
+# Earthsong
+color0="#121418"
+color1="#c94234"
+color2="#85c54c"
+color3="#f5ae2e"
+color4="#1398b9"
+color5="#d0633d"
+color6="#509552"
+color7="#e5c6aa"
+color8="#675f54"
+color9="#ff645a"
+color10="#98e036a"
+color11="#e0d561f"
+color12="#5fdafff"
+color13="#ff92693"
+color14="#84f0883"
+color15="#f6f7ecf"
+
+bold="#D8DEE9"
+cursorFg="#121418"
+cursorBg="#D8DEE9"
+hightlightFg="#121418"
+hightlightBg="#88C0D0"
+

@@ -1,0 +1,34 @@
+# Follow the theme Vaughn https://gogh-co.github.io/Gogh/
+
+foreground="#D8DEE9"
+background="#25234F"
+cursor="#88C0D0" #rgb(136,192,208)
+#mouse-foreground="COLOR"
+#mouse-background="COLOR"
+#geometry="WIDTHxHEIGHT+XOFF+YOFF"
+#font="FONT"
+
+# Vaughn
+color0="#25234f"
+color1="#705050"
+color2="#60b48a"
+color3="#dfaf8f"
+color4="#5555ff"
+color5="#f08cc3"
+color6="#8cd0d3"
+color7="#709080"
+color8="#709080"
+color9="#dca3a3"
+color10="#60b48a"
+color11="#f0dfaf"
+color12="#5555ff"
+color13="#ec93d3"
+color14="#93e0e3"
+color15="#ffffff"
+
+bold="#D8DEE9"
+cursorFg="#25234f"
+cursorBg="#D8DEE9"
+hightlightFg="#25234f"
+hightlightBg="#88C0D0"
+

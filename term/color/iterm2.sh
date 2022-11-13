@@ -16,7 +16,7 @@ function setColor {
         "remote" )
             profile="Remote"
             ;;
-        "docker" )
+        "container" )
             profile="Container"
             ;;
         *)

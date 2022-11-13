@@ -20,7 +20,7 @@ function setFont {
             font="Ubuntu Mono normal"
             size="20"
             ;;
-        "docker" )
+        "container" )
             font="Ubuntu Mono normal"
             size="20"
             ;;
