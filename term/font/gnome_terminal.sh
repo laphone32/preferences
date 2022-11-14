@@ -5,8 +5,8 @@ function setFont {
 
     case $1 in
         "vim" )
-            font="DejaVu Sans Mono Book"
-            size="20"
+            font="Ubuntu Mono normal"
+            size="23"
             ;;
         "prod" )
             font="Ubuntu Mono normal"
@@ -25,7 +25,7 @@ function setFont {
             size="20"
             ;;
         *)
-            font="Ubuntu Mono normal"
+            font="DejaVu Sans Mono Book"
             size="20"
             ;;
     esac
