@@ -1,5 +1,7 @@
 #/bin/bash
 
+# Ref: https://iterm2.com/documentation-escape-codes.html
+
 function setColor {
     local profile=$PREFERENCES_TERM/color/profile/$1
     [ ! -f "$profile" ] && profile=$PREFERENCES_TERM/color/profile/default
