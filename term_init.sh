@@ -48,6 +48,6 @@ function loadTerms {
 
 loadTerms
 
-source $PREFERENCES_TERM/wrapper.sh
-setTerm default
+source $PREFERENCES_TERM/util.sh
+defaultTerm
 

@@ -1,14 +1,8 @@
 #/bin/bash
 
-function setTerm {
-    setTermColor $1
-    setTermFont $1
-    setTermTitle $1
-}
+source $PREFERENCES_TERM/util.sh
 
-function recover {
-    setTerm default
-}
+trap defaultTerm EXIT;
 
-trap recover EXIT;
+
 
