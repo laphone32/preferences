@@ -6,10 +6,6 @@ function loadTerm {
     [ -z "$1" ] && function setTermColor { :; } || source $PREFERENCES_TERM/color/$1.sh
     [ -z "$2" ] && function setTermFont { :; } || source $PREFERENCES_TERM/font/$2.sh
     [ -z "$3" ] && function setTermTitle { :; } || source $PREFERENCES_TERM/title/$3.sh
-
-    export -f setTermColor
-    export -f setTermFont
-    export -f setTermTitle
 }
 
 function loadTerms {
