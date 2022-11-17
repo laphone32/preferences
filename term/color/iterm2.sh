@@ -36,8 +36,8 @@ function setTermColor {
 
         $(setControlSeq "bold" "bold")
         $(setControlSeq "cursorBg" "curbg")
-        $(setControlSeq "hightlightFg" "selfg")
-        $(setControlSeq "hightlightBg" "selbg")
+        $(setControlSeq "highlightFg" "selfg")
+        $(setControlSeq "highlightBg" "selbg")
         \r
     "
 
