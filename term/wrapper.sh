@@ -1,9 +1,9 @@
 #/bin/bash
 
 function setTerm {
-    setColor $1
-    setFont $1
-    setTitle $1
+    setTermColor $1
+    setTermFont $1
+    setTermTitle $1
 }
 
 function recover {

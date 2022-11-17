@@ -2,7 +2,7 @@
 
 # Ref: https://iterm2.com/documentation-escape-codes.html
 
-function setColor {
+function setTermColor {
     local profile=$PREFERENCES_TERM/color/profile/$1
     [ ! -f "$profile" ] && profile=$PREFERENCES_TERM/color/profile/default
 

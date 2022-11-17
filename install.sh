@@ -18,7 +18,7 @@ else
 fi
 
 # Ideavim
-ln -s $PREFERENCES_DIR/ideavimrc $HOME/.ideavimrc
+ln -s $PREFERENCES_DIR/vim/ideavimrc $HOME/.ideavimrc
 
 # vim
 mkdir -p $HOME/.vim

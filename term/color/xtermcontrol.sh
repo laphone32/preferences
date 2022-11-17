@@ -1,6 +1,6 @@
 #/bin/bash
 
-function setColor {
+function setTermColor {
     local profile=$PREFERENCES_TERM/color/profile/$1
     [ ! -f "$profile" ] && profile=$PREFERENCES_TERM/color/profile/default
 

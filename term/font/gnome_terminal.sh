@@ -1,6 +1,6 @@
 #/bin/bash
 
-function setFont {
+function setTermFont {
     local name size
 
     case $1 in

@@ -1,6 +1,6 @@
 #/bin/bash
 
-function setTitle {
+function setTermTitle {
     source $PREFERENCES_TERM/title/titles.sh
 
     local title="${1}_title"
