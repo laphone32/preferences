@@ -5,7 +5,7 @@ function setTermColor {
 
     [ ! -f "$PREFERENCES_TERM/color/profile/$profile" ] && profile="default"
 
-    local cache=termColor_$profile
+    local cache=_termColor_$profile
     function loadTermColor {
         function setArgs {
             local var=$1 arg=$2

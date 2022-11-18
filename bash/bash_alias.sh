@@ -13,16 +13,26 @@ function _vimdiff {
 }
 
 function _ssh {
+    local confirmed=false
+    function setTermAndBreak {
+        setTerm $1 $2
+        confirmed=true
+    }
+
     for argu in $@
     do
         # For the usage xxx@bind_addr
         arguhost=${argu#*@}
 
-        ( [[ $arguhost =~ ^- ]] ) || # Skip the ssh arguments
-        ( [[ $arguhost =~ ^prod. ]] && setTerm prod ) || # Production env. connection
-        ( [[ $arguhost =~ ^uat. ]] && setTerm uat ) || # Testing env. connection
-        ( [[ $arguhost =~ ^docker. ]] && setTerm container ) || # localhost env. connection
-        setTerm remote
+        case $arguhost in
+            -*) ;;
+            prod.*) setTermAndBreak prod $argu ;;
+            uat.*) setTermAndBreak uat $argu ;;
+            docker.* | container.*) setTermAndBreak container $argu ;;
+            *) setTermAndBreak remote $argu ;;
+        esac
+
+        [ $confirmed = true ] && break;
     done
 
     command ssh $@

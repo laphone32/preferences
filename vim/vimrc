@@ -319,26 +319,16 @@ let g:NERDTreeStatusline = -1
 let NERDTreeChDirMode=2
 
 
-nmap <silent> <leader>n :NERDTreeToggle<CR>
-
-" returns true iff is NERDTree open/active
-function! s:isNTOpen()
-  return exists("t:NERDTreeBufName") && (bufwinnr(t:NERDTreeBufName) != -1)
-endfunction
-
-" calls NERDTreeFind iff NERDTree is active, current window contains a modifiable file, and we're not in vimdiff
-function! s:syncTree()
-  if &modifiable && s:isNTOpen() && strlen(expand('%')) > 0 && !&diff && bufname('%') !~# 'NERD_tree'
-    NERDTreeFind
-    wincmd p
+" Open NERDTree in the directory of the current file (or /home if no file is open)
+nmap <silent> <leader>n :call NERDTreeToggleInCurDir()<CR>
+function! NERDTreeToggleInCurDir()
+  " If NERDTree is open in the current buffer
+  if (exists("t:NERDTreeBufName") && bufwinnr(t:NERDTreeBufName) != -1)
+    exe ":NERDTreeClose"
+  else
+    exe ":NERDTreeFind"
   endif
 endfunction
-
-augroup nerdTreeGroup
-  autocmd!
-  autocmd BufEnter * call s:syncTree()
-  autocmd BufEnter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
-augroup end
 
 """""""""""""""""""""""""""""""""""""" lightline
 let g:lightline = {

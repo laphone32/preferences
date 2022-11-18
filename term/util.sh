@@ -3,7 +3,7 @@
 function setTerm {
     setTermColor $1
     setTermFont $1
-    setTermTitle $1
+    setTermTitle $1 $2
 }
 
 function defaultTerm {
