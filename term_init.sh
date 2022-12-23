@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export PREFERENCES_TERM=$PREFERENCES_DIR/term
+PREFERENCES_TERM=$PREFERENCES_DIR/term
 
 function loadTerm {
     [ -z "$1" ] && function setTermColor { :; } || source $PREFERENCES_TERM/color/$1.sh
