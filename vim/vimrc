@@ -80,6 +80,9 @@ set foldnestmax=15
 set t_Co=256
 "colorscheme desert
 colorscheme nord
+if (has("termguicolors"))
+    set termguicolors
+endif
 
 " For chinese
 set ambiwidth=double
