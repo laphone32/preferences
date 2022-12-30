@@ -1,25 +1,3 @@
-
-set nocompatible
-
-"""""""""""""""""""""""""""""""""""" Vim Plug
-let data_dir = has('nvim') ? stdpath('data') . '/site' : '~/.vim'
-if empty(glob(data_dir . '/autoload/plug.vim'))
-  silent execute '!curl -fLo '.data_dir.'/autoload/plug.vim --create-dirs  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
-  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
-endif
-
-call plug#begin('~/.vim/bundle')
-Plug 'tpope/vim-fugitive'
-Plug 'Raimondi/delimitMate'
-Plug 'preservim/nerdtree'
-Plug 'Xuyuanp/nerdtree-git-plugin'
-Plug 'itchyny/lightline.vim'
-Plug 'airblade/vim-rooter'
-Plug 'AndrewRadev/linediff.vim'
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
-Plug 'arcticicestudio/nord-vim'
-call plug#end()
-
 " Detect OS - Linux | Windows | Darwin
 if !exists("g:os")
     if has("win64") || has("win32") || has("win16")
@@ -32,12 +10,20 @@ endif
 " vimrc dir
 let g:vimrcDir = fnamemodify(resolve(expand('<sfile>:p')), ':h')
 
-function s:loadConfig(configDir) abort
-    for file in glob(g:vimrcDir.'/'.a:configDir.'/*.vim', 1, 1)
-        exec 'source' file
-    endfor
+function s:getConfigPath(configPath) abort
+    return g:vimrcDir . '/' . a:configPath
 endfunction
 
-call s:loadConfig('plugin-setting')
-call s:loadConfig('config')
+function LoadConfig(configPath) abort
+    let file = s:getConfigPath(a:configPath)
+    if filereadable(file)
+        exec 'source' file
+    endif
+endfunction
+
+
+call LoadConfig('config/plugins.vim')
+call LoadConfig('config/setting.vim')
+call LoadConfig('config/autocmd.vim')
+call LoadConfig('config/keymap.vim')
 
