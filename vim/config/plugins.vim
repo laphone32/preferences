@@ -1,30 +1,74 @@
 
 set nocompatible
-
 """""""""""""""""""""""""""""""""""" Vim Plug
 let data_dir = has('nvim') ? stdpath('data') . '/site' : '~/.vim'
-if empty(glob(data_dir . '/autoload/plug.vim'))
-  silent execute '!curl -fLo '.data_dir.'/autoload/plug.vim --create-dirs  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
-  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+    if empty(glob(data_dir . '/autoload/plug.vim'))
+        silent execute '!curl -fLo '.data_dir.'/autoload/plug.vim --create-dirs  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+        autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 
-call plug#begin('~/.vim/bundle')
-Plug 'tpope/vim-fugitive'
-Plug 'Raimondi/delimitMate'
-Plug 'preservim/nerdtree'
-Plug 'Xuyuanp/nerdtree-git-plugin'
-Plug 'itchyny/lightline.vim'
-Plug 'airblade/vim-rooter'
-Plug 'AndrewRadev/linediff.vim'
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
-Plug 'arcticicestudio/nord-vim'
-call plug#end()
 
-function s:loadConfigDir(configDir) abort
-    for file in glob(g:vimrcDir.'/'.a:configDir.'/*.vim', 1, 1)
-        exec 'source' file
+
+function s:afterPlugLoad(plugName) abort
+    call LoadConfig('plugin-setting/' . a:plugName . '.config.vim')
+endfunction
+
+let s:plug = {'toLoad': [], 'toHold': []}
+function s:plugAdd(repo, ...) abort
+    let plugName = split(a:repo, '/')[1]
+    let s:property = (a:0 == 1) ? a:1 : {}
+
+    if has_key(s:property, 'on') || has_key(s:property, 'for')
+        call add(s:plug.toHold, plugName)
+    else 
+        let s:property.on = []
+        call add(s:plug.toLoad, plugName)
+    endif
+
+    execute 'Plug ' . string(a:repo) . ', ' . string(s:property)
+endfunction
+
+function s:plugBegin(plugPath) abort
+    execute 'call plug#begin(' . string(a:plugPath) . ')'
+
+    command! -nargs=+ -bar PlugAdd call s:plugAdd(<args>)
+endfunction
+
+function s:installAutocmd() abort
+    execute 'augroup PlugLoadGroup'
+    execute 'autocmd!'
+
+    for plugName in s:plug.toHold
+        execute 'autocmd User ' . plugName . ' call s:afterPlugLoad(' . string(plugName) . ')'
+    endfor
+
+    execute 'augroup end'
+endfunction
+
+function s:plugEnd() abort
+    call s:installAutocmd()
+
+    execute 'call plug#end()'
+
+    for plug in s:plug.toLoad
+        call s:plugLoad(plug)
     endfor
 endfunction
 
-call s:loadConfigDir('plugin-setting')
+function s:plugLoad(plugName) abort
+    call plug#load(a:plugName)
+    call s:afterPlugLoad(a:plugName)
+endfunction
+
+call s:plugBegin('~/.vim/bundle')
+PlugAdd 'tpope/vim-fugitive'
+PlugAdd 'Raimondi/delimitMate'
+PlugAdd 'preservim/nerdtree', {'on': '<Plug>(file-manager-call)'}
+PlugAdd 'Xuyuanp/nerdtree-git-plugin', {'on': '<Plug>(file-manager-call)'}
+PlugAdd 'itchyny/lightline.vim'
+PlugAdd 'airblade/vim-rooter'
+PlugAdd 'AndrewRadev/linediff.vim', {'on': 'Linediff'}
+PlugAdd 'neoclide/coc.nvim', {'branch': 'release'}
+PlugAdd 'arcticicestudio/nord-vim'
+call s:plugEnd()
 

@@ -20,7 +20,7 @@ set autoindent
 set nocursorline
 set fileformats=unix,dos
 
-if g:os == "Linux"
+if g:os == 'Linux'
     set clipboard=unnamedplus
 else
     set clipboard=unnamed
@@ -49,7 +49,7 @@ set foldnestmax=15
 set t_Co=256
 "colorscheme desert
 colorscheme nord
-if (has("termguicolors"))
+if (has('termguicolors'))
     set termguicolors
 endif
 

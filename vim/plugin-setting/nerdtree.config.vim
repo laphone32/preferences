@@ -1,16 +1,4 @@
 """""""""""""""""""""""""""""""""""" NERDTree
-let g:NERDTreeGitStatusIndicatorMapCustom = {
-    \ "Modified"  : "✹",
-    \ "Staged"    : "✚",
-    \ "Untracked" : "✭",
-    \ "Renamed"   : "➜",
-    \ "Unmerged"  : "═",
-    \ "Deleted"   : "✖",
-    \ "Dirty"     : "✗",
-    \ "Clean"     : "✔︎",
-    \ "Unknown"   : "?"
-    \ }
-
 " Auto quit when choosing file to open
 let NERDTreeQuitOnOpen=1
 " Let statusline handle the status line
