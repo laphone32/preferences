@@ -28,6 +28,11 @@ map <F10> :set cursorcolumn!<CR>
 
 map <A-F12> :terminal<CR>
 
+nnoremap <S-Left>  <C-w><<CR>
+nnoremap <S-Right> <C-w>><CR>
+nnoremap <S-Up>    <C-w>-<CR>
+nnoremap <S-Down>  <C-w>+<CR>
+
 let mapleader = '\'
 
 " Do not cover the register for the content operated by `dd' and `x'

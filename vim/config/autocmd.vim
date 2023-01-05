@@ -11,28 +11,26 @@ if has('autocmd')
       " *.sbt as scala
       autocmd BufRead,BufNewFile *.sbt set filetype=scala
     augroup end
-    " Start in the line last read
 
+
+    " Start in the line last read
     augroup lastReadGroup
       autocmd!
-      autocmd BufRead *.txt set tw=1024
-      autocmd BufReadPost *
-          \ if line("'\"") > 0 && line ("'\"") <= line("$") |
-          \   exe "normal g'\"" |
-          \ endif
+      autocmd BufWinLeave ?* mkview
+      autocmd BufWinEnter ?* silent loadview
     augroup end
 
+
     " Remove the tailling white spaces automatically on every save without altering search history and cursor
-    function! <SID>StripTaillingWhiteSpaces()
+    function! s:stripTaillingWhiteSpaces()
         if !&binary && &filetype != 'diff'
-            let pos = getpos(".")
             keeppatterns %s/\s\+$//e
-            call cursor(pos)
+            call cursor(getpos('.'))
         endif
     endfunction
     augroup removeTaillingWhiteSpaceGroup
         autocmd!
-        autocmd FileType c,cpp,java,scala,sbt,python,perl,bash,sh,groovy autocmd BufWritePre <buffer> :call <SID>StripTaillingWhiteSpaces()
+        autocmd FileType c,cpp,java,scala,sbt,python,perl,bash,sh,groovy,vim autocmd BufWritePre <buffer> :call s:stripTaillingWhiteSpaces()
     augroup end
 
 endif

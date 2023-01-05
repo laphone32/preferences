@@ -67,3 +67,5 @@ set noshowmode
 
 set updatetime=300
 
+" views
+set viewoptions-=options

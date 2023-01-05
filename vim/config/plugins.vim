@@ -20,7 +20,7 @@ function s:plugAdd(repo, ...) abort
 
     if has_key(s:property, 'on') || has_key(s:property, 'for')
         call add(s:plug.toHold, plugName)
-    else 
+    else
         let s:property.on = []
         call add(s:plug.toLoad, plugName)
     endif
@@ -66,7 +66,7 @@ PlugAdd 'Raimondi/delimitMate'
 PlugAdd 'preservim/nerdtree', {'on': '<Plug>(file-manager-call)'}
 PlugAdd 'Xuyuanp/nerdtree-git-plugin', {'on': '<Plug>(file-manager-call)'}
 PlugAdd 'itchyny/lightline.vim'
-PlugAdd 'airblade/vim-rooter'
+PlugAdd 'airblade/vim-rooter', {'on': []}
 PlugAdd 'AndrewRadev/linediff.vim', {'on': 'Linediff'}
 PlugAdd 'neoclide/coc.nvim', {'branch': 'release'}
 PlugAdd 'arcticicestudio/nord-vim'
