@@ -42,7 +42,7 @@ function! s:GrepFromSelected(dst)
   normal! `<v`>y
   let word = escape(substitute(@@, '\n$', '', 'g'), '| ')
   let @@ = saved_unnamed_register
-  execute 'CocList --input='.word.' '.a:dst
+  execute 'CocList -I --input='.word.' '.a:dst
 endfunction
 
 " use enter to confirm the completion
@@ -104,6 +104,7 @@ let g:coc_user_config = {
         \ 'hintSign': '**',
     \ },
     \
+    \ 'list.source.files.args': ['--hidden', '--files'],
     \ 'list.source.files.excludePatterns': ['**/.bloop/*'],
     \
     \ 'clangd': {
