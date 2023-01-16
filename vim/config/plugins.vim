@@ -66,9 +66,11 @@ PlugAdd 'Raimondi/delimitMate'
 PlugAdd 'preservim/nerdtree', {'on': '<Plug>(file-manager-call)'}
 PlugAdd 'Xuyuanp/nerdtree-git-plugin', {'on': '<Plug>(file-manager-call)'}
 PlugAdd 'itchyny/lightline.vim'
-PlugAdd 'airblade/vim-rooter', {'on': []}
+PlugAdd 'airblade/vim-rooter'
 PlugAdd 'AndrewRadev/linediff.vim', {'on': 'Linediff'}
 PlugAdd 'neoclide/coc.nvim', {'branch': 'release'}
 PlugAdd 'arcticicestudio/nord-vim'
+PlugAdd 'junegunn/fzf', { 'do': { -> fzf#install() }}
+PlugAdd 'junegunn/fzf.vim'
 call s:plugEnd()
 
