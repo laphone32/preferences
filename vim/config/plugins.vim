@@ -70,7 +70,7 @@ PlugAdd 'airblade/vim-rooter'
 PlugAdd 'AndrewRadev/linediff.vim', {'on': 'Linediff'}
 PlugAdd 'neoclide/coc.nvim', {'branch': 'release'}
 PlugAdd 'arcticicestudio/nord-vim'
-PlugAdd 'junegunn/fzf', { 'do': { -> fzf#install() }}
-PlugAdd 'junegunn/fzf.vim'
+PlugAdd 'junegunn/fzf', { 'do': { -> fzf#install() }, 'on': []}
+PlugAdd 'junegunn/fzf.vim', {'on': []}
 call s:plugEnd()
 

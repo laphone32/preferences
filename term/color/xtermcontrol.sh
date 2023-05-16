@@ -17,7 +17,7 @@ function setTermColor {
             $(setArgs background --bg)
             $(setArgs foreground --fg)
             $(setArgs cursor --cursor)
-            $(setArgs highlightFg --highlight)
+            $(setArgs highlightBg --highlight)
             $(setArgs color0  --color0)
             $(setArgs color1  --color1)
             $(setArgs color2  --color2)

@@ -29,5 +29,6 @@ bold="#D8DEE9"
 cursorFg="#3B4252" #rgb(59,66,82)
 cursorBg="#D8DEE9" #rgb(216,222,233)
 highlightFg="#2E3440" #rgb(46,52,64)
-highlightBg="#88C0D0" #rgb(136,192,208)
+highlightBg="#99A3A2"
+#highlightBg="#88C0D0" #rgb(136,192,208)
 
