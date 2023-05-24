@@ -42,10 +42,8 @@ termAlias vim _vim
 termAlias vimdiff _vimdiff
 termAlias ssh _ssh
 
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    alias ls='gls --color=auto'
-fi
 
+alias ls='ls --color=auto'
 alias grep='grep --color=auto'
 alias gvim='gvim --cmd "lang en_US.UTF-8" -u $PREFERENCES_DIR/vim/gvimrc'
 alias python='python3'
