@@ -22,7 +22,11 @@ ln -s $PREFERENCES_DIR/vim/ideavimrc $HOME/.ideavimrc
 
 # vim
 mkdir -p $HOME/.vim
-#ln -s $PREFERENCES_DIR/coc-settings.json $HOME/.vim/coc-settings.json
 
+# git
 git config --global core.excludesfile $PREFERENCES_DIR/gitignore
+git config --global user.useConfigOnly true
+
+# systemd
+$PREFERENCES_DIR/systemd/install.sh
 

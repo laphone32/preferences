@@ -9,7 +9,7 @@ function loadTerm {
 }
 
 function loadTerms {
-    # Don't bother the shell inside vim terminal
+    # Don't bother the shell within vim terminal
     [[ -z ${VIM:+x} ]] || return
 
     case $OSTYPE in
