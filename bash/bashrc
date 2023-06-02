@@ -21,6 +21,12 @@ declare -x LS_COLORS="no=00:fi=00:di=01;36:ln=02;36:pi=40;33:so=01;35:do=01;35:b
 
 source $PREFERENCES_DIR/bash/bash_alias.sh
 
+# git
+git config --global core.excludesfile $PREFERENCES_DIR/gitignore
+git config --global --unset user.email
+git config --global user.useConfigOnly true
+
+
 # ripgrep
 #if type rg &> /dev/null; then
 #    export FZF_DEFAULT_COMMAND='rg --files --hidden'

@@ -23,10 +23,6 @@ ln -s $PREFERENCES_DIR/vim/ideavimrc $HOME/.ideavimrc
 # vim
 mkdir -p $HOME/.vim
 
-# git
-git config --global core.excludesfile $PREFERENCES_DIR/gitignore
-git config --global user.useConfigOnly true
-
 # systemd
 $PREFERENCES_DIR/systemd/install.sh
 
