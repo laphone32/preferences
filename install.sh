@@ -2,26 +2,16 @@
 
 PREFERENCES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-BASH_PROFILE_NAME="$HOME/.bashrc"
-if [ ! -f $BASH_PROFILE_NAME ]; then
-    BASH_PROFILE_NAME="$HOME/.bash_profile"
-fi
+set -x
 
-if [ -f $BASH_PROFILE_NAME ]; then
-    echo -e "\n\
-#laphone preferences\n\
-export PREFERENCES_DIR=$PREFERENCES_DIR\n\
-source $PREFERENCES_DIR/bash/bashrc\n\
-\n" >> $BASH_PROFILE_NAME
-else
-    echo "Cannot find neither .bashrc nor .bash_profile"
-fi
-
-# Ideavim
-ln -s $PREFERENCES_DIR/vim/ideavimrc $HOME/.ideavimrc
+#bash
+$PREFERENCES_DIR/bash/install.sh
 
 # vim
-mkdir -p $HOME/.vim
+$PREFERENCES_DIR/vim/install.sh
+
+# git
+$PREFERENCES_DIR/git/install.sh
 
 # systemd
 $PREFERENCES_DIR/systemd/install.sh
