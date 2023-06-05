@@ -1,14 +1,10 @@
 #!/bin/bash
 
-headMark='### laphone preferences ###'
-footMark='### end of laphone preferences ###'
-
-leadLine="^$headMark\$"
-tailLine="^$footMark\$"
+source $PREFERENCES_DIR/util/utils.sh
 
 install="\
-export PREFERENCES_DIR=$PREFERENCES_DIR\\n\
-source $PREFERENCES_DIR/bash/bashrc\
+export PREFERENCES_DIR=$PREFERENCES_DIR\\
+source \$PREFERENCES_DIR/bash/bashrc\
 "
 
 bashProfileName="$HOME/.bashrc"
@@ -16,13 +12,9 @@ if [ ! -f $bashProfileName ]; then
     bashProfileName="$HOME/.bash_profile"
 fi
 
-bashProfileNameBackup="$bashProfileName.bak"
-
 if [ -f $bashProfileName ]; then
-
-    sed -e "/$leadLine/,/$tailLine/{h; /$leadLine/{p; a \\$install
-    }; /$tailLine/p; d };\${x;/^$/{s||$headMark\\n$install\\n$footMark\\n|;H};x}" $bashProfileName > $bashProfileNameBackup && mv $bashProfileNameBackup $bashProfileName
-
+    echo "insatll to $bashProfileName"
+    updateOrInsertSection $bashProfileName 'laphone preferences' "$install"
 else
     echo "Cannot find neither .bashrc nor .bash_profile"
 fi

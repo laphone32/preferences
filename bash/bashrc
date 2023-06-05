@@ -8,7 +8,7 @@ if type -t __git_ps1 | grep -q '^function$' 2>/dev/null; then
     export PS1='\[\033[0;32m\]\u\[\e[0m\]:\w\[\033[0;33m\]$(__git_ps1)\[\e[0m\]# '
 fi
 
-export PATH=$HOME/bin:$PATH:$PREFERENCES/bin
+export PATH=$HOME/bin:$PATH:$PREFERENCES_DIR/bin
 
 export GIT_EDITOR=vim
 export EDITOR=vim
