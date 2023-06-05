@@ -1,0 +1,10 @@
+
+source $PREFERENCES_DIR/util/utils.sh
+
+function echoAndSource {
+    echo $1
+    source "$1"
+}
+
+eachSubFile "$PREFERENCES_DIR" 'source' 'bashrc'
+

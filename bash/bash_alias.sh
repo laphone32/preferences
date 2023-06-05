@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source $PREFERENCES_TERM/util.sh
+source $PREFERENCES_DIR/term/util.sh
 
 function _vim {
     setTerm vim

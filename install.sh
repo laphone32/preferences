@@ -1,18 +1,15 @@
 #!/bin/bash
 
+
 PREFERENCES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-set -x
+source $PREFERENCES_DIR/util/utils.sh
 
-#bash
-$PREFERENCES_DIR/bash/install.sh
+function echoAndSource {
+    local arg=$1
+    echo "source $arg"
+    source $arg
+}
 
-# vim
-$PREFERENCES_DIR/vim/install.sh
-
-# git
-$PREFERENCES_DIR/git/install.sh
-
-# systemd
-$PREFERENCES_DIR/systemd/install.sh
+eachSubFile "$PREFERENCES_DIR" 'echoAndSource' 'install.sh'
 

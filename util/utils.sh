@@ -1,5 +1,17 @@
 #!/bin/bash
 
+function eachSubFile {
+    local targetDir=$1
+    local action=$2
+    local fileName=$3
+
+    for dir in $targetDir/*/; do
+        if [ -f "$dir$fileName" ]; then
+            eval "$action $dir$fileName"
+        fi
+    done
+}
+
 function updateOrInsertSection {
     local fileName=$1
     local section=$2
