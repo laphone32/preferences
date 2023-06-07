@@ -1,4 +1,4 @@
-#/bin/bash
+#!/usr/bin/env bash
 
 # Ref: https://iterm2.com/documentation-escape-codes.html
 

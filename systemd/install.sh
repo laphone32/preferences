@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 PREFERENCES_SYSTEMD=$PREFERENCES_DIR/systemd
 

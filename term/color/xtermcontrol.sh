@@ -1,4 +1,4 @@
-#/bin/bash
+#!/usr/bin/env bash
 
 function setTermColor {
     local profile=$1

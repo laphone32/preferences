@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 PREFERENCES_GIT=$PREFERENCES_DIR/git
 

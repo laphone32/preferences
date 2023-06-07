@@ -1,4 +1,4 @@
-#/bin/bash
+#!/usr/bin/env bash
 
 function setTermTitle {
     local cache=_termTitle_${1}

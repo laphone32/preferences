@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-#source $PREFERENCES_DIR/util/utils.sh
+source $PREFERENCES_DIR/util/utils.sh
 
 install="\
 export PREFERENCES_DIR=$PREFERENCES_DIR\\

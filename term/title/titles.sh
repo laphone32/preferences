@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 default_title="[LOCAL]"
 vim_title="[Vim]"

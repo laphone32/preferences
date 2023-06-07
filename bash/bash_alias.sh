@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 source $PREFERENCES_DIR/term/util.sh
 
