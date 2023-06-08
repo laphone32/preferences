@@ -8,7 +8,7 @@ loadTerms
 
 vimTerm='
     trap defaultTerm RETURN
-    setTerm vim
+    setTerm profile_vim
     '
 wrapPreHook "$vimTerm" vim
 wrapPreHook "$vimTerm" vimdiff
