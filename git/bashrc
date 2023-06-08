@@ -16,5 +16,5 @@ fi
 
 export GIT_EDITOR=vim
 
-wrapParameterBind git "-c user.useConfigOnly=true -c include.path=$PREFERENCES_GIT/config -c core.excludesfile=$PREFERENCES_GIT/ignore"
+wrapParameterBind git "-c include.path=$PREFERENCES_GIT/config -c core.excludesfile=$PREFERENCES_GIT/ignore"
 
