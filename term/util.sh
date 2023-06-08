@@ -42,12 +42,12 @@ function loadTerms {
 }
 
 function setTerm {
-    local profile=$(echo $1 | sed 's/^profile_\(.*\)/\1/p')
+    local profile=$(echo $1 | sed 's/^profile_\(.*\)/\1/')
     local title=$2
 
-    setTermColor $1
-    setTermFont $1
-    setTermTitle $1 $2
+    setTermColor $profile
+    setTermFont $profile
+    setTermTitle $profile $title
 }
 
 function defaultTerm {
