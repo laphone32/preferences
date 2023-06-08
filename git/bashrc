@@ -1,3 +1,8 @@
+#!/usr/bin/env bash
+
+source $PREFERENCES_DIR/util/override.sh
+
+PREFERENCES_GIT=$PREFERENCES_DIR/git
 
 if type -t __git_ps1 | grep -q '^function$' 2>/dev/null; then
     GIT_PS1_SHOWDIRTYSTATE=true
@@ -10,4 +15,6 @@ if type -t __git_ps1 | grep -q '^function$' 2>/dev/null; then
 fi
 
 export GIT_EDITOR=vim
+
+wrapParameterBind git "-c user.useConfigOnly=true -c include.path=$PREFERENCES_GIT/config -c core.excludesfile=$PREFERENCES_GIT/ignore"
 
