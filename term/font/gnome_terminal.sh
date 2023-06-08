@@ -1,32 +1,34 @@
 #!/usr/bin/env bash
 
 function setTermFont {
-    local name size
+    local name=$1
+    local font=''
+    local size=''
 
-    case $1 in
-        "vim" )
-            font="Ubuntu Mono normal"
-            size="23"
+    case $name in
+        'vim' )
+            font='Ubuntu Mono normal'
+            size='23'
             ;;
-        "prod" )
-            font="Ubuntu Mono normal"
-            size="20"
+        'prod' )
+            font='Ubuntu Mono normal'
+            size='20'
             ;;
-        "uat" )
-            font="Ubuntu Mono normal"
-            size="20"
+        'uat' )
+            font='Ubuntu Mono normal'
+            size='20'
             ;;
-        "remote" )
-            font="Ubuntu Mono normal"
-            size="20"
+        'remote' )
+            font='Ubuntu Mono normal'
+            size='20'
             ;;
-        "container" )
-            font="Ubuntu Mono normal"
-            size="20"
+        'container' )
+            font='Ubuntu Mono normal'
+            size='20'
             ;;
         *)
-            font="DejaVu Sans Mono Book"
-            size="20"
+            font='DejaVu Sans Mono Book'
+            size='20'
             ;;
     esac
 

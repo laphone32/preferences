@@ -6,14 +6,14 @@ source $PREFERENCES_TERM/util.sh
 
 loadTerms
 
-function vimTerm {
+vimTerm='
     trap defaultTerm RETURN
     setTerm vim
-}
-wrapPreHook vimTerm vim
-wrapPreHook vimTerm vimdiff
+    '
+wrapPreHook "$vimTerm" vim
+wrapPreHook "$vimTerm" vimdiff
 
-function sshTerm {
+wrapPreHook '
     trap defaultTerm RETURN
     local confirmed=false
     function setTermAndBreak {
@@ -25,19 +25,17 @@ function sshTerm {
     do
         # For the usage xxx@bind_addr
         arguhost=${argu#*@}
-
         case $arguhost in
             -*) ;;
-            prod.*) setTermAndBreak prod $argu ;;
-            uat.*) setTermAndBreak uat $argu ;;
-            docker.* | container.*) setTermAndBreak container $argu ;;
-            *) setTermAndBreak remote $argu ;;
+            prod.*) setTermAndBreak profile_prod $argu ;;
+            uat.*) setTermAndBreak profile_uat $argu ;;
+            docker.* | container.*) setTermAndBreak profile_container $argu ;;
+            *) setTermAndBreak profile_remote $argu ;;
         esac
 
         [ $confirmed = true ] && break;
     done
-}
-wrapPreHook sshTerm ssh
+    ' ssh
 
 defaultTerm
 

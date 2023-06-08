@@ -13,13 +13,13 @@ function loadTerms {
     [[ -z ${VIM:+x} ]] || return
 
     case $OSTYPE in
-        "darwin"*)
+        'darwin'*)
             case $TERM_PROGRAM in
-                "iTerm"*)
-                    loadTerm "iterm2" "" "iterm2"
+                'iTerm'*)
+                    loadTerm 'iterm2' '' 'iterm2'
                     ;;
                 *)
-                    loadTerm "xtermcontrol" "apple_terminal" "xtermcontrol"
+                    loadTerm 'xtermcontrol' 'apple_terminal' 'xtermcontrol'
                     ;;
             esac
             ;;
@@ -27,14 +27,14 @@ function loadTerms {
             local terminal=$(ps -o comm= -p "$(($(ps -o ppid= -p "$(($(ps -o sid= -p "$$")))")))")
 
             case $terminal in
-                "gnome-terminal"*)
-                    loadTerm "xtermcontrol" "gnome_terminal" "xtermcontrol"
+                'gnome-terminal'*)
+                    loadTerm 'xtermcontrol' 'gnome_terminal' 'xtermcontrol'
                     ;;
-                "kgx") # gnome-console
-                    loadTerm "xtermcontrol" "" "xtermcontrol"
+                'kgx') # gnome-console
+                    loadTerm 'xtermcontrol' '' 'xtermcontrol'
                     ;;
                 *)
-                    loadTerm "xtermcontrol" "" "xtermcontrol"
+                    loadTerm 'xtermcontrol' '' 'xtermcontrol'
                     ;;
             esac
             ;;
@@ -42,12 +42,15 @@ function loadTerms {
 }
 
 function setTerm {
+    local profile=$(echo $1 | sed 's/^profile_\(.*\)/\1/p')
+    local title=$2
+
     setTermColor $1
     setTermFont $1
     setTermTitle $1 $2
 }
 
 function defaultTerm {
-    setTerm default
+    setTerm profile_default
 }
 

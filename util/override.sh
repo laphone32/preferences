@@ -49,14 +49,14 @@ function wrap {
 }
 
 function wrapPreHook {
-    wrap $1 '' "$2"
+    wrap "$1" '' "$2"
 }
 
 function wrapParameterBind {
-    wrap '' '' $1 "$2"
+    wrap '' '' "$1" "$2"
 }
 
 function wrapPostHook {
-    wrap '' '' $1 '' "$2"
+    wrap '' '' "$1" '' "$2"
 }
 
