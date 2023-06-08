@@ -3,8 +3,8 @@
 source $PREFERENCES_DIR/util/utils.sh
 
 install="\
-export PREFERENCES_DIR=$PREFERENCES_DIR\\
-source \$PREFERENCES_DIR/bash/bashrc_loader\
+export PREFERENCES_DIR=\'$PREFERENCES_DIR\'\\
+[[ -s \"\$PREFERENCES_DIR/bash/bashrc_loader\" ]] && source \"\$PREFERENCES_DIR/bash/bashrc_loader\"\
 "
 
 bashProfileName="$HOME/.bashrc"

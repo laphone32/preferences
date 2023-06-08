@@ -1,0 +1,8 @@
+
+source $PREFERENCES_DIR/util/override.sh
+
+wrapParameterBind vim '--cmd "lang en_US.UTF-8" -u $PREFERENCES_DIR/vim/vimrc'
+wrapParameterBind vimdiff '--cmd "lang en_US.UTF-8" -u $PREFERENCES_DIR/vim/vimrc'
+
+alias gvim="gvim --cmd 'lang en_US.UTF-8' -u $PREFERENCES_DIR/vim/gvimrc"
+
