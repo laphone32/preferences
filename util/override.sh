@@ -37,6 +37,7 @@ function wrap {
             content=$(bindCommand "$name" "$preCommand command" "$name" "$postCommand $parameterPack")
             ;;
         '')
+            content=':;'
             ;;
         *)
             content=$(bindCommand "$name" "$preCommand" ${!name} "$postCommand $parameterPack")

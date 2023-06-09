@@ -2,6 +2,7 @@
 export PATH=$HOME/bin:$PREFERENCES_DIR/bin:$PATH
 
 export EDITOR=vim
+export VISUAL=vim
 
 export LC_COLLATE=C
 export LC_MESSAGES=C
