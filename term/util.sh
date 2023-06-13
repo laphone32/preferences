@@ -3,9 +3,13 @@
 source $PREFERENCES_DIR/util/override.sh
 
 function loadTerm {
-    [ -z "$1" ] && function setTermColor { :; } || source $PREFERENCES_TERM/color/$1.sh
-    [ -z "$2" ] && function setTermFont { :; } || source $PREFERENCES_TERM/font/$2.sh
-    [ -z "$3" ] && function setTermTitle { :; } || source $PREFERENCES_TERM/title/$3.sh
+    local colorSet=$1
+    local fontSet=$2
+    local titleSet=$3
+
+    [ -z $colorSet ] && function setTermColor { :; } || source $PREFERENCES_TERM/color/$colorSet.sh
+    [ -z $fontSet ] && function setTermFont { :; } || source $PREFERENCES_TERM/font/$fontSet.sh
+    [ -z $titleSet ] && function setTermTitle { :; } || source $PREFERENCES_TERM/title/$titleSet.sh
 }
 
 function loadTerms {
