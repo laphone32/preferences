@@ -1,0 +1,27 @@
+
+source $PREFERENCES_DIR/util/override.sh
+source $PREFERENCES_DIR/util/environment.sh
+
+
+_coursierCachePath=''
+case $(currentOs) in
+    Darwin)
+        _coursierCachePath='~/Library/Caches/Coursier/v1'
+        ;;
+    Linux)
+        _coursierCachePath='~/.cache/coursier/v1'
+        ;;
+    Windows)
+        _coursierCachePath='%LOCALAPPDATA%\\Coursier\\Cache\\v1'
+        ;;
+esac
+
+wrap "
+    if [[ \$1 == 'clear' ]]; then
+        echo \"Rename $_coursierCachePath to $_coursierCachePath.old\"
+        mv \"$_coursierCachePath\" \"$_coursierCachePath.old\"
+    else
+    " 'SBT_OPTS="-Xms512M -Xmx8G -Xss2M -XX:MaxMetaspaceSize=1024M"' sbt '' '
+    fi
+    '
+

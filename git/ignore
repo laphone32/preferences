@@ -29,3 +29,6 @@
 # vscode
 .vscode
 
+#sbt bsp
+.bsp
+
