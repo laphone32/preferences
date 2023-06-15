@@ -4,5 +4,5 @@
 mkdir -p $HOME/.vim
 
 # Ideavim
-ln -s $PREFERENCES_DIR/vim/ideavimrc $HOME/.ideavimrc
+ln -sf $PREFERENCES_DIR/vim/ideavimrc $HOME/.ideavimrc
 

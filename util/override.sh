@@ -17,7 +17,7 @@ function wrap {
     local postHook=$5
 
     local content=''
-    local parameterPack='$@'
+    local parameterPack='"$@"'
 
     case $(type -t $name) in
         'alias')
