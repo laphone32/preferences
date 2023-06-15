@@ -1,13 +1,6 @@
 
 source $PREFERENCES_DIR/util/override.sh
+source $PREFERENCES_DIR/sbt/common.sh
 
-wrap "
-    if [[ \$1 == 'clear' ]]; then
-        local coursierCachePath=\$(sbt --no-colors --error 'print csrCacheDirectory')
-        echo \"Rename \$coursierCachePath to \$coursierCachePath.old\"
-        mv \"\$coursierCachePath\" \"\$coursierCachePath.old\"
-    else
-    " 'SBT_OPTS="-Xms512M -Xmx8G -Xss2M -XX:MaxMetaspaceSize=1024M"' sbt '' '
-    fi
-    '
+wrap '' 'SBT_OPTS="-Xms512M -Xmx8G -Xss2M -XX:MaxMetaspaceSize=1024M"' sbt "-Dsbt.coursier.home=$_XDGCacheDir"
 
