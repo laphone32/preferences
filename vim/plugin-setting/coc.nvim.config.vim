@@ -22,28 +22,14 @@ nnoremap <Plug>(auto-rename-call) <Plug>(coc-rename)
 nnoremap <Plug>(auto-code-lens-call) <Plug>(coc-codelens-action)
 
 
-nnoremap <Plug>(normal-find-file-call) :CocList files<CR>
-vnoremap <Plug>(virtual-find-file-call) :<C-u>call <SID>GrepFromSelected('files')<CR>
+"call AddListKeyMappings('find-file-call', 'CocList files', 'CocList -I --input=%s files')
+"call AddListKeyMappings('grep-file-call', 'CocList grep', 'CocList -I --input=%s grep')
+"call AddListKeyMappings('find-buffer-call', 'CocList buffers', 'CocList -I --input=%s buffers')
+"call AddListKeyMappings('find-symbol-call', 'CocList symbols', 'CocList -I --input=%s symbols')
 
-nnoremap <Plug>(normal-find-buffer-call) :CocList buffers<CR>
-vnoremap <Plug>(virtual-find-buffer-call) :<C-u>call <SID>GrepFromSelected('buffers')<CR>
-
-nnoremap <Plug>(normal-grep-file-call) :CocList grep<CR>
-vnoremap <Plug>(virtual-grep-file-call) :<C-u>call <SID>GrepFromSelected('grep')<CR>
-
-nnoremap <Plug>(normal-find-symbol-call) :CocList symbols<CR>
-vnoremap <Plug>(virtual-find-symbol-call) :<C-u>call <SID>GrepFromSelected('symbols')<CR>
 
 nnoremap <Plug>(normal-find-diagnostic-call) :CocList diagnostics<CR>
 nnoremap <Plug>(resume-list-call) :CocListResume<CR>
-
-function! s:GrepFromSelected(dst)
-  let saved_unnamed_register = @@
-  normal! `<v`>y
-  let word = escape(substitute(@@, '\n$', '', 'g'), '| ')
-  let @@ = saved_unnamed_register
-  execute 'CocList -I --input='.word.' '.a:dst
-endfunction
 
 " use enter to confirm the completion
 inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm() : "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"

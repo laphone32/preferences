@@ -1,4 +1,11 @@
 """""""""""""""""""""""""""""""""""" FZF
+
+let g:fzf_layout = {
+    \ 'down': '40%'
+  \ }
+
+let g:fzf_preview_window = ['hidden,right,40%', 'ctrl-/']
+
 let g:fzf_colors =
 \ { 'fg':      ['fg', 'Normal'],
   \ 'bg':      ['bg', 'Normal'],
@@ -16,12 +23,14 @@ let g:fzf_colors =
 let g:fzf_history_dir = '~/.local/share/fzf-history'
 
 
-command! -bang -nargs=0 Files call fzf#vim#files(getcwd(), fzf#vim#with_preview(), <bang>0)
-command! -bang -nargs=? -complete=dir Grep call fzf#vim#grep('rg --column --line-number --no-heading --color=always --smart-case -- ' . shellescape(<q-args>) . ' ' . getcwd(), 1, fzf#vim#with_preview(), <bang>0)
+augroup fzfGroup
+    autocmd!
+    autocmd FileType fzf set laststatus=0 noshowmode noruler
+    autocmd BufLeave <buffer> set laststatus=2 showmode ruler
+augroup end
 
 
-"nnoremap <Plug><normal-find-file-call> :GFiles<CR>
-"nnoremap <Plug><normal-find-buffer-call> :Buffers<CR>
-"nnoremap <Plug><normal-grep-file-call> :Grep<CR>
-
+call AddListKeyMappings('find-file-call', 'Files', 'Files %s')
+call AddListKeyMappings('grep-file-call', 'RG', 'RG %s')
+call AddListKeyMappings('find-buffer-call', 'Buffers', 'Buffers %s')
 

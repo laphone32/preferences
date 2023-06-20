@@ -22,6 +22,7 @@ function LoadConfig(configPath) abort
 endfunction
 
 
+call LoadConfig('config/utils.vim')
 call LoadConfig('config/plugins.vim')
 call LoadConfig('config/setting.vim')
 call LoadConfig('config/autocmd.vim')

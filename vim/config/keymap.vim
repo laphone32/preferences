@@ -22,7 +22,7 @@ imap <A-Right> <ESC>:tabn<CR>
 map <A-Left> :tabp<CR>
 imap <A-Left> <ESC>:tabp<CR>
 
-map <F8> :vertical diffsplit 
+map <F8> :vertical diffsplit
 map <F9> :set cursorline!<CR>
 map <F10> :set cursorcolumn!<CR>
 
@@ -72,6 +72,4 @@ nmap <silent> <leader><leader> <Plug>(resume-list-call)
 
 " File manager
 nmap <silent> <leader>n <Plug>(file-manager-call)
-
-
 
