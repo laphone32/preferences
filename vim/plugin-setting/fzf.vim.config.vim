@@ -29,8 +29,12 @@ augroup fzfGroup
     autocmd BufLeave <buffer> set laststatus=2 showmode ruler
 augroup end
 
+function GitFilesOrFiles(...)
+    execute ((exists("*fugitive#head") && len(fugitive#head())) ? 'Files' : 'GFiles').' '.join(a:000)
+endfunction
 
-call AddListKeyMappings('find-file-call', 'Files', 'Files %s')
+
+call AddListKeyMappings('find-file-call', 'call GitFilesOrFiles()', "call GitFilesOrFiles(%s)")
 call AddListKeyMappings('grep-file-call', 'RG', 'RG %s')
 call AddListKeyMappings('find-buffer-call', 'Buffers', 'Buffers %s')
 
