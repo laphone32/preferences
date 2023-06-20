@@ -1,11 +1,11 @@
-    
+
 filetype plugin on
 
 if has('autocmd')
 
     " FileTypes
     augroup fileTypeGroup
-      autocmd! 
+      autocmd!
       " *.pc as esql
       autocmd BufRead,BufEnter *.pc set filetype=esqlc
       " *.sbt as scala
@@ -16,8 +16,8 @@ if has('autocmd')
     " Start in the line last read
     augroup lastReadGroup
       autocmd!
-      autocmd BufWinLeave ?* mkview
-      autocmd BufWinEnter ?* silent loadview
+      autocmd BufWinLeave,BufLeave,BufWritePost,BufHidden,QuitPre ?* nested silent! mkview!
+      autocmd BufWinEnter ?* silent! loadview
     augroup end
 
 
