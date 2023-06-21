@@ -1,3 +1,6 @@
 [user]
     useConfigOnly = true
 
+[pull]
+    rebase = true
+
