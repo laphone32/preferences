@@ -10,7 +10,7 @@ endif
 
 
 function s:afterPlugLoad(plugName) abort
-    call LoadConfig('plugin-setting/' . a:plugName . '.config.vim')
+    call LoadConfig('plugin_setting/' . a:plugName . '.config.vim')
 endfunction
 
 let s:plug = {'toLoad': [], 'toHold': []}

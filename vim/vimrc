@@ -17,7 +17,7 @@ endfunction
 function LoadConfig(configPath) abort
     let file = s:getConfigPath(a:configPath)
     if filereadable(file)
-        exec 'source' file
+        execute 'source' file
     endif
 endfunction
 
