@@ -1,6 +1,4 @@
 
-source common.vim
-
 function! s:onType(key)
 endfunction
 
