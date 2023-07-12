@@ -47,13 +47,13 @@ let s:listMenuProperties = #{
     \ popup: #{
         \ id: -1,
         \ index: 1,
-        \ offset: 0,
         \ height: 10,
         \ onKey: 's:onKey',
         \ opt: #{
             \ pos: 'center',
             \ firstline: 1,
             \ filter: 's:onFilter',
+            \ hidden: v:true,
           \ },
     \ },
   \ }
@@ -62,6 +62,8 @@ function! ListMenuInit(properties)
     let s:listMenuProperties.buffer = BufferAllocate('_listMenuBuffer')
 
     call s:set(a:properties)
+    let s:listMenuProperties.popup.opt.filter = function('s:onFilter', [s:listMenuProperties.popup])
+    let s:listMenuProperties.popup.id = popup_menu(s:listMenuProperties.buffer, s:listMenuProperties.popup.opt)
 endfunction
 
 function! ListMenuBuffer()
@@ -88,17 +90,10 @@ endfunction
 function! ListMenuOpen(properties) abort
     call s:set(a:properties)
 
-    if s:listMenuProperties.popup.id != -1
-        call popup_close(s:listMenuProperties.popup.id)
-        let s:listMenuProperties.popup.id = -1
-    endif
-
     call BufferClear(s:listMenuProperties.buffer)
     let s:listMenuProperties.popup.index = 1
-    let s:listMenuProperties.popup.offset = 0
     let s:listMenuProperties.popup.opt.firstline = 1
-    let s:listMenuProperties.popup.opt.filter = function('s:onFilter', [s:listMenuProperties.popup])
-    let s:listMenuProperties.popup.id = popup_menu(s:listMenuProperties.buffer, s:listMenuProperties.popup.opt)
+    call popup_setoptions(s:listMenuProperties.popup.id, s:listMenuProperties.popup.opt)
     call popup_show(s:listMenuProperties.popup.id)
 endfunction
 
