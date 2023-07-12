@@ -45,7 +45,7 @@ endfunction
 let s:listMenuProperties = #{
     \ buffer: 0,
     \ popup: #{
-        \ id: 0,
+        \ id: -1,
         \ index: 1,
         \ offset: 0,
         \ height: 10,
@@ -68,18 +68,6 @@ function! ListMenuBuffer()
     return s:listMenuProperties.buffer
 endfunction
 
-function! ListMenuReset()
-    if s:listMenuProperties.popup.id != 0
-        call popup_close(s:listMenuProperties.popup.id)
-        let s:listMenuProperties.popup.id = 0
-    endif
-
-    call BufferClear(s:listMenuProperties.buffer)
-    let s:listMenuProperties.popup.opt.firstline = 1
-    let s:listMenuProperties.popup.index = 1
-    let s:listMenuProperties.popup.offset = 0
-endfunction
-
 function! s:set(properties)
     for [l:key, l:value] in items(a:properties)
         if l:key == 'onKey'
@@ -98,10 +86,17 @@ function! s:set(properties)
 endfunction
 
 function! ListMenuOpen(properties) abort
-    call ListMenuReset()
-
     call s:set(a:properties)
 
+    if s:listMenuProperties.popup.id != -1
+        call popup_close(s:listMenuProperties.popup.id)
+        let s:listMenuProperties.popup.id = -1
+    endif
+
+    call BufferClear(s:listMenuProperties.buffer)
+    let s:listMenuProperties.popup.index = 1
+    let s:listMenuProperties.popup.offset = 0
+    let s:listMenuProperties.popup.opt.firstline = 1
     let s:listMenuProperties.popup.opt.filter = function('s:onFilter', [s:listMenuProperties.popup])
     let s:listMenuProperties.popup.id = popup_menu(s:listMenuProperties.buffer, s:listMenuProperties.popup.opt)
     call popup_show(s:listMenuProperties.popup.id)
