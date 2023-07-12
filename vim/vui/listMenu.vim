@@ -4,6 +4,7 @@ endfunction
 
 function! s:onFilter(popup, id, key)
     let l:line = line('$', a:popup.id) - 1
+    let l:height = a:popup.height
     let l:index = a:popup.index
 
     if a:key is# "\<up>" || a:key is# "\<down>"
@@ -15,15 +16,15 @@ function! s:onFilter(popup, id, key)
         call popup_filter_menu(a:id, a:key)
     else
         if a:key is# "\<pageup>"
-            let l:index = max([1, l:index - a:popup.height])
-            call popup_setoptions(a:id, #{firstline: a:popup.height * (l:index / a:popup.height) + 1})
+            let l:index = max([1, l:index - l:height])
+            call popup_setoptions(a:id, #{firstline: l:height * (l:index / l:height) + 1})
         elseif a:key is# "\<pagedown>"
-            let l:index = min([l:index + a:popup.height, l:line])
-            call popup_setoptions(a:id, #{firstline: a:popup.height * (l:index / a:popup.height) + 1})
+            let l:index = min([l:index + l:height, l:line])
+            call popup_setoptions(a:id, #{firstline: l:height * (l:index / l:height) + 1})
         elseif a:key is# "\<home>"
             let l:index = 1
             call popup_setoptions(a:id, #{firstline: l:index})
-        elseif a:key is# "\<end>"
+        elseif a:key is# "\<end>" || a:key is# 'G'
             let l:index = l:line
             call popup_setoptions(a:id, #{firstline: l:index})
         elseif a:key is# "\<esc>" || a:key is# 'q'
@@ -42,7 +43,7 @@ function! s:onFilter(popup, id, key)
 endfunction
 
 
-let s:listMenuProperties = #{
+let s:properties = #{
     \ buffer: 0,
     \ popup: #{
         \ id: -1,
@@ -50,7 +51,6 @@ let s:listMenuProperties = #{
         \ height: 10,
         \ onKey: 's:onKey',
         \ opt: #{
-            \ pos: 'center',
             \ firstline: 1,
             \ filter: 's:onFilter',
             \ hidden: v:true,
@@ -59,30 +59,30 @@ let s:listMenuProperties = #{
   \ }
 
 function! ListMenuInit(properties)
-    let s:listMenuProperties.buffer = BufferAllocate('_listMenuBuffer')
+    let s:properties.buffer = BufferAllocate('_listMenuBuffer')
 
     call s:set(a:properties)
-    let s:listMenuProperties.popup.opt.filter = function('s:onFilter', [s:listMenuProperties.popup])
-    let s:listMenuProperties.popup.id = popup_menu(s:listMenuProperties.buffer, s:listMenuProperties.popup.opt)
+    let s:properties.popup.opt.filter = function('s:onFilter', [s:properties.popup])
+    let s:properties.popup.id = popup_menu(s:properties.buffer, s:properties.popup.opt)
 endfunction
 
 function! ListMenuBuffer()
-    return s:listMenuProperties.buffer
+    return s:properties.buffer
 endfunction
 
 function! s:set(properties)
     for [l:key, l:value] in items(a:properties)
         if l:key == 'onKey'
-            let s:listMenuProperties.popup.onKey = l:value
+            let s:properties.popup.onKey = l:value
         elseif l:key == 'height'
-            let s:listMenuProperties.popup.height = l:value
-            let s:listMenuProperties.popup.opt.maxheight = l:value
-            let s:listMenuProperties.popup.opt.minheight = l:value
+            let s:properties.popup.height = l:value
+            let s:properties.popup.opt.maxheight = l:value
+            let s:properties.popup.opt.minheight = l:value
         elseif l:key == 'width'
-            let s:listMenuProperties.popup.opt.maxwidth = l:value
-            let s:listMenuProperties.popup.opt.minwidth = l:value
+            let s:properties.popup.opt.maxwidth = l:value
+            let s:properties.popup.opt.minwidth = l:value
         else
-            let s:listMenuProperties.popup.opt[l:key]  = l:value
+            let s:properties.popup.opt[l:key]  = l:value
         endif
     endfor
 endfunction
@@ -90,14 +90,14 @@ endfunction
 function! ListMenuOpen(properties) abort
     call s:set(a:properties)
 
-    call BufferClear(s:listMenuProperties.buffer)
-    let s:listMenuProperties.popup.index = 1
-    let s:listMenuProperties.popup.opt.firstline = 1
-    call popup_setoptions(s:listMenuProperties.popup.id, s:listMenuProperties.popup.opt)
-    call popup_show(s:listMenuProperties.popup.id)
+    call BufferClear(s:properties.buffer)
+    let s:properties.popup.index = 1
+    let s:properties.popup.opt.firstline = 1
+    call popup_setoptions(s:properties.popup.id, s:properties.popup.opt)
+    call popup_show(s:properties.popup.id)
 endfunction
 
 function! ListMenuResume() abort
-    call popup_show(s:listMenuProperties.popup.id)
+    call popup_show(s:properties.popup.id)
 endfunction
 
