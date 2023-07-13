@@ -71,6 +71,8 @@ function! AsyncJobStop(id) abort
             call timer_stop(l:job.timer.id)
             let s:asyncJobs[a:id].timer.id = -1
         endif
+
+        let l:job.buffer = []
     endif
 endfunction
 
