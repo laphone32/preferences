@@ -65,12 +65,12 @@ endfunction
 function! AsyncJobStop(id) abort
     if a:id < len(s:asyncJobs)
         let l:job = s:asyncJobs[a:id]
-        if l:job.job.id != -1
+        if l:job.job.id isnot# -1
             call job_stop(l:job.job.id)
             let l:job.job.id = -1
         endif
 
-        if l:job.timer.id != -1
+        if l:job.timer.id isnot# -1
             call timer_stop(l:job.timer.id)
             let l:job.timer.id = -1
         endif

@@ -12,3 +12,21 @@ function AddListKeyMappings(call, normal_command, virtual_command)
     execute "vnoremap <Plug>(virtual-".a:call.") :<C-u>call FromSelected(\'".a:virtual_command."\')<cr>"
 endfunction
 
+function! BufferAllocate(name) abort
+    let l:currentBufferNr = bufnr('%')
+    let l:ret = bufnr(a:name, 1)
+
+    execute 'b ' . l:ret
+    setlocal noswapfile nobuflisted bufhidden=hide buftype=nofile
+    execute 'b ' . l:currentBufferNr
+
+    return l:ret
+endfunction
+
+function! BufferClear(id) abort
+    let l:currentBufferNr = bufnr('%')
+    execute 'b ' . a:id
+    silent! normal! gg"_dG'
+    execute 'b ' . l:currentBufferNr
+endfunction
+

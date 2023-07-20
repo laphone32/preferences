@@ -27,4 +27,5 @@ call LoadConfig('config/plugins.vim')
 call LoadConfig('config/setting.vim')
 call LoadConfig('config/autocmd.vim')
 call LoadConfig('config/keymap.vim')
+call LoadConfig('config/lists.vim')
 
