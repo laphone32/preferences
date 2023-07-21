@@ -42,13 +42,13 @@ function! DoAsInputResume(id) abort
 endfunction
 
 function! s:set(properties, context, opt = #{}) abort
-    for [l:key, l:value] in items(a:properties)
+    for [l:key, l:Value] in items(a:properties)
         if l:key == 'onType'
-            let a:context.onType = l:value
+            let a:context.onType = l:Value
         elseif l:key == 'legalInput'
-            let a:context.legalInput = l:value
+            let a:context.legalInput = l:Value
         else
-            let a:opt[l:key] = l:value
+            let a:opt[l:key] = l:Value
         endif
     endfor
 

@@ -40,13 +40,13 @@ function! AsyncJobRun(properties) abort
 
     let l:cmd = ['/bin/sh', '-c', "echo \'No command for async job\'"]
 
-    for [l:key, l:value] in items(a:properties)
+    for [l:key, l:Value] in items(a:properties)
         if l:key == 'onData'
-            let l:context.onData = l:value
+            let l:context.onData = l:Value
         elseif l:key == 'threshold'
-            let l:context.job.threshold = l:value
+            let l:context.job.threshold = l:Value
         elseif l:key == 'cmd'
-            let l:cmd = l:value
+            let l:cmd = l:Value
         endif
     endfor
 

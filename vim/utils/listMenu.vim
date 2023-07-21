@@ -95,18 +95,18 @@ function! ListMenuBuffer(id) abort
 endfunction
 
 function! s:set(properties, context, opt)
-    for [l:key, l:value] in items(a:properties)
+    for [l:key, l:Value] in items(a:properties)
         if l:key == 'onKey'
-            let a:context.onKey = l:value
+            let a:context.onKey = l:Value
         elseif l:key == 'height'
-            let a:context.height = l:value
-            let a:opt.maxheight = l:value
-            let a:opt.minheight = l:value
+            let a:context.height = l:Value
+            let a:opt.maxheight = l:Value
+            let a:opt.minheight = l:Value
         elseif l:key == 'width'
-            let a:opt.maxwidth = l:value
-            let a:opt.minwidth = l:value
+            let a:opt.maxwidth = l:Value
+            let a:opt.minwidth = l:Value
         else
-            let a:opt[l:key]  = l:value
+            let a:opt[l:key]  = l:Value
         endif
     endfor
 
