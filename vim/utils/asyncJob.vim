@@ -10,27 +10,44 @@ function! s:onTimer(context, id) abort
 endfunction
 
 function! s:onOut(context, channel, message) abort
-    if a:context.job.threshold > 0
+    if a:context.job.thresholdCount < a:context.job.threshold
         call function(a:context.onData)([a:message])
-        let a:context.job.threshold -= 1
+        let a:context.job.thresholdCount += 1
     else
         call add(a:context.buffer, a:message)
-        if a:context.job.threshold == 0
+        if a:context.job.thresholdCount == a:context.job.threshold
             let a:context.timer.id = timer_start(a:context.timer.period, function('s:onTimer', [a:context]), #{repeat: -1})
-            let a:context.job.threshold = -1
+            let a:context.job.thresholdCount = a:context.job.threshold + 1
         endif
     endif
 endfunction
 
+function! s:set(context, properties) abort
+    let l:cmd = ['/bin/sh', '-c', "echo \'No command for async job\'"]
+
+    for [l:key, l:Value] in items(a:properties)
+        if l:key == 'onData'
+            let a:context.onData = l:Value
+        elseif l:key == 'threshold'
+            let a:context.job.threshold = l:Value
+        elseif l:key == 'cmd'
+            let l:cmd = l:Value
+        endif
+    endfor
+
+    return l:cmd
+endfunction
+
 let s:asyncJobs = []
 
-function! AsyncJobRun(properties) abort
+function! AsyncJobInit(properties) abort
     let l:context = #{
         \ buffer: [],
         \ onData: 's:onData',
         \ job: #{
             \ id: -1,
             \ threshold: 20,
+            \ thresholdCount: 0,
         \ },
         \ timer: #{
             \ id: -1,
@@ -38,44 +55,42 @@ function! AsyncJobRun(properties) abort
       \ }
     \ }
 
-    let l:cmd = ['/bin/sh', '-c', "echo \'No command for async job\'"]
-
-    for [l:key, l:Value] in items(a:properties)
-        if l:key == 'onData'
-            let l:context.onData = l:Value
-        elseif l:key == 'threshold'
-            let l:context.job.threshold = l:Value
-        elseif l:key == 'cmd'
-            let l:cmd = l:Value
-        endif
-    endfor
-
-    let l:context.job.id = job_start(l:cmd, #{
-            \ pty: 1,
-            \ out_cb: function('s:onOut', [l:context]),
-          \ })
+    call s:set(l:context, a:properties)
 
     let l:id = len(s:asyncJobs)
     call add(s:asyncJobs, l:context)
 
-
     return l:id
+endfunction
+
+function! AsyncJobRun(id, properties) abort
+    if a:id < len(s:asyncJobs)
+        call AsyncJobStop(a:id)
+
+        let l:context = s:asyncJobs[a:id]
+
+        let l:context.job.id = job_start(s:set(l:context, a:properties), #{
+                \ pty: 1,
+                \ out_cb: function('s:onOut', [l:context]),
+            \ })
+    endif
 endfunction
 
 function! AsyncJobStop(id) abort
     if a:id < len(s:asyncJobs)
-        let l:job = s:asyncJobs[a:id]
-        if l:job.job.id isnot# -1
-            call job_stop(l:job.job.id)
-            let l:job.job.id = -1
+        let l:context = s:asyncJobs[a:id]
+        if l:context.job.id isnot# -1
+            call job_stop(l:context.job.id)
+            let l:context.job.id = -1
+        endif
+        let l:context.job.thresholdCount = 0
+
+        if l:context.timer.id isnot# -1
+            call timer_stop(l:context.timer.id)
+            let l:context.timer.id = -1
         endif
 
-        if l:job.timer.id isnot# -1
-            call timer_stop(l:job.timer.id)
-            let l:job.timer.id = -1
-        endif
-
-        let l:job.buffer = []
+        let l:context.buffer = []
     endif
 endfunction
 
