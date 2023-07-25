@@ -7,8 +7,7 @@ silent! let s:buffer = BufferAllocate('_listsBuffer_')
 let s:keywordLen = 0
 let s:lookup = [[]]
 
-let s:menuId = ListMenuInit(s:buffer,
-    \ #{
+let s:menuId = ListMenuInit(s:buffer, #{
     \ pos: 'botleft',
     \ line: s:height,
     \ height: float2nr(s:height * 0.4),
@@ -66,7 +65,7 @@ function! s:listCall(keyword, title, generateList) abort
 endfunction
 
 function! s:listAsyncCall(keyword, title, command, onDataFn) abort
-    call s:listCall(a:keyword, a:title, {-> AsyncJobRun(s:jobId, #{cmd: a:command, onData: function('OnAsyncListData', [a:onDataFn])})})
+    call s:listCall(a:keyword, a:title, {-> AsyncJobRun(s:jobId, #{cmd: function(a:command)(a:keyword), onData: function('OnAsyncListData', [a:onDataFn])})})
 endfunction
 
 """ Grep
@@ -84,10 +83,12 @@ function! s:onGrepData(message, lines, props) abort
     let l:propCol = l:col + len(l:path) + 1
 
     call add(a:lines, s:listFormat(l:path, l:line))
-    call add(a:props, [l:count, l:propCol, l:count, l:propCol + s:keywordLen])
+    if s:keywordLen
+        call add(a:props, [l:count, l:propCol, l:count, l:propCol + s:keywordLen])
+    endif
     call add(s:lookup, [l:path, l:row, l:col, l:line])
 endfunction
-command! -nargs=1 ListGrep call s:listAsyncCall(<q-args>, 'grep', ['/bin/sh', '-c', 'rg --vimgrep --smart-case -- ' . <q-args>], 's:onGrepData')
+command! -nargs=? ListGrep call s:listAsyncCall(<q-args>, 'grep', {keyword -> ['/bin/sh', '-c', 'rg --vimgrep --smart-case -- ' . (len(keyword) ? keyword : '.')]}, 's:onGrepData')
 
 """ Find
 function! s:onFindData(message, lines, props) abort
@@ -100,10 +101,12 @@ function! s:onFindData(message, lines, props) abort
 
     let l:count = len(s:lookup)
     call add(a:lines, l:path)
-    call add(a:props, [l:count, l:col, l:count, l:col + s:keywordLen])
+    if s:keywordLen
+        call add(a:props, [l:count, l:col, l:count, l:col + s:keywordLen])
+    endif
     call add(s:lookup, [l:path, 1, 1, ''])
 endfunction
-command! -nargs=1 ListFind call s:listAsyncCall(<q-args>, 'find', ['/bin/sh', '-c', (exists("*fugitive#head") && len(fugitive#head())) ? 'find . -type f -print' : 'git ls-files' . ' | rg --vimgrep --smart-case ' . <q-args>], 's:onFindData')
+command! -nargs=? ListFind call s:listAsyncCall(<q-args>, 'find', {keyword -> ['/bin/sh', '-c', (exists("*fugitive#head") && len(fugitive#head())) ? 'find . -type f -print' : 'git ls-files' . ' | rg --vimgrep --smart-case ' . (len(keyword) ? keyword : '.')]}, 's:onFindData')
 
 """ Buffer
 function! s:bufferCall()
@@ -116,5 +119,5 @@ function! s:bufferCall()
     endfor
     call appendbufline(s:buffer, 0, l:lines)
 endfunction
-command! -nargs=1 ListBuffer call s:listCall(<q-args>, 'buffer', 's:bufferCall')
+command! -nargs=? ListBuffer call s:listCall(<q-args>, 'buffer', 's:bufferCall')
 

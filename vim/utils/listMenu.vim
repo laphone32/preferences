@@ -9,11 +9,15 @@ function! s:onFilter(context, id, key) abort
     let l:opt = {}
 
     if a:key is# "\<up>"
-        let l:index = max([1, l:index - 1])
-        let [l:cursorRepeat, l:cursorMove] = [1, "\<up>"]
+        if l:index > 1
+            let l:index -= 1
+            let [l:cursorRepeat, l:cursorMove] = [1, "\<up>"]
+        endif
     elseif a:key is# "\<down>"
-        let l:index = min([l:line, l:index + 1])
-        let [l:cursorRepeat, l:cursorMove] = [1, "\<down>"]
+        if l:index < l:line
+            let l:index += 1
+            let [l:cursorRepeat, l:cursorMove] = [1, "\<down>"]
+        endif
     elseif a:key is# "\<pageup>" || a:key is# "\<c-b>"
         let l:firstline = l:height * (l:index / l:height) + 1
         if l:firstline == 1
