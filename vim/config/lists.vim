@@ -106,7 +106,7 @@ function! s:onFindData(message, lines, props) abort
     endif
     call add(s:lookup, [l:path, 1, 1, ''])
 endfunction
-command! -nargs=? ListFind call s:listAsyncCall(<q-args>, 'find', {keyword -> ['/bin/sh', '-c', (exists("*fugitive#head") && len(fugitive#head())) ? 'find . -type f -print' : 'git ls-files' . ' | rg --vimgrep --smart-case ' . (len(keyword) ? keyword : '.')]}, 's:onFindData')
+command! -nargs=? ListFind call s:listAsyncCall(<q-args>, 'find', {keyword -> ['/bin/sh', '-c', (exists("*fugitive#head") && len(fugitive#head())) ? 'find . -type f -print' : 'git ls-files' . ' | rg --smart-case --color=never ' . (len(keyword) ? keyword : '.')]}, 's:onFindData')
 
 """ Buffer
 function! s:bufferCall()
