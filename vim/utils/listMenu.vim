@@ -1,7 +1,4 @@
 
-function! s:onKey(key, result) abort
-endfunction
-
 function! s:onFilter(context, id, key) abort
     let l:line = line('$', a:context.id) - 1
     let [l:height, l:index] = [a:context.height, a:context.index]
@@ -78,7 +75,7 @@ function! ListMenuInit(buffer, properties) abort
         \ id: -1,
         \ index: 1,
         \ height: 10,
-        \ onKey: 's:onKey',
+        \ onKey: { key, result -> return },
       \ }
 
     let l:context.id = popup_menu(a:buffer, s:set(a:properties, l:context, #{

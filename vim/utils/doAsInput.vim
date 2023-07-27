@@ -1,15 +1,12 @@
 
-function! s:onType(key, all)
-endfunction
-
 let s:doAsInputs = []
 
 function! DoAsInputInit(properties) abort
     let l:context = #{
         \ buffer: '',
         \ id: 0,
-        \ onType: 's:onType',
-        \ legalInput: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '_', '/', '.', '>', '<']
+        \ onType: {key, all -> return },
+        \ legalInput: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '_', '/', '.', '>', '<', '|', '$']
     \ }
 
     let l:context.id = popup_dialog(l:context.buffer, s:set(a:properties, l:context, #{
@@ -25,7 +22,7 @@ function! DoAsInputInit(properties) abort
     return l:id
 endfunction
 
-function! DoAsInputOpen(id, properties) abort
+function! DoAsInputOpen(id, properties = {}) abort
     if a:id < len(s:doAsInputs)
         let l:context = s:doAsInputs[a:id]
         let l:context.buffer = ''
@@ -41,12 +38,18 @@ function! DoAsInputResume(id) abort
     endif
 endfunction
 
-function! s:set(properties, context, opt = #{}) abort
+function! s:set(properties, context, opt = {}) abort
     for [l:key, l:Value] in items(a:properties)
         if l:key == 'onType'
             let a:context.onType = l:Value
         elseif l:key == 'legalInput'
             let a:context.legalInput = l:Value
+        elseif l:key == 'width'
+            let a:opt.maxwidth = l:Value
+            let a:opt.minwidth = l:Value
+        elseif l:key == 'buffer'
+            let a:context.buffer = l:Value
+            call popup_settext(a:context.id, a:context.buffer)
         else
             let a:opt[l:key] = l:Value
         endif
@@ -59,7 +62,11 @@ function! s:onFilter(context, id, key) abort
     if index(a:context.legalInput, tolower(a:key)) != -1
         let a:context.buffer .= a:key
     elseif a:key is# "\<bs>"
-        let a:context.buffer = a:context.buffer[:len(l:context.buffer) - 2]
+        if len(a:context.buffer) > 1
+            let a:context.buffer = a:context.buffer[:len(a:context.buffer) - 2]
+        else
+            let a:context.buffer = ''
+        endif
     elseif a:key is# "\<cr>" || a:key is# "\<esc>"
         call popup_hide(a:id)
     else

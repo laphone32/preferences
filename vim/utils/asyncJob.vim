@@ -1,7 +1,4 @@
 
-function! s:onData(data) abort
-endfunction
-
 function! s:onTimer(context, id) abort
     if len(a:context.buffer) > 0
         call function(a:context.onData)(a:context.buffer)
@@ -43,7 +40,7 @@ let s:asyncJobs = []
 function! AsyncJobInit(properties) abort
     let l:context = #{
         \ buffer: [],
-        \ onData: 's:onData',
+        \ onData: { _ -> return },
         \ job: #{
             \ id: -1,
             \ threshold: 20,
