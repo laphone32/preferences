@@ -26,8 +26,8 @@ function! DoAsInputOpen(id, properties = {}) abort
     if a:id < len(s:doAsInputs)
         let l:context = s:doAsInputs[a:id]
         let l:context.buffer = ''
-        call popup_settext(l:context.id, l:context.buffer)
         call popup_setoptions(l:context.id, s:set(a:properties, l:context))
+        call popup_settext(l:context.id, l:context.buffer)
         call popup_show(l:context.id)
     endif
 endfunction
@@ -49,7 +49,10 @@ function! s:set(properties, context, opt = {}) abort
             let a:opt.minwidth = l:Value
         elseif l:key == 'buffer'
             let a:context.buffer = l:Value
+<<<<<<< HEAD
             call popup_settext(a:context.id, a:context.buffer)
+=======
+>>>>>>> develop
         else
             let a:opt[l:key] = l:Value
         endif
