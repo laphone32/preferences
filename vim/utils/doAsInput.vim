@@ -49,10 +49,6 @@ function! s:set(properties, context, opt = {}) abort
             let a:opt.minwidth = l:Value
         elseif l:key == 'buffer'
             let a:context.buffer = l:Value
-<<<<<<< HEAD
-            call popup_settext(a:context.id, a:context.buffer)
-=======
->>>>>>> develop
         else
             let a:opt[l:key] = l:Value
         endif
