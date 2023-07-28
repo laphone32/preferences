@@ -56,7 +56,7 @@ function! s:refreshLine(line, filename) abort
     let l:first = a:filename ? strpart(l:data.path.text, strridx(l:data.path.text, '/') + 1) : l:data.path.text
 
     call setbufline(s:buffer, a:line, s:listFormat(l:first, l:data.lines.text))
-    call prop_add_list(s:propBase, l:data.submatches)
+    call prop_add_list(s:propBase, filter(mapnew(l:data.submatches, {_, v -> [a:line, s:columnFn(l:first, v.start + 1), a:line, s:columnFn(l:first, v.end + 1)]}), {_, v -> v[1] <= len(l:first)}))
 endfunction
 
 function! OnListKey(key, line) abort
@@ -88,7 +88,7 @@ function! OnAsyncListData(messages) abort
         if json.type == 'match'
             let l:data = s:onDataFn(json.data)
             call add(l:lines, s:listFormat(l:data.path.text, l:data.lines.text))
-            call extend(l:props, map(l:data.submatches, {_, v -> [l:count, s:columnFn(l:data.path.text, v.start + 1), l:count, s:columnFn(l:data.path.text, v.end + 1)]}))
+            call extend(l:props, mapnew(l:data.submatches, {_, v -> [l:count, s:columnFn(l:data.path.text, v.start + 1), l:count, s:columnFn(l:data.path.text, v.end + 1)]}))
             let l:count += 1
 
             call add(s:lookup, l:data)
