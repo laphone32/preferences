@@ -51,7 +51,7 @@ function! s:onFilter(context, id, key) abort
         call function(a:context.onKey)(a:key, l:index)
     endif
 
-""     echo 'index=' . l:index . ' firstline=' . get(l:opt, 'firstline', '') . ' downCursorline=' . l:cursorDown . ' height=' . l:height
+""     echo 'index=' .. l:index .. ' firstline=' .. get(l:opt, 'firstline', '') .. ' downCursorline=' .. l:cursorDown .. ' height=' .. l:height
 
     " move page
     if len(l:opt) > 0

@@ -6,31 +6,24 @@ call LoadConfig('utils/listMenu.vim')
 let s:height = winheight(0)
 let s:width = winwidth(0)
 let s:popupHeight = float2nr(s:height * 0.4)
+
 silent! let s:buffer = BufferAllocate('_listsBuffer_')
-let s:keyword = ''
-let s:title = ''
 let s:lookup = [{}]
-let s:currentCommand = ''
-let s:onDataFn = ''
-let s:columnFn = ''
 
 let s:menuId = ListMenuInit(s:buffer, #{
     \ pos: 'botleft',
     \ line: s:height,
     \ height: s:popupHeight,
     \ width: s:width,
-    \ onKey: 'OnListKey'
   \ })
 let s:jobId = AsyncJobInit(#{
     \ out_mode: 'JSON',
     \ threshold: s:popupHeight * 2,
-    \ onData: 'OnAsyncListData',
   \ })
 let s:dialogId = DoAsInputInit(#{
     \ pos: 'botleft',
     \ line: s:height - s:popupHeight,
     \ width: s:width,
-    \ onType: 'OnDialogKey',
     \ zindex: 201,
   \ })
 
@@ -42,42 +35,45 @@ let s:propBase = #{bufnr: s:buffer, type: 'MatchType'}
 command! -nargs=0 ListResume call ListMenuResume(s:menuId)
 
 function! s:listFormat(first, second) abort
-    return a:first . ' ' . a:second
+    return a:first .. ' ' .. a:second
 endfunction
 
-function! s:listTitleDictionary() abort
-    return #{title: ' ' . s:title . ' > ' . s:keyword . ' '}
+function! s:listTitle(query) abort
+    return ' ' .. a:query.title .. ' > ' .. a:query.keyword .. ' '
 endfunction
 
-function! s:refreshLine(line, filename) abort
+function! s:refreshLine(query, line, filename) abort
     call prop_clear(a:line, a:line, s:propBase)
 
     let l:data = s:lookup[a:line]
     let l:first = a:filename ? strpart(l:data.path.text, strridx(l:data.path.text, '/') + 1) : l:data.path.text
 
     call setbufline(s:buffer, a:line, s:listFormat(l:first, l:data.lines.text))
-    call prop_add_list(s:propBase, filter(mapnew(l:data.submatches, {_, v -> [a:line, s:columnFn(l:first, v.start + 1), a:line, s:columnFn(l:first, v.end + 1)]}), {_, v -> v[1] <= len(l:first)}))
+    call prop_add_list(s:propBase, mapnew(l:data.submatches, {_, v -> [a:line, a:query.columnFn(l:first, v.start + 1), a:line, a:query.columnFn(l:first, v.end + 1)]}))
 endfunction
 
-function! OnListKey(key, line) abort
+function! OnListKey(query, key, line) abort
     if a:key is# '/'
-        call DoAsInputOpen(s:dialogId, extend(s:listTitleDictionary(), #{buffer: s:keyword}))
+        call DoAsInputOpen(s:dialogId, #{
+                    \ titile: s:listTitle(a:query),
+                    \ buffer: a:query.keyword
+                    \ })
     elseif a:line < len(s:lookup)
         let l:data = s:lookup[a:line]
         if a:key is# "\<cr>"
-            execute 'silent! edit ' . l:data.path.text
+            execute 'silent! edit ' .. l:data.path.text
             if l:data.line_number > 0
                 silent! call cursor(l:data.line_number, l:data.submatches[0].start)
             endif
         elseif a:key is# "\<right>"
-            call s:refreshLine(a:line, v:true)
+            call s:refreshLine(a:query, a:line, v:true)
         elseif a:key is# "\<left>"
-            call s:refreshLine(a:line, v:false)
+            call s:refreshLine(a:query, a:line, v:false)
         endif
     endif
 endfunction
 
-function! OnAsyncListData(messages) abort
+function! OnAsyncListData(query, messages) abort
     let l:lines = []
     let l:props = []
     let l:count = len(s:lookup)
@@ -85,10 +81,24 @@ function! OnAsyncListData(messages) abort
 
     for message in a:messages
         let json = json_decode(message)
+        "{
+        "type":"match",
+        "data":{
+            "path":{
+                "text":"markets/internal/src/test/scala/com/folio/dealing/market/internal/replay/OrderBooksLogReplayEndToEndTest.scala"
+            "},
+            "lines":{
+                "text":"      val msgProcessor2 = new RawFixToOrderBookMessageProcessor(testStoreReader, replayedBooks2)\n"
+            "},
+            "line_number":152,
+            "absolute_offset":6108,
+            "submatches":[{"match":{"text":"Reader"},"start":73,"end":79}]
+        "}
+        "}
         if json.type == 'match'
-            let l:data = s:onDataFn(json.data)
+            let l:data = a:query.onDataFn(json.data)
             call add(l:lines, s:listFormat(l:data.path.text, l:data.lines.text))
-            call extend(l:props, mapnew(l:data.submatches, {_, v -> [l:count, s:columnFn(l:data.path.text, v.start + 1), l:count, s:columnFn(l:data.path.text, v.end + 1)]}))
+            call extend(l:props, mapnew(l:data.submatches, {_, v -> [l:count, a:query.columnFn(l:data.path.text, v.start + 1), l:count, a:query.columnFn(l:data.path.text, v.end + 1)]}))
             let l:count += 1
 
             call add(s:lookup, l:data)
@@ -101,54 +111,44 @@ function! OnAsyncListData(messages) abort
     call prop_add_list(s:propBase, l:props)
 endfunction
 
-function! OnDialogKey(key, message) abort
-    if a:key is# "\<cr>" && a:message != s:keyword
-        call s:listAsyncCall(a:message)
+function! OnDialogKey(query, key, message) abort
+    if a:key is# "\<cr>" && a:message != a:query.keyword
+        let a:query.keyword = a:message
+        call s:listAsyncCall(a:query)
     endif
 endfunction
 
-function! s:listAsyncCall(keyword, title = s:title, command = s:currentCommand, onDataFn = s:onDataFn, columnFn = s:columnFn) abort
+"function! s:listAsyncCall(keyword, title = s:title, sink = s:currentCommand, onDataFn = s:onDataFn, columnFn = s:columnFn) abort
+function! s:listAsyncCall(query)
     call BufferClear(s:buffer)
     call prop_clear(1, len(s:lookup), s:propBase)
     let s:lookup = [{}]
 
-    let s:keyword = a:keyword
-    let l:keywordLen = len(a:keyword)
-    let s:title = a:title
-    let s:currentCommand = a:command
-    let s:onDataFn = function(a:onDataFn)
-    let s:columnFn = function(a:columnFn)
-
-    let l:opt = s:listTitleDictionary()
-
-    if l:keywordLen
-        call AsyncJobRun(s:jobId, #{cmd: add(['/bin/sh', '-c'], function(a:command)())})
+    if len(a:query.keyword)
+        call AsyncJobRun(s:jobId, #{
+                    \ cmd: add(['/bin/sh', '-c'], (has_key(a:query, 'sink') ? a:query.sink .. ' | ' : '') .. 'rg --smart-case --json -- ' .. shellescape(a:query.keyword)),
+                    \ onData: function('OnAsyncListData', [a:query]),
+                    \ })
     else
-        call DoAsInputOpen(s:dialogId, l:opt)
+        call DoAsInputOpen(s:dialogId, #{
+            \ title: s:listTitle(a:query),
+            \ onType: function('OnDialogKey', [a:query]),
+          \ })
     endif
 
-    call ListMenuOpen(s:menuId, l:opt)
+    call ListMenuOpen(s:menuId, #{
+        \ title: s:listTitle(a:query),
+        \ onKey: function('OnListKey', [a:query]),
+      \ })
 endfunction
 
 """ Grep
-function! s:onGrepData(data) abort
-    "{
-    "type":"match",
-    "data":{
-        "path":{
-            "text":"markets/internal/src/test/scala/com/folio/dealing/market/internal/replay/OrderBooksLogReplayEndToEndTest.scala"
-        "},
-        "lines":{
-            "text":"      val msgProcessor2 = new RawFixToOrderBookMessageProcessor(testStoreReader, replayedBooks2)\n"
-        "},
-        "line_number":152,
-        "absolute_offset":6108,
-        "submatches":[{"match":{"text":"Reader"},"start":73,"end":79}]
-        "}
-    "}
-    return a:data
-endfunction
-command! -nargs=? ListGrep call s:listAsyncCall(<q-args>, 'grep', {-> 'rg --smart-case --json -- ' . shellescape(s:keyword)}, 's:onGrepData', {path, col -> len(path) + 1 + col})
+command! -nargs=? ListGrep call s:listAsyncCall(#{
+    \ keyword: <q-args>,
+    \ title: 'grep',
+    \ onDataFn: {data -> data},
+    \ columnFn: {path, col -> len(path) + 1 + col},
+    \ })
 
 function! s:onFilteredData(data) abort
     let a:data.line_number = -1
@@ -159,7 +159,13 @@ function! s:onFilteredData(data) abort
 endfunction
 
 """ Find
-command! -nargs=? ListFind call s:listAsyncCall(<q-args>, 'find', {-> (exists("*fugitive#head") && len(fugitive#head())) ? 'find . -type f -print' : 'git ls-files' . ' | rg --smart-case --json ' . shellescape(s:keyword)}, 's:onFilteredData', {_, col -> col})
+command! -nargs=? ListFind call s:listAsyncCall(#{
+            \ keyword: <q-args>,
+            \ title: 'find',
+            \ sink: (exists("*fugitive#head") && len(fugitive#head())) ? 'find . -type f -print' : 'git ls-files',
+            \ onDataFn: function('s:onFilteredData'),
+            \ columnFn: {_, col -> col},
+            \ })
 
 """ Buffer
 function! s:bufferData()
@@ -167,10 +173,16 @@ function! s:bufferData()
     for info in getbufinfo(#{buflisted: v:true})
         let l:name = (info.name == '' ? '[NO NAME]' : info.name)
         let l:changed = info.changed ? '*' : ''
-        let l:data .= s:listFormat(l:name, l:changed) . '\n'
+        let l:data ..= l:name .. '\n'
     endfor
 
     return l:data
 endfunction
-command! -nargs=? ListBuffer call s:listAsyncCall(<q-args>, 'buffer', {-> 'echo ' . shellescape(s:bufferData()) . ' | rg --smart-case --json ' . shellescape(s:keyword)}, 's:onFilteredData', {_, col -> col})
+command! -nargs=? ListBuffer call s:listAsyncCall(#{
+            \ keyword: <q-args>,
+            \ title: 'buffer',
+            \ sink: 'echo ' .. shellescape(s:bufferData()),
+            \ onDataFn: function('s:onFilteredData'),
+            \ columnFn: {_, col -> col},
+            \ })
 

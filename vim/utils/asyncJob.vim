@@ -19,31 +19,15 @@ function! s:onOut(context, channel, message) abort
     endif
 endfunction
 
-function! s:set(context, properties) abort
-    let l:cmd = ['/bin/sh', '-c', "echo \'No command for async job\'"]
-
-    for [l:key, l:Value] in items(a:properties)
-        if l:key == 'onData'
-            let a:context.onData = l:Value
-        elseif l:key == 'threshold'
-            let a:context.job.threshold = l:Value
-        elseif l:key == 'cmd'
-            let l:cmd = l:Value
-        endif
-    endfor
-
-    return l:cmd
-endfunction
-
 let s:asyncJobs = []
 
 function! AsyncJobInit(properties) abort
     let l:context = #{
         \ buffer: [],
-        \ onData: { _ -> return },
+        \ onData: get(a:properties, 'onData', { _ -> return }),
         \ job: #{
             \ id: -1,
-            \ threshold: 20,
+            \ threshold: get(a:properties, 'threshold', 20),
             \ thresholdCount: 0,
         \ },
         \ timer: #{
@@ -51,8 +35,6 @@ function! AsyncJobInit(properties) abort
             \ period: 10,
       \ }
     \ }
-
-    call s:set(l:context, a:properties)
 
     let l:id = len(s:asyncJobs)
     call add(s:asyncJobs, l:context)
@@ -66,7 +48,9 @@ function! AsyncJobRun(id, properties) abort
 
         let l:context = s:asyncJobs[a:id]
 
-        let l:context.job.id = job_start(s:set(l:context, a:properties), #{
+        let l:context.onData = get(a:properties, 'onData', l:context.onData)
+        let l:context.job.threshold = get(a:properties, 'threshold', l:context.job.threshold)
+        let l:context.job.id = job_start(get(a:properties, 'cmd', ['/bin/sh', '-c', "echo \'No command for async job\'"]), #{
                 \ pty: 1,
                 \ out_cb: function('s:onOut', [l:context]),
             \ })

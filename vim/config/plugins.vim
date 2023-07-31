@@ -10,7 +10,7 @@ endif
 
 
 function s:afterPlugLoad(plugName) abort
-    call LoadConfig('plugin_setting/' . a:plugName . '.config.vim')
+    call LoadConfig('plugin_setting/' .. a:plugName .. '.config.vim')
 endfunction
 
 let s:plug = {'toLoad': [], 'toHold': []}
@@ -25,11 +25,11 @@ function s:plugAdd(repo, ...) abort
         call add(s:plug.toLoad, plugName)
     endif
 
-    execute 'Plug ' . string(a:repo) . ', ' . string(s:property)
+    execute 'Plug ' .. string(a:repo) .. ', ' .. string(s:property)
 endfunction
 
 function s:plugBegin(plugPath) abort
-    execute 'call plug#begin(' . string(a:plugPath) . ')'
+    execute 'call plug#begin(' .. string(a:plugPath) .. ')'
 
     command! -nargs=+ -bar PlugAdd call s:plugAdd(<args>)
 endfunction
@@ -39,7 +39,7 @@ function s:installAutocmd() abort
     execute 'autocmd!'
 
     for plugName in s:plug.toHold
-        execute 'autocmd User ' . plugName . ' call s:afterPlugLoad(' . string(plugName) . ')'
+        execute 'autocmd User ' .. plugName .. ' call s:afterPlugLoad(' .. string(plugName) .. ')'
     endfor
 
     execute 'augroup end'
