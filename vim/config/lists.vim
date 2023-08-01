@@ -56,6 +56,7 @@ function! OnListKey(query, key, line) abort
     if a:key is# '/'
         call DoAsInputOpen(s:dialogId, #{
                     \ titile: s:listTitle(a:query),
+                    \ onType: function('OnDialogKey', [a:query]),
                     \ buffer: a:query.keyword
                     \ })
     elseif a:line < len(s:lookup)
@@ -131,15 +132,15 @@ function! s:listAsyncCall(query)
                     \ })
     else
         call DoAsInputOpen(s:dialogId, #{
-            \ title: s:listTitle(a:query),
-            \ onType: function('OnDialogKey', [a:query]),
-          \ })
+                    \ title: s:listTitle(a:query),
+                    \ onType: function('OnDialogKey', [a:query]),
+                    \ })
     endif
 
     call ListMenuOpen(s:menuId, #{
-        \ title: s:listTitle(a:query),
-        \ onKey: function('OnListKey', [a:query]),
-      \ })
+                \ title: s:listTitle(a:query),
+                \ onKey: function('OnListKey', [a:query]),
+                \ })
 endfunction
 
 """ Grep
@@ -185,4 +186,13 @@ command! -nargs=? ListBuffer call s:listAsyncCall(#{
             \ onDataFn: function('s:onFilteredData'),
             \ columnFn: {_, col -> col},
             \ })
+
+""" Test
+"command! -nargs=? ListTest call s:listAsyncCall(#{
+"            \ keyword: <q-args>,
+"            \ title: 'test50',
+"            \ sink: "printf \'%s\n\' {1..50}",
+"            \ onDataFn: function('s:onFilteredData'),
+"            \ columnFn: {_, col -> col},
+"            \ })
 

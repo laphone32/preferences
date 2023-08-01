@@ -1,9 +1,33 @@
 
 function! s:onFilter(context, id, key) abort
-    let l:line = line('$', a:context.id) - 1
-    let [l:height, l:index] = [a:context.height, a:context.index]
+    let l:line = line('$', a:id) - 1
+    let l:pos = popup_getpos(a:id)
+    let l:firstline = l:pos.firstline
+    let l:height = l:pos.core_height
+
+    let l:index = a:context.index
     let [l:cursorRepeat, l:cursorMove] = [0, '']
     let l:opt = {}
+
+    function! s:home() closure
+        if l:firstline < l:height
+            let [l:cursorRepeat, l:cursorMove] = [l:index - l:firstline, "\<up>"]
+        endif
+
+        let l:opt.firstline = 1
+        let l:index = 1
+    endfunction
+
+    function! s:end() closure
+        if l:line - l:firstline < l:height
+            let [l:cursorRepeat, l:cursorMove] = [l:line - l:index, "\<down>"]
+        else
+            let [l:cursorRepeat, l:cursorMove] = [l:height - 1, "\<down>"]
+        endif
+
+        let l:opt.firstline = max([1, l:line - l:height + 1])
+        let l:index = l:line
+    endfunction
 
     if a:key is# "\<up>"
         if l:index > 1
@@ -16,31 +40,25 @@ function! s:onFilter(context, id, key) abort
             let [l:cursorRepeat, l:cursorMove] = [1, "\<down>"]
         endif
     elseif a:key is# "\<pageup>" || a:key is# "\<c-b>"
-        let l:firstline = l:height * (l:index / l:height) + 1
-        if l:firstline == 1
-            let [l:cursorRepeat, l:cursorMove] = [l:index - l:firstline, "\<up>"]
-            let l:index = l:firstline
+        if l:firstline < l:height
+            call s:home()
         else
             let [l:cursorRepeat, l:cursorMove] = [l:index - l:firstline, "\<down>"]
             let l:index = max([1, l:index - l:height])
-            let l:opt.firstline = l:height * (l:index / l:height) + 1
+            let l:opt.firstline = max([1, l:firstline - l:height])
         endif
     elseif a:key is# "\<pagedown>" || a:key is# "\<c-f>"
-        let l:firstline = l:height * (l:index / l:height) + 1
         if l:line - l:firstline < l:height
-            let [l:cursorRepeat, l:cursorMove] = [l:line - l:index, "\<down>"]
-            let l:index = l:line
+            call s:end()
         else
             let [l:cursorRepeat, l:cursorMove] = [l:index - l:firstline, "\<down>"]
             let l:index = min([l:index + l:height, l:line])
-            let l:opt.firstline = l:height * (l:index / l:height) + 1
+            let l:opt.firstline = l:firstline + l:height
         endif
     elseif a:key is# "\<home>"
-        let l:index = 1
-        let l:opt.firstline = l:index
+        call s:home()
     elseif a:key is# "\<end>" || a:key is# 'G'
-        let l:index = l:line
-        let l:opt.firstline = l:index
+        call s:end()
     elseif a:key is# "\<esc>" || a:key is# 'q'
         call popup_hide(a:id)
     else
@@ -51,7 +69,7 @@ function! s:onFilter(context, id, key) abort
         call function(a:context.onKey)(a:key, l:index)
     endif
 
-""     echo 'index=' .. l:index .. ' firstline=' .. get(l:opt, 'firstline', '') .. ' downCursorline=' .. l:cursorDown .. ' height=' .. l:height
+""     echo 'index=' .. l:index .. ' firstline=' .. l:firstline .. ' newFirstline=' .. get(l:opt, 'firstline', '') .. ' cursorRepeat=' .. l:cursorRepeat .. ' height=' .. l:height .. ' line=' .. l:line
 
     " move page
     if len(l:opt) > 0
@@ -65,6 +83,8 @@ function! s:onFilter(context, id, key) abort
     endwhile
 
     let a:context.index = l:index
+    redraw
+
     return v:true
 endfunction
 
@@ -74,14 +94,15 @@ function! ListMenuInit(buffer, properties) abort
     let l:context = #{
         \ id: -1,
         \ index: 1,
-        \ height: 10,
-        \ onKey: { key, result -> return },
-      \ }
+        \ onKey: get(a:properties, 'onKey', { key, result -> key }),
+        \ }
 
-    let l:context.id = popup_menu(a:buffer, s:set(a:properties, l:context, #{
+    call s:set(a:properties, #{
         \ filter: function('s:onFilter', [l:context]),
         \ hidden: v:true,
-    \ }))
+        \ })
+
+    let l:context.id = popup_menu(a:buffer, a:properties)
 
     let l:id = len(s:listMenus)
     call add(s:listMenus, l:context)
@@ -95,30 +116,32 @@ function! ListMenuBuffer(id) abort
     endif
 endfunction
 
-function! s:set(properties, context, opt)
-    for [l:key, l:Value] in items(a:properties)
-        if l:key == 'onKey'
-            let a:context.onKey = l:Value
-        elseif l:key == 'height'
-            let a:context.height = l:Value
-            let a:opt.maxheight = l:Value
-            let a:opt.minheight = l:Value
-        elseif l:key == 'width'
-            let a:opt.maxwidth = l:Value
-            let a:opt.minwidth = l:Value
-        else
-            let a:opt[l:key]  = l:Value
-        endif
-    endfor
+function! s:set(properties, opt = {})
+    if has_key(a:properties, 'width')
+        let l:width = a:properties.width
+        let a:properties.maxwidth = l:width
+        let a:properties.minwidth = l:width
+    endif
 
-    return a:opt
+    if has_key(a:properties, 'height')
+        let l:height = a:properties.height
+        let a:properties.maxheight = l:height
+        let a:properties.minheight = l:height
+    endif
+
+    call extend(a:properties, a:opt)
 endfunction
 
 function! ListMenuOpen(id, properties) abort
     if a:id < len(s:listMenus)
         let l:context = s:listMenus[a:id]
         let l:context.index = 1
-        call popup_setoptions(l:context.id, s:set(a:properties, l:context, #{firstline: 1}))
+        let l:context.onKey = get(a:properties, 'onKey', l:context)
+
+        call s:set(a:properties, #{
+            \ firstline: 1
+          \ })
+        call popup_setoptions(l:context.id, a:properties)
         call popup_show(l:context.id)
     endif
 endfunction
