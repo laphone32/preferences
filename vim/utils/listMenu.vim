@@ -1,6 +1,6 @@
 
 function! s:onFilter(context, id, key) abort
-    let l:line = line('$', a:id) - 1
+    let l:line = line('$', a:id)
     let l:pos = popup_getpos(a:id)
     let l:firstline = l:pos.firstline
     let l:height = l:pos.core_height
@@ -69,7 +69,7 @@ function! s:onFilter(context, id, key) abort
         call function(a:context.onKey)(a:key, l:index)
     endif
 
-""     echo 'index=' .. l:index .. ' firstline=' .. l:firstline .. ' newFirstline=' .. get(l:opt, 'firstline', '') .. ' cursorRepeat=' .. l:cursorRepeat .. ' height=' .. l:height .. ' line=' .. l:line
+""    echo 'index=' .. l:index .. ' firstline=' .. l:firstline .. ' newFirstline=' .. get(l:opt, 'firstline', '') .. ' cursorRepeat=' .. l:cursorRepeat .. ' height=' .. l:height .. ' line=' .. l:line
 
     " move page
     if len(l:opt) > 0
