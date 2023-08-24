@@ -12,15 +12,6 @@ export LS_COLORS='no=00:fi=00:di=01;36:ln=02;36:pi=40;33:so=01;35:do=01;35:bd=40
 
 source $PREFERENCES_DIR/bash/bash_alias.sh
 
-if [ -f $HOME/.git-prompt.sh ]; then
-    source $HOME/.git-prompt.sh
-fi
-
-if [ -f $HOME/.git-completion.sh ]; then
-    source $HOME/.git-completion.sh
-fi
-
-
 # ripgrep
 #if type rg &> /dev/null; then
 #    export FZF_DEFAULT_COMMAND='rg --files --hidden'
