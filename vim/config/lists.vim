@@ -2,15 +2,21 @@
 call LoadConfig('utils/asyncJob.vim')
 call LoadConfig('utils/doAsInput.vim')
 call LoadConfig('utils/listMenu.vim')
+call LoadConfig('utils/richBuffer.vim')
 
 let s:height = winheight(0)
-let s:width = winwidth(0)
+let s:width = float2nr(winwidth(0) * 0.95)
 let s:popupHeight = float2nr(s:height * 0.4)
 
-silent! let s:buffer = BufferAllocate('_listsBuffer_')
+call prop_type_add('FileStyle', #{highlight: 'Statement', override: v:true})
+call prop_type_add('MatchStyle', #{highlight: 'Underlined', override: v:true})
+
+let s:buffer = RichBufferInit(#{
+    \ name: '_listsBuffer_',
+  \ })
 let s:lookup = [{}]
 
-let s:menuId = ListMenuInit(s:buffer, #{
+let s:menuId = ListMenuInit(RichBuffer(s:buffer), #{
     \ pos: 'botleft',
     \ line: s:height,
     \ height: s:popupHeight,
@@ -27,18 +33,7 @@ let s:dialogId = DoAsInputInit(#{
     \ zindex: 201,
   \ })
 
-call prop_type_add('MatchType', #{highlight: 'Underlined', override: v:true})
-let s:propBase = #{bufnr: s:buffer, type: 'MatchType'}
-
 command! -nargs=0 ListResume call ListMenuResume(s:menuId)
-
-function! s:refreshLine(query, line, expand) abort
-    call prop_clear(a:line, a:line, s:propBase)
-
-    let l:draw = a:query.onDrawFn(a:line, a:query.onPathFn(s:lookup[a:line], a:expand))
-    call setbufline(s:buffer, a:line, l:draw.bufline)
-    call prop_add_list(s:propBase, l:draw.prop)
-endfunction
 
 function! OnListKey(query, key, line) abort
     if a:key is# '/'
@@ -47,6 +42,18 @@ function! OnListKey(query, key, line) abort
                     \ onType: function('OnDialogKey', [a:query]),
                     \ buffer: a:query.keyword
                     \ })
+    elseif a:key is# "\<right>"
+        call RichBufferRefresh(s:buffer, #{
+            \ from: 1,
+            \ to: len(s:lookup) - 1,
+            \ f: {line -> a:query.onDrawFn(line, a:query.onPathFn(s:lookup[line], v:true))}
+          \ })
+    elseif a:key is# "\<left>"
+        call RichBufferRefresh(s:buffer, #{
+            \ from: 1,
+            \ to: len(s:lookup) - 1,
+            \ f: {line -> a:query.onDrawFn(line, a:query.onPathFn(s:lookup[line], v:false))}
+          \ })
     elseif a:line < len(s:lookup)
         if a:key is# "\<cr>"
             let l:data = s:lookup[a:line]
@@ -54,10 +61,6 @@ function! OnListKey(query, key, line) abort
             if a:query.cursorOnMatch
                 silent! call cursor(l:data.line_number, l:data.submatches[0].start)
             endif
-        elseif a:key is# "\<right>"
-            call s:refreshLine(a:query, a:line, v:true)
-        elseif a:key is# "\<left>"
-            call s:refreshLine(a:query, a:line, v:false)
         endif
     endif
 endfunction
@@ -85,7 +88,7 @@ function! OnAsyncRgData(query, messages) abort
             let l:json.data.lines.text = trim(l:json.data.lines.text, "\r\t\n", 2)
 
             call add(s:lookup, l:json.data)
-            call s:refreshLine(a:query, l:count, v:false)
+            call RichBufferRefreshLine(s:buffer, l:count, a:query.onDrawFn(l:count, a:query.onPathFn(s:lookup[l:count], v:true)))
             let l:count += 1
         elseif l:json.type == 'summary'
             call AsyncJobStop(s:jobId)
@@ -101,8 +104,7 @@ function! OnDialogKey(query, key, message) abort
 endfunction
 
 function! s:listAsyncRgCall(query)
-    call BufferClear(s:buffer)
-    call prop_clear(1, len(s:lookup), s:propBase)
+    call RichBufferClear(s:buffer, 1, len(s:lookup))
     let s:lookup = [{}]
 
     let a:query.title = ' ' .. a:query.commandName .. ' > ' .. a:query.keyword .. ' '
@@ -133,7 +135,16 @@ command! -nargs=? ListGrep call s:listAsyncRgCall(#{
     \ onPathFn: {data, expand -> expand ? fnamemodify(data.path.text, ':t') : data.path.text},
     \ onDrawFn: {line, path -> #{
         \ bufline: path .. ' ' .. s:lookup[line].lines.text,
-        \ prop: mapnew(s:lookup[line].submatches, {_, v -> [line, len(path) + 1 + v.start + 1, line, len(path) + 1 + v.end + 1]}),
+        \ props: [
+            \ #{
+                \ type: 'FileStyle',
+                \ location: [[line, 1, line, len(path) + 1]],
+              \ },
+            \ #{
+                \ type: 'MatchStyle',
+                \ location: mapnew(s:lookup[line].submatches, {_, v -> [line, len(path) + 1 + v.start + 1, line, len(path) + 1 + v.end + 1]}),
+              \ },
+          \ ],
       \ }},
     \ })
 
@@ -147,7 +158,12 @@ function! s:listRgFilter(keyword, name, sink) abort
                 \ onPathFn: {data, _ -> data.lines.text},
                 \ onDrawFn: {line, path -> #{
                     \ bufline: path,
-                    \ prop: mapnew(s:lookup[line].submatches, {_, v -> [line, v.start + 1, line, v.end + 1]}),
+                    \ props: [
+                        \ #{
+                            \ type: 'MatchStyle',
+                            \ location: mapnew(s:lookup[line].submatches, {_, v -> [line, v.start + 1, line, v.end + 1]}),
+                        \ },
+                    \ ],
                   \ }},
                 \ })
 endfunction
