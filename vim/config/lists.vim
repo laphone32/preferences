@@ -6,7 +6,7 @@ call LoadConfig('utils/richBuffer.vim')
 
 let s:height = winheight(0)
 let s:width = float2nr(winwidth(0) * 0.95)
-let s:popupHeight = float2nr(s:height * 0.4)
+let s:popupHeight = float2nr(s:height * 0.45)
 
 call prop_type_add('FileStyle', #{highlight: 'Statement', override: v:true})
 call prop_type_add('MatchStyle', #{highlight: 'Underlined', override: v:true})
@@ -21,6 +21,7 @@ let s:menuId = ListMenuInit(RichBuffer(s:buffer), #{
     \ line: s:height,
     \ height: s:popupHeight,
     \ width: s:width,
+    \ zindex: 200,
   \ })
 let s:jobId = AsyncJobInit(#{
     \ out_mode: 'JSON',
@@ -30,10 +31,18 @@ let s:dialogId = DoAsInputInit(#{
     \ pos: 'botleft',
     \ line: s:height - s:popupHeight,
     \ width: s:width,
-    \ zindex: 201,
+    \ zindex: 250,
   \ })
 
 command! -nargs=0 ListResume call ListMenuResume(s:menuId)
+
+function! s:refreshBuffer(query, from, expand) abort
+    call RichBufferRefresh(s:buffer, #{
+        \ from: a:from,
+        \ to: len(s:lookup) - 1,
+        \ f: {line -> a:query.onDrawFn(line, a:query.onPathFn(s:lookup[line], a:expand))}
+        \ })
+endfunction
 
 function! OnListKey(query, key, line) abort
     if a:key is# '/'
@@ -43,17 +52,9 @@ function! OnListKey(query, key, line) abort
                     \ buffer: a:query.keyword
                     \ })
     elseif a:key is# "\<right>"
-        call RichBufferRefresh(s:buffer, #{
-            \ from: 1,
-            \ to: len(s:lookup) - 1,
-            \ f: {line -> a:query.onDrawFn(line, a:query.onPathFn(s:lookup[line], v:true))}
-          \ })
+        call s:refreshBuffer(a:query, 1, v:true)
     elseif a:key is# "\<left>"
-        call RichBufferRefresh(s:buffer, #{
-            \ from: 1,
-            \ to: len(s:lookup) - 1,
-            \ f: {line -> a:query.onDrawFn(line, a:query.onPathFn(s:lookup[line], v:false))}
-          \ })
+        call s:refreshBuffer(a:query, 1, v:false)
     elseif a:line < len(s:lookup)
         if a:key is# "\<cr>"
             let l:data = s:lookup[a:line]
@@ -88,12 +89,12 @@ function! OnAsyncRgData(query, messages) abort
             let l:json.data.lines.text = trim(l:json.data.lines.text, "\r\t\n", 2)
 
             call add(s:lookup, l:json.data)
-            call RichBufferRefreshLine(s:buffer, l:count, a:query.onDrawFn(l:count, a:query.onPathFn(s:lookup[l:count], v:true)))
-            let l:count += 1
         elseif l:json.type == 'summary'
             call AsyncJobStop(s:jobId)
         endif
     endfor
+
+    call s:refreshBuffer(a:query, l:count, v:true)
 endfunction
 
 function! OnDialogKey(query, key, message) abort

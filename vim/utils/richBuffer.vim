@@ -29,7 +29,7 @@ function! RichBufferClear(id, from, to) abort
 endfunction
 
 function! RichBufferRefresh(id, properties) abort
-    if a:id < len(s:listBuffer)
+    if a:id < len(s:listBuffer) && a:properties.to >= a:properties.from
         let l:context = s:listBuffer[a:id]
         let l:line = a:properties.from
         call prop_clear(a:properties.from, a:properties.to, l:context.prop)

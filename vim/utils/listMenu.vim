@@ -60,10 +60,10 @@ function! s:onFilter(context, id, key) abort
     elseif a:key is# "\<end>" || a:key is# 'G'
         call s:end()
     elseif a:key is# "\<esc>" || a:key is# 'q'
-        call popup_hide(a:id)
+        call s:hide(a:context)
     else
         if a:key is# "\<cr>"
-            call popup_hide(a:id)
+            call s:hide(a:context)
         endif
 
         call function(a:context.onKey)(a:key, l:index)
@@ -85,6 +85,8 @@ function! s:onFilter(context, id, key) abort
     let a:context.index = l:index
     redraw
 
+    call popup_settext(a:context.pageId, ' ' .. l:index .. ' / ' .. l:line .. ' ')
+
     return v:true
 endfunction
 
@@ -92,7 +94,8 @@ let s:listMenus = []
 
 function! ListMenuInit(buffer, properties) abort
     let l:context = #{
-        \ id: -1,
+        \ menuId: -1,
+        \ pageId: -1,
         \ index: 1,
         \ onKey: get(a:properties, 'onKey', { key, result -> key }),
         \ }
@@ -102,7 +105,19 @@ function! ListMenuInit(buffer, properties) abort
         \ hidden: v:true,
         \ })
 
-    let l:context.id = popup_menu(a:buffer, a:properties)
+    let l:context.menuId = popup_menu(a:buffer, a:properties)
+    let l:opts = popup_getoptions(l:context.menuId)
+    let l:pos = popup_getpos(l:context.menuId)
+
+    let l:context.pageId = popup_create('0/0', #{
+        \ pos: 'topright',
+        \ line: l:pos.line,
+        \ col: l:pos.col + l:pos.width - 1,
+        \ maxheight: 1,
+        \ minheight: 1,
+        \ zindex: l:opts.zindex + 1,
+        \ hidden: v:true,
+      \ })
 
     let l:id = len(s:listMenus)
     call add(s:listMenus, l:context)
@@ -112,7 +127,7 @@ endfunction
 
 function! ListMenuBuffer(id) abort
     if a:id < len(s:listMenus)
-        return winbufnr(s:listMenus[a:id].id)
+        return winbufnr(s:listMenus[a:id].menuId)
     endif
 endfunction
 
@@ -132,6 +147,16 @@ function! s:set(properties, opt = {})
     call extend(a:properties, a:opt)
 endfunction
 
+function! s:show(context) abort
+    call popup_show(a:context.menuId)
+    call popup_show(a:context.pageId)
+endfunction
+
+function! s:hide(context) abort
+    call popup_hide(a:context.menuId)
+    call popup_hide(a:context.pageId)
+endfunction
+
 function! ListMenuOpen(id, properties) abort
     if a:id < len(s:listMenus)
         let l:context = s:listMenus[a:id]
@@ -141,14 +166,14 @@ function! ListMenuOpen(id, properties) abort
         call s:set(a:properties, #{
             \ firstline: 1
           \ })
-        call popup_setoptions(l:context.id, a:properties)
-        call popup_show(l:context.id)
+        call popup_setoptions(l:context.menuId, a:properties)
+        call s:show(l:context)
     endif
 endfunction
 
 function! ListMenuResume(id) abort
     if a:id < len(s:listMenus)
-        call popup_show(s:listMenus[a:id].id)
+        call s:show(s:listMenus[a:id])
     endif
 endfunction
 
