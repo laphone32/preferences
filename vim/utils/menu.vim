@@ -92,7 +92,7 @@ endfunction
 
 let s:listMenus = []
 
-function! ListMenuInit(buffer, properties) abort
+function! MenuInit(buffer, properties) abort
     let l:context = #{
         \ menuId: -1,
         \ pageId: -1,
@@ -125,7 +125,7 @@ function! ListMenuInit(buffer, properties) abort
     return l:id
 endfunction
 
-function! ListMenuBuffer(id) abort
+function! MenuBuffer(id) abort
     if a:id < len(s:listMenus)
         return winbufnr(s:listMenus[a:id].menuId)
     endif
@@ -157,7 +157,7 @@ function! s:hide(context) abort
     call popup_hide(a:context.pageId)
 endfunction
 
-function! ListMenuOpen(id, properties) abort
+function! MenuOpen(id, properties) abort
     if a:id < len(s:listMenus)
         let l:context = s:listMenus[a:id]
         let l:context.index = 1
@@ -171,7 +171,7 @@ function! ListMenuOpen(id, properties) abort
     endif
 endfunction
 
-function! ListMenuResume(id) abort
+function! MenuResume(id) abort
     if a:id < len(s:listMenus)
         call s:show(s:listMenus[a:id])
     endif

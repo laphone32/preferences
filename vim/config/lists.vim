@@ -1,11 +1,11 @@
 
 call LoadConfig('utils/asyncJob.vim')
 call LoadConfig('utils/doAsInput.vim')
-call LoadConfig('utils/listMenu.vim')
+call LoadConfig('utils/menu.vim')
 call LoadConfig('utils/richBuffer.vim')
 
 let s:height = winheight(0)
-let s:width = float2nr(winwidth(0) * 0.95)
+let s:width = float2nr(winwidth(0))
 let s:popupHeight = float2nr(s:height * 0.45)
 
 call prop_type_add('FileStyle', #{highlight: 'Statement', override: v:true})
@@ -16,7 +16,7 @@ let s:buffer = RichBufferInit(#{
   \ })
 let s:lookup = [{}]
 
-let s:menuId = ListMenuInit(RichBuffer(s:buffer), #{
+let s:menuId = MenuInit(RichBuffer(s:buffer), #{
     \ pos: 'botleft',
     \ line: s:height,
     \ height: s:popupHeight,
@@ -34,7 +34,7 @@ let s:dialogId = DoAsInputInit(#{
     \ zindex: 250,
   \ })
 
-command! -nargs=0 ListResume call ListMenuResume(s:menuId)
+command! -nargs=0 ListResume call MenuResume(s:menuId)
 
 function! s:refreshBuffer(query, from, expand) abort
     call RichBufferRefresh(s:buffer, #{
@@ -122,7 +122,7 @@ function! s:listAsyncRgCall(query)
                     \ })
     endif
 
-    call ListMenuOpen(s:menuId, #{
+    call MenuOpen(s:menuId, #{
                 \ title: a:query.title,
                 \ onKey: function('OnListKey', [a:query]),
                 \ })
