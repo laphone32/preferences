@@ -9,6 +9,8 @@ function! s:onFilter(context, id, key) abort
     let [l:cursorRepeat, l:cursorMove] = [0, '']
     let l:opt = {}
 
+    let l:currentMode = a:context.mode.current
+
     function! s:home() closure
         if l:firstline < l:height
             let [l:cursorRepeat, l:cursorMove] = [l:index - l:firstline, "\<up>"]
@@ -59,6 +61,14 @@ function! s:onFilter(context, id, key) abort
         call s:home()
     elseif a:key is# "\<end>" || a:key is# 'G'
         call s:end()
+    elseif a:key is# "\<right>"
+        if l:currentMode < len(a:context.mode.list) - 1
+            let l:currentMode += 1
+        endif
+    elseif a:key is# "\<left>"
+        if l:currentMode > 0
+            let l:currentMode -= 1
+        endif
     elseif a:key is# "\<esc>" || a:key is# 'q'
         call s:hide(a:context)
     else
@@ -70,6 +80,12 @@ function! s:onFilter(context, id, key) abort
     endif
 
 ""    echo 'index=' .. l:index .. ' firstline=' .. l:firstline .. ' newFirstline=' .. get(l:opt, 'firstline', '') .. ' cursorRepeat=' .. l:cursorRepeat .. ' height=' .. l:height .. ' line=' .. l:line
+
+    " mode
+    if l:currentMode != a:context.mode.current
+        let a:context.mode.current = l:currentMode
+        call a:context.mode.list[l:currentMode].func(l:index)
+    endif
 
     " move page
     if len(l:opt) > 0
@@ -85,7 +101,15 @@ function! s:onFilter(context, id, key) abort
     let a:context.index = l:index
     redraw
 
-    call popup_settext(a:context.pageId, ' ' .. l:index .. ' / ' .. l:line .. ' ')
+    " update indicator
+    call popup_settext(a:context.pageId, ' ' .. join([
+        \ l:currentMode > 0 ? '<' : '|',
+        \ a:context.mode.list[l:currentMode].name,
+        \ l:currentMode < len(a:context.mode.list) - 1 ? '>' : '|',
+        \ l:index,
+        \ '/',
+        \ l:line,
+      \ ]) .. ' ')
 
     return v:true
 endfunction
@@ -117,6 +141,16 @@ function! MenuInit(buffer, properties) abort
         \ minheight: 1,
         \ zindex: l:opts.zindex + 1,
         \ hidden: v:true,
+      \ })
+
+    let l:context.mode = get(a:properties, 'mode', #{
+        \ list: [
+            \ #{
+                \ name: '',
+                \ func: {-> v:null},
+              \ }
+          \ ],
+          \ current: 0,
       \ })
 
     let l:id = len(s:listMenus)
@@ -162,6 +196,10 @@ function! MenuOpen(id, properties) abort
         let l:context = s:listMenus[a:id]
         let l:context.index = 1
         let l:context.onKey = get(a:properties, 'onKey', l:context)
+        if (has_key(a:properties, 'mode'))
+            let l:context.mode = a:properties.mode
+        endif
+        call l:context.mode.list[l:context.mode.current].func(1)
 
         call s:set(a:properties, #{
             \ firstline: 1
