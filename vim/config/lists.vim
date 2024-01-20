@@ -40,7 +40,7 @@ function! s:refreshBuffer(query, from, expand) abort
     call RichBufferRefresh(s:buffer, #{
         \ from: a:from,
         \ to: len(s:lookup) - 1,
-        \ f: {line -> a:query.onDrawFn(line, a:expand ? fnamemodify(a:query.onPathFn(s:lookup[line]), ':t') : a:query.onPathFn(s:lookup[line]))}
+        \ f: {line -> a:query.onDrawFn(line, a:query.onPathFn(s:lookup[line], a:expand))}
         \ })
 endfunction
 
@@ -51,10 +51,14 @@ function! OnListKey(query, key, line) abort
                     \ onType: function('OnDialogKey', [a:query]),
                     \ buffer: a:query.keyword
                     \ })
+    elseif a:key is# "\<right>"
+        call s:refreshBuffer(a:query, 1, v:true)
+    elseif a:key is# "\<left>"
+        call s:refreshBuffer(a:query, 1, v:false)
     elseif a:line < len(s:lookup)
         if a:key is# "\<cr>"
             let l:data = s:lookup[a:line]
-            execute 'silent! edit ' .. a:query.onPathFn(l:data)
+            execute 'silent! edit ' .. a:query.onPathFn(l:data, v:false)
             if a:query.cursorOnMatch
                 silent! call cursor(l:data.line_number, l:data.submatches[0].start)
             endif
@@ -121,19 +125,6 @@ function! s:listAsyncRgCall(query)
     call MenuOpen(s:menuId, #{
                 \ title: a:query.title,
                 \ onKey: function('OnListKey', [a:query]),
-                \ mode: #{
-                    \ list: [
-                        \ #{
-                            \ name: 'path',
-                            \ func: {_ -> s:refreshBuffer(a:query, 1, v:false)},
-                          \ },
-                        \ #{
-                            \ name: 'fileName',
-                            \ func: {_ -> s:refreshBuffer(a:query, 1, v:true)},
-                          \ },
-                      \ ],
-                    \ current: 1,
-                  \ },
                 \ })
 endfunction
 
@@ -142,7 +133,7 @@ command! -nargs=? ListGrep call s:listAsyncRgCall(#{
     \ keyword: <q-args>,
     \ commandName: 'grep',
     \ cursorOnMatch: v:true,
-    \ onPathFn: {data -> data.path.text},
+    \ onPathFn: {data, expand -> expand ? fnamemodify(data.path.text, ':t') : data.path.text},
     \ onDrawFn: {line, path -> #{
         \ bufline: path .. ' ' .. s:lookup[line].lines.text,
         \ props: [
@@ -161,21 +152,21 @@ command! -nargs=? ListGrep call s:listAsyncRgCall(#{
 """ General Rg filter
 function! s:listRgFilter(keyword, name, sink) abort
     call s:listAsyncRgCall(#{
-        \ keyword: a:keyword,
-        \ commandName: a:name,
-        \ sink: a:sink,
-        \ cursorOnMatch: v:false,
-        \ onPathFn: {data -> data.lines.text},
-        \ onDrawFn: {line, path -> #{
-            \ bufline: path,
-            \ props: [
-                \ #{
-                    \ type: 'MatchStyle',
-                    \ location: mapnew(s:lookup[line].submatches, {_, v -> [line, v.start + 1, line, v.end + 1]}),
-                \ },
-            \ ],
-          \ }},
-        \ })
+                \ keyword: a:keyword,
+                \ commandName: a:name,
+                \ sink: a:sink,
+                \ cursorOnMatch: v:false,
+                \ onPathFn: {data, _ -> data.lines.text},
+                \ onDrawFn: {line, path -> #{
+                    \ bufline: path,
+                    \ props: [
+                        \ #{
+                            \ type: 'MatchStyle',
+                            \ location: mapnew(s:lookup[line].submatches, {_, v -> [line, v.start + 1, line, v.end + 1]}),
+                        \ },
+                    \ ],
+                  \ }},
+                \ })
 endfunction
 
 """ Find
