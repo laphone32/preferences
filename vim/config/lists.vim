@@ -181,3 +181,9 @@ command! -nargs=? ListBuffer call s:listRgFilter(<q-args>, 'buffer', 'echo ' .. 
 """ Test
 command! -nargs=? ListTest call s:listRgFilter(<q-args>, 'test50', "printf \'%s\n\' {1..50}")
 
+""" keymap
+call AddListKeyMappings('find-file-call', 'ListFind', "ListFind %s")
+call AddListKeyMappings('grep-file-call', 'ListGrep', 'ListGrep %s')
+call AddListKeyMappings('find-buffer-call', 'ListBuffer', 'ListBuffer %s')
+nnoremap <Plug>(resume-list-call) :ListResume<cr>
+

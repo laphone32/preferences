@@ -22,12 +22,12 @@ let g:fzf_colors =
   \ 'header':  ['fg', 'Comment'] }
 let g:fzf_history_dir = '~/.local/share/fzf-history'
 
-function GitFilesOrFiles(...)
-    execute ((exists("*fugitive#head") && len(fugitive#head())) ? 'Files' : 'GFiles').' '.join(a:000)
-endfunction
-
-
-call AddListKeyMappings('find-file-call', 'call GitFilesOrFiles()', "call GitFilesOrFiles(%s)")
-call AddListKeyMappings('grep-file-call', 'RG', 'RG %s')
-call AddListKeyMappings('find-buffer-call', 'Buffers', 'Buffers %s')
+"function GitFilesOrFiles(...)
+"    execute ((exists("*fugitive#head") && len(fugitive#head())) ? 'Files' : 'GFiles').' '.join(a:000)
+"endfunction
+"
+"
+"call AddListKeyMappings('find-file-call', 'call GitFilesOrFiles()', "call GitFilesOrFiles(%s)")
+"call AddListKeyMappings('grep-file-call', 'RG', 'RG %s')
+"call AddListKeyMappings('find-buffer-call', 'Buffers', 'Buffers %s')
 
