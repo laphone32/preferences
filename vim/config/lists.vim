@@ -45,6 +45,8 @@ function! s:refreshBuffer(query, from, expand) abort
 endfunction
 
 function! OnListKey(query, key, line) abort
+    let l:hideMenu = v:false
+
     if a:key is# '/'
         call DoAsInputOpen(s:dialogId, #{
                     \ title: a:query.title,
@@ -62,8 +64,11 @@ function! OnListKey(query, key, line) abort
             if a:query.cursorOnMatch
                 silent! call cursor(l:data.line_number, l:data.submatches[0].start)
             endif
+            let l:hideMenu = v:true
         endif
     endif
+
+    return l:hideMenu
 endfunction
 
 function! OnAsyncRgData(query, messages) abort
@@ -170,13 +175,40 @@ function! s:listRgFilter(keyword, name, sink) abort
 endfunction
 
 """ Find
-command! -nargs=? ListFind call s:listRgFilter(<q-args>, 'find', (exists("*fugitive#head") && len(fugitive#head())) ? 'find . -type f -print' : 'git ls-files')
+command! -nargs=? ListFind call s:listAsyncRgCall(#{
+    \ keyword: <q-args>,
+    \ commandName: 'find',
+    \ sink: (exists("*fugitive#head") && len(fugitive#head())) ? 'find . -type f -print' : 'git ls-files',
+    \ cursorOnMatch: v:false,
+    \ onPathFn: {data, _ -> data.lines.text},
+    \ onDrawFn: {line, path -> #{
+        \ bufline: path,
+        \ props: [
+            \ #{
+                \ type: 'MatchStyle',
+                \ location: mapnew(s:lookup[line].submatches, {_, v -> [line, v.start + 1, line, v.end + 1]}),
+            \ },
+        \ ],
+      \ }},
+    \ })
 
 """ Buffer
-function! s:bufferData()
-    return reduce(getbufinfo(#{buflisted: v:true}), {data, info -> data .. (len(info.name) ? info.name : '[NO NAME]' ) .. '\n' }, '')
-endfunction
-command! -nargs=? ListBuffer call s:listRgFilter(<q-args>, 'buffer', 'echo ' .. shellescape(s:bufferData()))
+command! -nargs=? ListBuffer call s:listAsyncRgCall(#{
+    \ keyword: empty(<q-args>) ? '.' : <q-args>,
+    \ commandName: 'buffer',
+    \ sink: 'echo ' .. shellescape(reduce(getbufinfo(#{buflisted: v:true}), {data, info -> data .. (len(info.name) ? info.name : '[NO NAME]' ) .. '\n' }, '')),
+    \ cursorOnMatch: v:false,
+    \ onPathFn: {data, _ -> data.lines.text},
+    \ onDrawFn: {line, path -> #{
+        \ bufline: path,
+        \ props: [
+            \ #{
+                \ type: 'MatchStyle',
+                \ location: mapnew(s:lookup[line].submatches, {_, v -> [line, v.start + 1, line, v.end + 1]}),
+            \ },
+        \ ],
+      \ }},
+    \ })
 
 """ Test
 command! -nargs=? ListTest call s:listRgFilter(<q-args>, 'test50', "printf \'%s\n\' {1..50}")

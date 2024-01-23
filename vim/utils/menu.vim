@@ -14,12 +14,13 @@ function! s:onFilter(context, id, key) abort
     else
         if index([
             \ "\<esc>", 'q',
-            \ "\<cr>"
           \ ], a:key) >= 0
             call s:hide(a:context)
         endif
 
-        call function(a:context.onKey)(a:key, l:cur[1])
+        if function(a:context.onKey)(a:key, l:cur[1])
+            call s:hide(a:context)
+        endif
     endif
 
     redraw
