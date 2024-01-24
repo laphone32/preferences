@@ -6,7 +6,6 @@ function! DoAsInputInit(properties) abort
         \ buffer: get(a:properties, 'buffer', ''),
         \ id: 0,
         \ onType: get(a:properties, 'onType', {key, all ->  v:null }),
-        \ legalInput: get(a:properties, 'legalInput', ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '_', '/', '.', '>', '<', '|', '$', '-']),
     \ }
 
     call s:set(a:properties, #{
@@ -29,7 +28,6 @@ function! DoAsInputOpen(id, properties = {}) abort
         let l:context = s:doAsInputs[a:id]
         let l:context.buffer = get(a:properties, 'buffer', '')
         let l:context.onType = get(a:properties, 'onType', l:context.onType)
-        let l:context.legalInput = get(a:properties, 'legalInput', l:context.legalInput)
         call s:set(a:properties)
 
         call popup_setoptions(l:context.id, a:properties)
@@ -55,7 +53,9 @@ function! s:set(properties, opt = {}) abort
 endfunction
 
 function! s:onFilter(context, id, key) abort
-    if index(a:context.legalInput, tolower(a:key)) != -1
+    let l:nr = char2nr(a:key)
+
+    if l:nr >= 32 && l:nr <= 126
         let a:context.buffer ..= a:key
     elseif a:key is# "\<bs>"
         if len(a:context.buffer) > 1

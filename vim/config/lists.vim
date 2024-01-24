@@ -103,7 +103,7 @@ function! OnAsyncRgData(query, messages) abort
 endfunction
 
 function! OnDialogKey(query, key, message) abort
-    if a:key is# "\<cr>" && a:message != a:query.keyword
+    if a:key is# "\<cr>" && a:message !=# a:query.keyword
         let a:query.keyword = a:message
         call s:listAsyncRgCall(a:query)
     endif

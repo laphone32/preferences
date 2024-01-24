@@ -3,11 +3,11 @@
 function eachSubFile {
     local targetDir=$1
     local action=$2
-    local fileName=$3
+    local name=$3
 
     for dir in $targetDir/*/; do
-        if [ -f "$dir$fileName" ]; then
-            eval "$action $dir$fileName"
+        if [ -e "$dir$name" ]; then
+            eval "$action $dir$name"
         fi
     done
 }

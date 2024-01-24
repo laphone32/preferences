@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+if [ $# -ge 1 ]; then
+    parameter=${@:1:$#-1}
+    tagName=${@: -1:1}
+
+    echo "push with parameter [$parameter] and tag <$tagName> on HEAD"
+
+    eval "git push origin :refs/tags/$tagName"
+    eval "git tag -fa $tagName"
+    eval "git push origin --follow-tags $parameter"
+else
+    echo 'at least tagName should be provided.'
+    echo 'Usage: git tagpush [<pushparameters>] <tagName>'
+fi
+
