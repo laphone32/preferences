@@ -223,13 +223,6 @@ command! -nargs=? ListTest call s:listAsyncRgCall(#{
     \ render: [
     \ { line -> #{
         \ text: s:lookup[line].lines.text,
-        \ props: [
-            \ #{ type: 'MatchStyle', location: mapnew(s:lookup[line].submatches, {_, v -> [line, v.start + 1, line, v.end + 1]}) },
-        \ ],
-        \ }
-    \ },
-    \ { line -> #{
-        \ text: fnamemodify(s:lookup[line].lines.text, ':t')
         \ }
     \ },
     \ ],

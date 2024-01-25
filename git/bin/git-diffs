@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+echo '--- unstaged changes ---'
+git diff $@
+echo '--- staged changes ---'
+git diff --cached $@
+
