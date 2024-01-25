@@ -6,7 +6,7 @@ call LoadConfig('utils/richBuffer.vim')
 
 let s:height = winheight(0)
 let s:width = float2nr(winwidth(0))
-let s:popupHeight = float2nr(s:height * 0.45)
+let s:popupHeight = float2nr(s:height * 0.55)
 
 call prop_type_add('FileStyle', #{highlight: 'Statement', override: v:true})
 call prop_type_add('MatchStyle', #{highlight: 'Underlined', override: v:true})
@@ -15,6 +15,7 @@ let s:buffer = RichBufferInit(#{
     \ name: '_listsBuffer_',
   \ })
 let s:lookup = [{}]
+
 
 let s:menuId = MenuInit(RichBuffer(s:buffer), #{
     \ pos: 'botleft',
@@ -36,12 +37,12 @@ let s:dialogId = DoAsInputInit(#{
 
 command! -nargs=0 ListResume call MenuResume(s:menuId)
 
-function! s:refreshBuffer(query, from, expand) abort
+function! s:refreshBuffer(query, from) abort
     call RichBufferRefresh(s:buffer, #{
         \ from: a:from,
         \ to: len(s:lookup) - 1,
-        \ f: {line -> a:query.onDrawFn(line, a:query.onPathFn(s:lookup[line], a:expand))}
-        \ })
+        \ f: {line -> a:query.render[a:query.mode](line)}
+    \ })
 endfunction
 
 function! OnListKey(query, key, line) abort
@@ -54,13 +55,19 @@ function! OnListKey(query, key, line) abort
                     \ buffer: a:query.keyword
                     \ })
     elseif a:key is# "\<right>"
-        call s:refreshBuffer(a:query, 1, v:true)
+        if a:query.mode < len(a:query.render) - 1
+            let a:query.mode += 1
+            call s:refreshBuffer(a:query, 1)
+        endif
     elseif a:key is# "\<left>"
-        call s:refreshBuffer(a:query, 1, v:false)
+        if a:query.mode > 0
+            let a:query.mode -= 1
+            call s:refreshBuffer(a:query, 1)
+        endif
     elseif a:line < len(s:lookup)
         if a:key is# "\<cr>"
             let l:data = s:lookup[a:line]
-            execute 'silent! edit ' .. a:query.onPathFn(l:data, v:false)
+            execute 'silent! edit ' .. a:query.onPathFn(l:data)
             if a:query.cursorOnMatch
                 silent! call cursor(l:data.line_number, l:data.submatches[0].start)
             endif
@@ -99,7 +106,7 @@ function! OnAsyncRgData(query, messages) abort
         endif
     endfor
 
-    call s:refreshBuffer(a:query, l:count, v:true)
+    call s:refreshBuffer(a:query, l:count)
 endfunction
 
 function! OnDialogKey(query, key, message) abort
@@ -138,41 +145,27 @@ command! -nargs=? ListGrep call s:listAsyncRgCall(#{
     \ keyword: <q-args>,
     \ commandName: 'grep',
     \ cursorOnMatch: v:true,
-    \ onPathFn: {data, expand -> expand ? fnamemodify(data.path.text, ':t') : data.path.text},
-    \ onDrawFn: {line, path -> #{
-        \ bufline: path .. ' ' .. s:lookup[line].lines.text,
-        \ props: [
-            \ #{
-                \ type: 'FileStyle',
-                \ location: [[line, 1, line, len(path) + 1]],
-              \ },
-            \ #{
-                \ type: 'MatchStyle',
-                \ location: mapnew(s:lookup[line].submatches, {_, v -> [line, len(path) + 1 + v.start + 1, line, len(path) + 1 + v.end + 1]}),
-              \ },
-          \ ],
-      \ }},
-    \ })
-
-""" General Rg filter
-function! s:listRgFilter(keyword, name, sink) abort
-    call s:listAsyncRgCall(#{
-                \ keyword: a:keyword,
-                \ commandName: a:name,
-                \ sink: a:sink,
-                \ cursorOnMatch: v:false,
-                \ onPathFn: {data, _ -> data.lines.text},
-                \ onDrawFn: {line, path -> #{
-                    \ bufline: path,
-                    \ props: [
-                        \ #{
-                            \ type: 'MatchStyle',
-                            \ location: mapnew(s:lookup[line].submatches, {_, v -> [line, v.start + 1, line, v.end + 1]}),
-                        \ },
-                    \ ],
-                  \ }},
-                \ })
-endfunction
+    \ onPathFn: {data -> data.path.text},
+    \ render: [
+    \ { line -> #{
+            \ text: s:lookup[line].path.text .. ' ' .. s:lookup[line].lines.text,
+            \ props: [
+                \ #{ type: 'FileStyle', location: [[line, 1, line, len(s:lookup[line].path.text) + 1]] },
+                \ #{ type: 'MatchStyle', location: mapnew(s:lookup[line].submatches, {_, v -> [line, len(s:lookup[line].path.text) + 1 + v.start + 1, line, len(s:lookup[line].path.text) + 1 + v.end + 1]}) },
+            \ ],
+        \ }
+    \ },
+    \ { line -> #{
+            \ text: fnamemodify(s:lookup[line].path.text, ':t') .. ' ' .. s:lookup[line].lines.text,
+            \ props: [
+                \ #{ type: 'FileStyle', location: [[line, 1, line, len(fnamemodify(s:lookup[line].path.text, ':t')) + 1]] },
+                \ #{ type: 'MatchStyle', location: mapnew(s:lookup[line].submatches, {_, v -> [line, len(fnamemodify(s:lookup[line].path.text, ':t')) + 1 + v.start + 1, line, len(fnamemodify(s:lookup[line].path.text, ':t')) + 1 + v.end + 1]}) },
+            \ ],
+            \ }
+    \ },
+    \ ],
+    \ mode: 1,
+\ })
 
 """ Find
 command! -nargs=? ListFind call s:listAsyncRgCall(#{
@@ -180,17 +173,22 @@ command! -nargs=? ListFind call s:listAsyncRgCall(#{
     \ commandName: 'find',
     \ sink: (exists("*fugitive#head") && len(fugitive#head())) ? 'find . -type f -print' : 'git ls-files',
     \ cursorOnMatch: v:false,
-    \ onPathFn: {data, _ -> data.lines.text},
-    \ onDrawFn: {line, path -> #{
-        \ bufline: path,
+    \ onPathFn: {data -> data.lines.text},
+    \ render: [
+    \ { line -> #{
+        \ text: s:lookup[line].lines.text,
         \ props: [
-            \ #{
-                \ type: 'MatchStyle',
-                \ location: mapnew(s:lookup[line].submatches, {_, v -> [line, v.start + 1, line, v.end + 1]}),
-            \ },
+            \ #{ type: 'MatchStyle', location: mapnew(s:lookup[line].submatches, {_, v -> [line, v.start + 1, line, v.end + 1]}) },
         \ ],
-      \ }},
-    \ })
+        \ }
+    \ },
+    \ { line -> #{
+        \ text: fnamemodify(s:lookup[line].lines.text, ':t')
+        \ }
+    \ },
+    \ ],
+    \ mode: 0,
+\ })
 
 """ Buffer
 command! -nargs=? ListBuffer call s:listAsyncRgCall(#{
@@ -198,20 +196,45 @@ command! -nargs=? ListBuffer call s:listAsyncRgCall(#{
     \ commandName: 'buffer',
     \ sink: 'echo ' .. shellescape(reduce(getbufinfo(#{buflisted: v:true}), {data, info -> data .. (len(info.name) ? info.name : '[NO NAME]' ) .. '\n' }, '')),
     \ cursorOnMatch: v:false,
-    \ onPathFn: {data, _ -> data.lines.text},
-    \ onDrawFn: {line, path -> #{
-        \ bufline: path,
+    \ onPathFn: {data -> data.lines.text},
+    \ render: [
+    \ { line -> #{
+        \ text: s:lookup[line].lines.text,
         \ props: [
-            \ #{
-                \ type: 'MatchStyle',
-                \ location: mapnew(s:lookup[line].submatches, {_, v -> [line, v.start + 1, line, v.end + 1]}),
-            \ },
+            \ #{ type: 'MatchStyle', location: mapnew(s:lookup[line].submatches, {_, v -> [line, v.start + 1, line, v.end + 1]}) },
         \ ],
-      \ }},
-    \ })
+        \ }
+    \ },
+    \ { line -> #{
+        \ text: fnamemodify(s:lookup[line].lines.text, ':t')
+        \ }
+    \ },
+    \ ],
+    \ mode: 0,
+\ })
 
 """ Test
-command! -nargs=? ListTest call s:listRgFilter(<q-args>, 'test50', "printf \'%s\n\' {1..50}")
+command! -nargs=? ListTest call s:listAsyncRgCall(#{
+    \ keyword: empty(<q-args>) ? '.' : <q-args>,
+    \ commandName: 'test50',
+    \ sink: "printf \'%s\n\' {1..50}",
+    \ cursorOnMatch: v:false,
+    \ onPathFn: {data -> data.lines.text},
+    \ render: [
+    \ { line -> #{
+        \ text: s:lookup[line].lines.text,
+        \ props: [
+            \ #{ type: 'MatchStyle', location: mapnew(s:lookup[line].submatches, {_, v -> [line, v.start + 1, line, v.end + 1]}) },
+        \ ],
+        \ }
+    \ },
+    \ { line -> #{
+        \ text: fnamemodify(s:lookup[line].lines.text, ':t')
+        \ }
+    \ },
+    \ ],
+    \ mode: 0,
+\ })
 
 """ keymap
 call AddListKeyMappings('find-file-call', 'ListFind', "ListFind %s")

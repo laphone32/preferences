@@ -1,6 +1,5 @@
 
 function! s:onFilter(context, id, key) abort
-    let l:cur = getcurpos(a:id)
 
     if index([
             \ "\<up>", 'k', "\<c-n>",
@@ -11,22 +10,16 @@ function! s:onFilter(context, id, key) abort
             \ "\<end>", 'G',
         \ ], a:key) >= 0
         call win_execute(a:id, 'normal! ' .. a:key)
-    else
-        if index([
+        call popup_settext(a:context.pageId, ' ' .. getcurpos(a:id)[1] .. ' / ' .. line('$', a:id) .. ' ')
+    elseif index([
             \ "\<esc>", 'q',
-          \ ], a:key) >= 0
+        \ ], a:key) >= 0
             call s:hide(a:context)
-        endif
-
-        if function(a:context.onKey)(a:key, l:cur[1])
-            call s:hide(a:context)
-        endif
     endif
 
-    redraw
-
-    let l:cur = getcurpos(a:id)
-    call popup_settext(a:context.pageId, ' ' .. l:cur[1] .. ' / ' .. line('$', a:id) .. ' ')
+    if function(a:context.onKey)(a:key, getcurpos(a:id)[1])
+        call s:hide(a:context)
+    endif
 
     return v:true
 endfunction

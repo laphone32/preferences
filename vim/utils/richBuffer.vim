@@ -36,8 +36,8 @@ function! RichBufferRefresh(id, properties) abort
 
         while l:line <= a:properties.to
             let l:result = a:properties.f(l:line)
-            call setbufline(l:context.buffer, l:line, l:result.bufline)
-            for l:prop in l:result.props
+            call setbufline(l:context.buffer, l:line, l:result.text)
+            for l:prop in get(l:result, 'props', [])
                 call prop_add_list(#{bufnr: l:context.buffer, type: l:prop.type}, l:prop.location)
             endfor
             let l:line += 1
