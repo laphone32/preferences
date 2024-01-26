@@ -37,12 +37,15 @@ let s:dialogId = DoAsInputInit(#{
 
 command! -nargs=0 ListResume call MenuResume(s:menuId)
 
-function! s:refreshBuffer(query, from) abort
-    call RichBufferRefresh(s:buffer, #{
-        \ from: a:from,
-        \ to: len(s:lookup) - 1,
-        \ f: {line -> a:query.render[a:query.mode](line)}
-    \ })
+function! s:refreshBuffer(query, from, len = len(s:lookup)) abort
+    let l:line = a:from
+    let l:end = l:line + a:len
+    while l:line < l:end
+        if l:line != len(s:lookup)
+            call RichBufferRefreshLine(s:buffer, l:line % len(s:lookup), { line -> a:query.render[a:query.mode](line) })
+        endif
+        let l:line += 1
+    endwhile
 endfunction
 
 function! OnListKey(query, key, line) abort
@@ -57,12 +60,12 @@ function! OnListKey(query, key, line) abort
     elseif a:key is# "\<right>"
         if a:query.mode < len(a:query.render) - 1
             let a:query.mode += 1
-            call s:refreshBuffer(a:query, 1)
+            call s:refreshBuffer(a:query, max([1, a:line - s:popupHeight]))
         endif
     elseif a:key is# "\<left>"
         if a:query.mode > 0
             let a:query.mode -= 1
-            call s:refreshBuffer(a:query, 1)
+            call s:refreshBuffer(a:query, max([1, a:line - s:popupHeight]))
         endif
     elseif a:line < len(s:lookup)
         if a:key is# "\<cr>"
@@ -106,7 +109,7 @@ function! OnAsyncRgData(query, messages) abort
         endif
     endfor
 
-    call s:refreshBuffer(a:query, l:count)
+    call s:refreshBuffer(a:query, l:count, len(s:lookup) - l:count)
 endfunction
 
 function! OnDialogKey(query, key, message) abort

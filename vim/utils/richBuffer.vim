@@ -30,27 +30,25 @@ endfunction
 
 function! RichBufferRefresh(id, properties) abort
     if a:id < len(s:listBuffer) && a:properties.to >= a:properties.from
-        let l:context = s:listBuffer[a:id]
         let l:line = a:properties.from
-        call prop_clear(a:properties.from, a:properties.to, l:context.prop)
 
         while l:line <= a:properties.to
-            let l:result = a:properties.f(l:line)
-            call setbufline(l:context.buffer, l:line, l:result.text)
-            for l:prop in get(l:result, 'props', [])
-                call prop_add_list(#{bufnr: l:context.buffer, type: l:prop.type}, l:prop.location)
-            endfor
+            call RichBufferRefreshLine(a:id, l:line, a:properties.f)
             let l:line += 1
         endwhile
     endif
 endfunction
 
-function! RichBufferRefreshLine(id, line, properties) abort
-    call RichBufferRefresh(a:id, #{
-        \ from: a:line,
-        \ to: a:line,
-        \ f: {line -> a:properties}
-      \ })
+function! RichBufferRefreshLine(id, line, f) abort
+    if a:id < len(s:listBuffer)
+        let l:buffer = s:listBuffer[a:id].buffer
+        let l:result = a:f(a:line)
+
+        call setbufline(l:buffer, a:line, l:result.text)
+        for l:prop in get(l:result, 'props', [])
+            call prop_add_list(#{bufnr: l:buffer, type: l:prop.type}, l:prop.location)
+        endfor
+    endif
 endfunction
 
 
