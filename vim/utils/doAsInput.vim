@@ -1,76 +1,51 @@
+vim9script
 
-let s:doAsInputs = []
+import "./consistentPopup.vim" as cp
 
-function! DoAsInputInit(properties) abort
-    let l:context = #{
-        \ buffer: get(a:properties, 'buffer', ''),
-        \ id: 0,
-        \ onType: get(a:properties, 'onType', {key, all ->  v:null }),
-    \ }
+export class DoAsInput extends cp.ConsistentPopup
+    var buffer: string
+    var onType: func(string, string)
 
-    call s:set(a:properties, #{
-                \ minheight: 1,
-                \ maxheight: 1,
-                \ filter: function('s:onFilter', [l:context]),
-                \ hidden: v:true,
-                \ })
+    def new(properties: dict<any>)
+        this.buffer = properties->get('buffer', '')
+        this.onType = properties->get('onType', (key, all) => {
+            })
+        this.id = popup_dialog(this.buffer, {
+            \ minheight: 1,
+            \ maxheight: 1,
+            \ hidden: v:true,
+        }->extend(properties))
 
-    let l:context.id = popup_dialog(l:context.buffer, a:properties)
+        this.OnFilter = this.KeyFilter
+    enddef
 
-    let l:id = len(s:doAsInputs)
-    call add(s:doAsInputs, l:context)
+    def KeyFilter(key: string): bool
+        var nr = char2nr(key)
 
-    return l:id
-endfunction
-
-function! DoAsInputOpen(id, properties = {}) abort
-    if a:id < len(s:doAsInputs)
-        let l:context = s:doAsInputs[a:id]
-        let l:context.buffer = get(a:properties, 'buffer', '')
-        let l:context.onType = get(a:properties, 'onType', l:context.onType)
-        call s:set(a:properties)
-
-        call popup_setoptions(l:context.id, a:properties)
-        call popup_settext(l:context.id, l:context.buffer)
-        call popup_show(l:context.id)
-    endif
-endfunction
-
-function! DoAsInputResume(id) abort
-    if a:id < len(s:doAsInputs)
-        call popup_show(s:doAsInputs[a:id].id)
-    endif
-endfunction
-
-function! s:set(properties, opt = {}) abort
-    if has_key(a:properties, 'width')
-        let l:width = a:properties.width
-        let a:properties.maxwidth = l:width
-        let a:properties.minwidth = l:width
-    endif
-
-    call extend(a:properties, a:opt)
-endfunction
-
-function! s:onFilter(context, id, key) abort
-    let l:nr = char2nr(a:key)
-
-    if l:nr >= 32 && l:nr <= 126
-        let a:context.buffer ..= a:key
-    elseif a:key is# "\<bs>"
-        if len(a:context.buffer) > 1
-            let a:context.buffer = a:context.buffer[:len(a:context.buffer) - 2]
-        else
-            let a:context.buffer = ''
+        if nr >= 32 && nr <= 126
+            this.buffer ..= key
+        elseif key ==# "\<bs>"
+            if len(this.buffer) > 1
+                this.buffer = this.buffer[ : len(this.buffer) - 2]
+            else
+                this.buffer = ''
+            endif
         endif
-    elseif a:key is# "\<cr>" || a:key is# "\<esc>"
-        call popup_hide(a:id)
-    else
-    endif
 
-    call popup_settext(a:id, a:context.buffer)
-    call function(a:context.onType)(a:key, a:context.buffer)
+        popup_settext(this.id, this.buffer)
+        this.onType(key, this.buffer)
 
-    return v:true
-endfunction
+        return key ==# "\<cr>"
+    enddef
+
+    def Open(properties = {})
+        this.buffer = properties->get('buffer', '')
+        this.onType = properties->get('onType', this.onType)
+
+        popup_setoptions(this.id, properties)
+        popup_settext(this.id, this.buffer)
+
+        super.Show()
+    enddef
+endclass
 

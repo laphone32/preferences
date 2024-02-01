@@ -1,54 +1,62 @@
+vim9script
 
-let s:listBuffer = []
+export class RichBuffer
+    var buffer: number
+    var prop: dict<any>
 
-function! RichBufferInit(properties) abort
-    silent! let l:buffer = BufferAllocate(get(a:properties, 'name', '_richBuffer_' .. len(s:listBuffer)))
-    let l:context = #{
-        \ buffer: l:buffer,
-        \ prop: #{bufnr: l:buffer},
-        \ }
+    def _BufferAllocate(name: string): number
+        var currentBufferNr = bufnr('%')
+        var ret = bufnr(name, 1)
 
-    let l:id = len(s:listBuffer)
-    call add(s:listBuffer, l:context)
+        execute 'buffer ' .. ret
+        setlocal noswapfile nobuflisted bufhidden=hide buftype=nofile
+        execute 'buffer ' .. currentBufferNr
 
-    return l:id
-endfunction
+        return ret
+    enddef
 
-function! RichBuffer(id) abort
-    if a:id < len(s:listBuffer)
-        return s:listBuffer[a:id].buffer
-    endif
-endfunction
+    def _BufferClear(id: number)
+        var currentBufferNr = bufnr('%')
+        execute 'buffer ' .. id
+        silent! normal! gg"_dG'
+        execute 'buffer ' .. currentBufferNr
+    enddef
 
-function! RichBufferClear(id, from, to) abort
-    if a:id < len(s:listBuffer)
-        let l:context = s:listBuffer[a:id]
-        call BufferClear(l:context.buffer)
-        call prop_clear(a:from, a:to, l:context.prop)
-    endif
-endfunction
+    def new(properties: dict<string>)
+        silent! this.buffer = this._BufferAllocate(properties->get('name', '_richBuffer_'))
+        this.prop = { bufnr: this.buffer }
+    enddef
 
-function! RichBufferRefresh(id, properties) abort
-    if a:id < len(s:listBuffer) && a:properties.to >= a:properties.from
-        let l:line = a:properties.from
+    def Get(): number
+        return this.buffer
+    enddef
 
-        while l:line <= a:properties.to
-            call RichBufferRefreshLine(a:id, l:line, a:properties.f)
-            let l:line += 1
-        endwhile
-    endif
-endfunction
+    def LineCount(): number
+        return getbufinfo(this.buffer)[0].linecount
+    enddef
 
-function! RichBufferRefreshLine(id, line, f) abort
-    if a:id < len(s:listBuffer)
-        let l:buffer = s:listBuffer[a:id].buffer
-        let l:result = a:f(a:line)
+    def Clear(from: number = 1, to: number = this.LineCount())
+        this._BufferClear(this.buffer)
+        prop_clear(from, to, this.prop)
+    enddef
 
-        call setbufline(l:buffer, a:line, l:result.text)
-        for l:prop in get(l:result, 'props', [])
-            call prop_add_list(#{bufnr: l:buffer, type: l:prop.type}, l:prop.location)
+    def Refresh(properties: dict<string>)
+        if && properties.to >= properties.from
+            var line = properties.from
+
+            while line <= properties.to
+                RefreshLine(id, line, properties.f)
+                line += 1
+            endwhile
+        endif
+    enddef
+
+    def RefreshLine(line: number, result: dict<any>)
+        setbufline(this.buffer, line, result.text)
+        for textprop in result->get('props', [])
+            prop_add_list({bufnr: this.buffer, type: textprop.type}, textprop.location)
         endfor
-    endif
-endfunction
+    enddef
 
+endclass
 

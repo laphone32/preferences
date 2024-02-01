@@ -1,111 +1,93 @@
+vim9script
 
-function! s:onFilter(context, id, key) abort
+import "./consistentPopup.vim" as cp
 
-    if index([
+class MenuArea extends cp.ConsistentPopup
+    var buffer: number
+    var OnKey: func(string, number): bool
+
+    def new(properties: dict<any>)
+        this.buffer = properties->get('buffer', -1)
+        this.OnKey = properties->get('onKey', (k, l) => v:true )
+        this.id = popup_menu(this.buffer, {
+            hidden: v:true,
+        }->extend(properties))
+
+        this.OnFilter = this.KeyFilter
+        this.OnShow = properties->get('onShow', () => v:none )
+        this.OnHide = properties->get('onHide', () => v:none )
+    enddef
+
+    def Open(properties: dict<any>)
+        this.OnKey = properties->get('onKey', this.OnKey)
+        popup_setoptions(this.id, { firstline: 1 }->extend(properties))
+    enddef
+
+    def Get(): number
+        return this.id
+    enddef
+
+    def KeyFilter(key: string): bool
+        if [
             \ "\<up>", 'k', "\<c-n>",
             \ "\<down>", 'j', "\<c-p>",
             \ "\<pageup>", "\<c-b>",
             \ "\<pagedown>", "\<c-f>",
             \ "\<home>",
             \ "\<end>", 'G',
-        \ ], a:key) >= 0
-        call win_execute(a:id, 'normal! ' .. a:key)
-        call popup_settext(a:context.pageId, ' ' .. getcurpos(a:id)[1] .. ' / ' .. line('$', a:id) .. ' ')
-    elseif index([
-            \ "\<esc>", 'q',
-        \ ], a:key) >= 0
-            call s:hide(a:context)
-    endif
+        \ ]->index(key) >= 0
+            win_execute(this.id, 'normal! ' .. key)
+        endif
 
-    if function(a:context.onKey)(a:key, getcurpos(a:id)[1])
-        call s:hide(a:context)
-    endif
+        return this.OnKey(key, getcurpos(this.id)[1])
+    enddef
+endclass
 
-    return v:true
-endfunction
+export class Menu extends cp.ConsistentPopup
+    var menuArea: MenuArea
 
-let s:listMenus = []
+    def new(properties: dict<any>)
+        this.menuArea = MenuArea.new(properties)
+        var menuId = this.menuArea.Get()
+        var opts = popup_getoptions(menuId)
+        var pos = popup_getpos(menuId)
 
-function! MenuInit(buffer, properties) abort
-    let l:context = #{
-        \ menuId: -1,
-        \ pageId: -1,
-        \ onKey: get(a:properties, 'onKey', { _, result -> v:null }),
-        \ }
-
-    call s:set(a:properties, #{
-        \ filter: function('s:onFilter', [l:context]),
-        \ hidden: v:true,
-        \ })
-
-    let l:context.menuId = popup_menu(a:buffer, a:properties)
-    let l:opts = popup_getoptions(l:context.menuId)
-    let l:pos = popup_getpos(l:context.menuId)
-
-    let l:context.pageId = popup_create(' 0 / 0 ', #{
-        \ pos: 'topright',
-        \ line: l:pos.line,
-        \ col: l:pos.col + l:pos.width - 1,
-        \ maxheight: 1,
-        \ minheight: 1,
-        \ zindex: l:opts.zindex + 1,
-        \ hidden: v:true,
-      \ })
-
-    let l:id = len(s:listMenus)
-    call add(s:listMenus, l:context)
-
-    return l:id
-endfunction
-
-function! MenuBuffer(id) abort
-    if a:id < len(s:listMenus)
-        return winbufnr(s:listMenus[a:id].menuId)
-    endif
-endfunction
-
-function! s:set(properties, opt = {})
-    if has_key(a:properties, 'width')
-        let l:width = a:properties.width
-        let a:properties.maxwidth = l:width
-        let a:properties.minwidth = l:width
-    endif
-
-    if has_key(a:properties, 'height')
-        let l:height = a:properties.height
-        let a:properties.maxheight = l:height
-        let a:properties.minheight = l:height
-    endif
-
-    call extend(a:properties, a:opt)
-endfunction
-
-function! s:show(context) abort
-    call popup_show(a:context.menuId)
-    call popup_show(a:context.pageId)
-endfunction
-
-function! s:hide(context) abort
-    call popup_hide(a:context.menuId)
-    call popup_hide(a:context.pageId)
-endfunction
-
-function! MenuOpen(id, properties) abort
-    if a:id < len(s:listMenus)
-        let l:context = s:listMenus[a:id]
-        let l:context.onKey = get(a:properties, 'onKey', l:context)
-
-        call s:set(a:properties, #{
-            \ firstline: 1
+        this.id = popup_create(' 0 / 0 ', {
+            \ pos: 'topright',
+            \ line: pos.line,
+            \ col: pos.col + pos.width - 1,
+            \ maxheight: 1,
+            \ minheight: 1,
+            \ zindex: opts.zindex + 1,
+            \ hidden: v:true,
           \ })
-        call popup_setoptions(l:context.menuId, a:properties)
-        call s:show(l:context)
-    endif
-endfunction
+    enddef
 
-function! MenuResume(id) abort
-    if a:id < len(s:listMenus)
-        call s:show(s:listMenus[a:id])
-    endif
-endfunction
+    def OnFilter(key: string): bool
+        var hide = this.menuArea.OnFilter(key)
+        this.Update()
+
+        return hide
+    enddef
+
+    def Open(properties: dict<any> = {})
+        this.menuArea.Open(properties)
+        this.Show()
+    enddef
+
+    def Update()
+        var id = this.menuArea.Get()
+        popup_settext(this.id, ' ' .. getcurpos(id)[1] .. ' / ' .. line('$', id) .. ' ')
+    enddef
+
+    def Show()
+        this.menuArea.Show()
+        super.Show()
+    enddef
+
+    def Hide()
+        this.menuArea.Hide()
+        super.Hide()
+    enddef
+endclass
 
