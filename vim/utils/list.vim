@@ -18,8 +18,8 @@ export class List
     def new(height: number, width: number, popupHeight: number)
 
         this._buffer = rb.RichBuffer.new({
-            \ name: '_listsBuffer_2',
-        \ })
+            name: '_listsBuffer_',
+        })
 
         this._menu = mu.Menu.new({
             buffer: this._buffer.Get(),
@@ -39,12 +39,12 @@ export class List
         })
 
         this._dialog = ip.DoAsInput.new({
-            \ pos: 'botleft',
-            \ line: height - popupHeight,
-            \ maxwidth: width,
-            \ minwidth: width,
-            \ zindex: 250,
-        \ })
+            pos: 'botleft',
+            line: height - popupHeight,
+            maxwidth: width,
+            minwidth: width,
+            zindex: 250,
+        })
 
         this._timer = ut.Timer.new(() => {
             this._RefreshBuffer(this.currentQueryType.OnRefresh())
@@ -100,15 +100,15 @@ export class List
         if this.currentQueryType.Start(query)
         else
             this._dialog.Open({
-                \ title: this.currentQuery.title,
-                \ onType: this.OnDialogKey,
-            \ })
+                title: this.currentQuery.title,
+                onType: this.OnDialogKey,
+            })
         endif
 
         this._menu.Open({
-            \ title: this.currentQuery.title,
-            \ onKey: this.ListOnKey,
-        \ })
+            title: this.currentQuery.title,
+            onKey: this.ListOnKey,
+        })
     enddef
 
     def Resume()
