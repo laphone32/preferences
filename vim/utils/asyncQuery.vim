@@ -8,13 +8,6 @@ export class AsyncQuery extends q.QueryType
         onData: this._OnAsyncRgData,
     })
 
-    def Start(query: dict<any>): bool
-        return v:true
-    enddef
-
-    def OnListKey(key: string, line: number)
-    enddef
-
     def _OnAsyncRgData(messages: list<string>)
         var count = len(this.lookup)
 
