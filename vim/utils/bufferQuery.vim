@@ -33,27 +33,14 @@ export class BufferQuery extends qt.QueryType
     enddef
 
     def Start(query: dict<any>): bool
-        var result = getbufinfo({ buflisted: v:true })
-
         var keyword = query->get('keyword')
-        if len(keyword) > 0
-            result = result->reduce((x, data) => {
-                var pos = data->get('name', keyword)->matchstrpos(keyword)
-                if pos[1] != -1
-                    data->extend({ match: pos })
-                    x->add(data)
-                endif
-                return x
-            }, [{}])
-        else
-            result = result->reduce((x, data) => {
-                data->extend({ match: [0, -2, -2] })
-                x->add(data)
-                return x
-            }, [{}])
-        endif
 
-        this.lookup = result
+        this.lookup = getbufinfo({ buflisted: v:true })->reduce((x, data) => {
+            data->extend({ match: len(keyword) > 0 ? data->get('name', keyword)->matchstrpos(keyword) : [0, -2, -2] })
+            x->add(data)
+            return x
+        }, [{}])
+
         this.Refresh()
 
         return v:true
@@ -62,8 +49,7 @@ export class BufferQuery extends qt.QueryType
     def OnListKey(key: string, line: number)
         if line < len(this.lookup)
             if key ==# "\<cr>"
-                var data = this.lookup[line]
-                execute 'silent! edit ' .. data.name
+                execute 'silent! buffer ' .. this.lookup[line]
             endif
         endif
     enddef

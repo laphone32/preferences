@@ -4,7 +4,7 @@ export class SeriesTimer
     var id: number
     var stages: list<dict<number>>
     var stage: number
-    var OnData: func()
+    var OnData: func() = () => v:none
 
     def new(this.OnData = v:none)
     enddef

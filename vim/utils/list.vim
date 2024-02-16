@@ -96,24 +96,29 @@ export class List
         this.currentQuery = query->copy()
         this.currentQueryType = queryType
 
-        this.currentQuery.title = this.currentQueryType.name .. query.keyword .. ' '
+        var currentQuery = this.currentQuery
+        var currentQueryType = this.currentQueryType
 
-        if this.currentQueryType.Start(query)
+        currentQuery.title = currentQueryType.name .. query.keyword .. ' '
+
+        if currentQueryType.Start(query)
         else
             this._dialog.Open({
-                title: this.currentQuery.title,
+                title: currentQuery.title,
                 onType: this.OnDialogKey,
             })
         endif
 
         this._menu.Open({
-            title: this.currentQuery.title,
+            title: currentQuery.title,
             onKey: this.ListOnKey,
         })
     enddef
 
     def Resume()
-        this._menu.Show()
+        if this.currentQueryType != null_object
+            this._menu.Show()
+        endif
     enddef
 endclass
 
