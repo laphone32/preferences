@@ -7,7 +7,7 @@ export class QueryType
     var modes: list<func(number): dict<any>>
     var currentMode: number
 
-    var toRefresh: list<dict<any>>
+    var toRefresh: list<list<number>>
 
 
 
@@ -18,31 +18,27 @@ export class QueryType
     def OnListKey(key: string, line: number)
     enddef
 
-    def NextMode()
+    def NextMode(line: number)
         if this.currentMode < len(this.modes) - 1
             this.currentMode += 1
-            this.toRefresh->add({
-                from: 1,
-                len: len(this.lookup) - 1,
-                buffer: this.modes[this.currentMode],
-            })
+            this.Refresh()
         endif
     enddef
 
-    def PrevMode()
+    def PrevMode(line: number)
         if this.currentMode > 0
             this.currentMode -= 1
-            this.toRefresh->add({
-                from: 1,
-                len: len(this.lookup) - 1,
-                buffer: this.modes[this.currentMode],
-            })
+            this.Refresh()
         endif
     enddef
 
-    def OnRefresh(): list<dict<any>>
+    def Refresh(start: number = 1)
+        this.toRefresh->add([start, len(this.lookup) - start])
+    enddef
+
+    def OnRefresh(): list<list<number>>
         var tmp = this.toRefresh
-        this.toRefresh = [{}]
+        this.toRefresh = []
         return tmp
     enddef
 endclass

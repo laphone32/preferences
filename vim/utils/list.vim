@@ -4,7 +4,7 @@ import "./util.vim" as ut
 import "./doAsInput.vim" as ip
 import "./menu.vim" as mu
 import "./richBuffer.vim" as rb
-import "./queryType.vim" as q
+import "./queryType.vim" as qt
 
 export class List
     var _buffer: rb.RichBuffer
@@ -13,7 +13,7 @@ export class List
     var _timer: ut.Timer
 
     var currentQuery: dict<any>
-    var currentQueryType: q.QueryType
+    var currentQueryType: qt.QueryType
 
     def new(height: number, width: number, popupHeight: number)
 
@@ -47,35 +47,35 @@ export class List
         })
 
         this._timer = ut.Timer.new(() => {
-            this._RefreshBuffer(this.currentQueryType.OnRefresh())
+            var currentQueryType = this.currentQueryType
+            var Render = currentQueryType.modes[currentQueryType.currentMode]
+
+            for properties in currentQueryType.OnRefresh()
+                var line = properties[0]
+                var end = line + properties[1]
+
+                while line < end
+                    this._buffer.RefreshLine(line, Render(line))
+                    line += 1
+                endwhile
+            endfor
+
             this._menu.Update()
         })
     enddef
 
-    def _RefreshBuffer(propertieList: list<dict<any>>)
-        for properties in propertieList
-            var line = properties->get('from', 1)
-            var end = line + properties->get('len')
-
-            var Render = properties->get('buffer', (x) => ({ text: '' }))
-            while line < end
-                this._buffer.RefreshLine(line, Render(line))
-                line += 1
-            endwhile
-        endfor
-    enddef
-
     def ListOnKey(key: string, line: number): bool
         var currentQueryType = this.currentQueryType
+
         if key ==# '/'
             this._dialog.Open({
-                title: this.currentQueryType.name,
+                title: currentQueryType.name,
                 buffer: this.currentQuery.keyword,
             })
         elseif key ==# "\<right>"
-            currentQueryType.NextMode()
+            currentQueryType.NextMode(line)
         elseif key ==# "\<left>"
-            currentQueryType.PrevMode()
+            currentQueryType.PrevMode(line)
         else
             currentQueryType.OnListKey(key, line)
         endif
@@ -90,7 +90,7 @@ export class List
         endif
     enddef
 
-    def Call(queryType: q.QueryType, query: dict<any>)
+    def Call(queryType: qt.QueryType, query: dict<any>)
         this._buffer.Clear()
 
         this.currentQuery = query->copy()

@@ -1,9 +1,9 @@
 vim9script
 
-import "./queryType.vim" as q
+import "./queryType.vim" as qt
 import "./asyncJob.vim" as aj
 
-export class AsyncQuery extends q.QueryType
+export class AsyncQuery extends qt.QueryType
     var asyncJob: aj.AsyncJob = aj.AsyncJob.new({
         onData: this._OnAsyncRgData,
     })
@@ -35,11 +35,8 @@ export class AsyncQuery extends q.QueryType
                 this.asyncJob.Stop()
             endif
         endfor
-        this.toRefresh->add({
-            from: count,
-            len: len(this.lookup) - count,
-            buffer: this.modes[this.currentMode],
-        })
+
+        this.Refresh(count)
     enddef
 endclass
 

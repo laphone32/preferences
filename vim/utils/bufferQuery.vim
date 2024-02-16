@@ -1,8 +1,8 @@
 vim9script
 
-import "./queryType.vim" as q
+import "./queryType.vim" as qt
 
-export class BufferQuery extends q.QueryType
+export class BufferQuery extends qt.QueryType
     def _LongPathMode(line: number): dict<any>
         var data = this.lookup[line]
         var path = len(data.name) > 0 ? data.name : ' [NO NAME] '
@@ -54,11 +54,7 @@ export class BufferQuery extends q.QueryType
         endif
 
         this.lookup = result
-        this.toRefresh->add({
-            from: 1,
-            len: len(this.lookup) - 1,
-            buffer: this.modes[this.currentMode],
-        })
+        this.Refresh()
 
         return v:true
     enddef
