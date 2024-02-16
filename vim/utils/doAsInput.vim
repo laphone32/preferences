@@ -1,8 +1,7 @@
 vim9script
 
-import "./consistentPopup.vim" as cp
-
-export class DoAsInput extends cp.ConsistentPopup
+export class DoAsInput
+    var id: number
     var buffer: string
     var onType: func(string, string)
 
@@ -11,15 +10,14 @@ export class DoAsInput extends cp.ConsistentPopup
         this.onType = properties->get('onType', (key, all) => {
             })
         this.id = popup_dialog(this.buffer, {
-            \ minheight: 1,
-            \ maxheight: 1,
-            \ hidden: v:true,
+            minheight: 1,
+            maxheight: 1,
+            hidden: v:true,
+            filter: this._KeyFilter
         }->extend(properties))
-
-        this.OnFilter = this.KeyFilter
     enddef
 
-    def KeyFilter(key: string): bool
+    def _KeyFilter(id: number, key: string): bool
         var nr = char2nr(key)
 
         if nr >= 32 && nr <= 126
@@ -30,12 +28,18 @@ export class DoAsInput extends cp.ConsistentPopup
             else
                 this.buffer = ''
             endif
+        elseif key ==# "\<esc>"
+            popup_hide(this.id)
         endif
 
         popup_settext(this.id, this.buffer)
         this.onType(key, this.buffer)
 
-        return key ==# "\<cr>"
+        if key ==# "\<cr>"
+            popup_hide(this.id)
+        endif
+
+        return v:true
     enddef
 
     def Open(properties = {})
@@ -45,7 +49,7 @@ export class DoAsInput extends cp.ConsistentPopup
         popup_setoptions(this.id, properties)
         popup_settext(this.id, this.buffer)
 
-        super.Show()
+        popup_show(this.id)
     enddef
 endclass
 

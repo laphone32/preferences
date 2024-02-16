@@ -3,9 +3,13 @@ vim9script
 export class QueryType
     var name: string = ' Query > '
     var lookup: list<any> = [{}]
+
     var modes: list<func(number): dict<any>>
-    var toRefresh: list<dict<any>>
     var currentMode: number
+
+    var toRefresh: list<dict<any>>
+
+
 
     def Start(query: dict<any>): bool
         return v:true

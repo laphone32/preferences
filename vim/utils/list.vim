@@ -4,7 +4,7 @@ import "./util.vim" as ut
 import "./doAsInput.vim" as ip
 import "./menu.vim" as mu
 import "./richBuffer.vim" as rb
-import "./query.vim" as q
+import "./queryType.vim" as q
 
 export class List
     var _buffer: rb.RichBuffer
@@ -69,7 +69,8 @@ export class List
         var currentQueryType = this.currentQueryType
         if key ==# '/'
             this._dialog.Open({
-                title: this.currentQuery.title,
+                title: this.currentQueryType.name,
+                buffer: this.currentQuery.keyword,
             })
         elseif key ==# "\<right>"
             currentQueryType.NextMode()
@@ -112,7 +113,7 @@ export class List
     enddef
 
     def Resume()
-        this._menu.Open()
+        this._menu.Show()
     enddef
 endclass
 

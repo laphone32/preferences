@@ -1,6 +1,6 @@
 vim9script
 
-import "./query.vim" as q
+import "./queryType.vim" as q
 import "./asyncJob.vim" as aj
 
 export class AsyncQuery extends q.QueryType

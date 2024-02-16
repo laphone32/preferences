@@ -1,6 +1,6 @@
 vim9script
 
-import "./query.vim" as q
+import "./queryType.vim" as q
 
 export class BufferQuery extends q.QueryType
     def _LongPathMode(line: number): dict<any>
