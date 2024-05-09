@@ -114,6 +114,10 @@ let g:coc_user_config = {
     \ }
   \ }
 
+let g:coc_filetype_map = {
+    \ 'json5': 'jsonc',
+  \ }
+
 function! LspStatus() abort
     return coc#status()
 endfunction
