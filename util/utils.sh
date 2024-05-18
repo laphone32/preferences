@@ -12,6 +12,21 @@ function eachSubFile {
     done
 }
 
+function findNearestParent {
+    local path=$1
+    local name=$2
+
+    while [[ "$path" != / ]] && [[ "$path" != . ]];
+    do
+        local target="$path/$name"
+        if [ -f "$target" ]; then
+            echo $target
+            break
+        fi
+        path="$(readlink -f "$path"/..)"
+    done
+}
+
 function updateOrInsertSection {
     local fileName=$1
     local section=$2

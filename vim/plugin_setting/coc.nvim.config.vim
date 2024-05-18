@@ -67,7 +67,7 @@ let g:coc_global_extensions = [
     \ 'coc-lists',
     \ 'coc-markdownlint',
     \ 'coc-metals',
-    \ 'coc-python',
+    \ 'coc-pyright',
     \ 'coc-sh',
     \ 'coc-sql',
     \ 'coc-thrift-syntax-support',
@@ -109,9 +109,8 @@ let g:coc_user_config = {
         \ }
     \ },
     \
-    \ 'python': {
-        \ 'jediEnabled': v:false,
-    \ }
+    \ 'python.linting.pylintEnabled': v:true,
+    \
   \ }
 
 let g:coc_filetype_map = {

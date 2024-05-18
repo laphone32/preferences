@@ -10,6 +10,7 @@
 # python
 *.pyc
 *.pyo
+__pycache__
 
 # redis
 **/dump.rdb
@@ -29,6 +30,6 @@
 # vscode
 .vscode
 
-#sbt bsp
+# sbt bsp
 .bsp
 

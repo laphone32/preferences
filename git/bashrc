@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 source $PREFERENCES_DIR/util/override.sh
+source $PREFERENCES_DIR/util/utils.sh
 
 PREFERENCES_GIT=$PREFERENCES_DIR/git
 
@@ -24,5 +25,10 @@ fi
 
 export GIT_EDITOR=vim
 
-wrapParameterBind git "-c include.path=$PREFERENCES_GIT/config -c core.excludesfile=$PREFERENCES_GIT/ignore"
+wrap '
+    local config=$(findNearestParent $PWD ".gitconfig")
+    if [ -z "$config" ]; then
+        config=$PREFERENCES_GIT/config
+    fi
+' '' git '-c include.path=$config -c core.excludesfile=$PREFERENCES_GIT/ignore -c user.useConfigOnly=true -c pull.rebase=true'
 
