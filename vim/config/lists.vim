@@ -13,18 +13,18 @@ prop_type_add('FileStyle', {highlight: 'Statement', override: v:true})
 prop_type_add('MatchStyle', {highlight: 'Underlined', override: v:true})
 
 var list = li.List.new(height, width, popupHeight)
-var rg = rq.AsyncRgQuery.new()
-var find = fq.AsyncFindQuery.new()
-var buffer = sq.BufferQuery.new()
+var _rg = rq.AsyncRgQuery.new()
+var _find = fq.AsyncFindQuery.new()
+var _buffer = sq.BufferQuery.new()
 
 command! -nargs=0 ListResume list.Resume()
-command! -nargs=? ListGrep list.Call(rg, {
+command! -nargs=? ListGrep list.Call(_rg, {
     \ keyword: <q-args>,
 \ })
-command! -nargs=? ListFind list.Call(find, {
+command! -nargs=? ListFind list.Call(_find, {
     \ keyword: <q-args>,
 \ })
-command! -nargs=? ListBuffer list.Call(buffer, {
+command! -nargs=? ListBuffer list.Call(_buffer, {
     \ keyword: <q-args>,
 \ })
 

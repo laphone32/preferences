@@ -5,21 +5,20 @@ export class RichBuffer
     var prop: dict<any>
 
     def _BufferAllocate(name: string): number
-        var currentBufferNr = bufnr('%')
         var ret = bufnr(name, 1)
 
-        execute 'buffer ' .. ret
-        setlocal noswapfile nobuflisted bufhidden=hide buftype=nofile
-        execute 'buffer ' .. currentBufferNr
+        if ret > 0
+            setbufvar(ret, '&swapfile', 0)
+            setbufvar(ret, '&buflisted', 0)
+            setbufvar(ret, '&bufhidden', 'hide')
+            setbufvar(ret, '&buftype', 'nofile')
+        endif
 
         return ret
     enddef
 
     def _BufferClear(id: number)
-        var currentBufferNr = bufnr('%')
-        execute 'buffer ' .. id
-        silent! normal! gg"_dG'
-        execute 'buffer ' .. currentBufferNr
+        deletebufline(id, 1, '$')
     enddef
 
     def new(properties: dict<string>)

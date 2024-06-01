@@ -20,8 +20,7 @@ export LS_COLORS='no=00:fi=00:di=01;36:ln=02;36:pi=40;33:so=01;35:do=01;35:bd=40
 
 source $PREFERENCES_DIR/bash/bash_alias.sh
 
-# ripgrep
-#if type rg &> /dev/null; then
-#    export FZF_DEFAULT_COMMAND='rg --files --hidden'
-#fi
+# Use bash-completion, if available
+[[ $PS1 && -f ~/usr/local/share/bash-completion/bash_completion ]] && \
+    . ~/usr/local/share/bash-completion/bash_completion
 

@@ -1,8 +1,9 @@
 # Local gitignore
 
 # vim
-*.swp
+*.swn
 *.swo
+*.swp
 
 # MACOSX
 **/.DS_Store
@@ -11,6 +12,8 @@
 *.pyc
 *.pyo
 __pycache__
+**/.pvenv
+
 
 # redis
 **/dump.rdb

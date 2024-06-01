@@ -109,7 +109,19 @@ let g:coc_user_config = {
         \ }
     \ },
     \
-    \ 'python.linting.pylintEnabled': v:true,
+    \ 'python': {
+        \ 'sortImports': {
+            \ 'path': 'ruff',
+        \ },
+        \ 'formatting': {
+            \ 'provider': 'black',
+        \ },
+        \ 'linting': {
+            \ 'pylintEnabled': v:true,
+            \ 'pylintArgs': ["--rcfile $PREFERENCES_DIR/python/google-pylintrc"],
+            \ 'ruffEnabled': v:true,
+        \ }
+    \ },
     \
   \ }
 
