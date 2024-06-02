@@ -1,7 +1,6 @@
 
 source $PREFERENCES_DIR/util/utils.sh
 
-
 function addPath {
     export PATH=$1:$PATH
 }
@@ -21,6 +20,9 @@ export LS_COLORS='no=00:fi=00:di=01;36:ln=02;36:pi=40;33:so=01;35:do=01;35:bd=40
 source $PREFERENCES_DIR/bash/bash_alias.sh
 
 # Use bash-completion, if available
-[[ $PS1 && -f ~/usr/local/share/bash-completion/bash_completion ]] && \
-    . ~/usr/local/share/bash-completion/bash_completion
+if [[ $PS1 && -f /usr/share/bash-completion/bash_completion ]]; then
+    source /usr/share/bash-completion/bash_completion
+elif [[ -f "$(brew --prefix)/share/bash-completion/bash_completion" ]]; then
+    source "$(brew --prefix)/share/bash-completion/bash_completion"
+fi
 

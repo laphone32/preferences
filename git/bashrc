@@ -2,15 +2,11 @@
 
 source $PREFERENCES_DIR/util/override.sh
 source $PREFERENCES_DIR/util/utils.sh
+source $PREFERENCES_DIR/git/common.sh
 
-PREFERENCES_GIT=$PREFERENCES_DIR/git
-
-if [ -f $HOME/.git-prompt.sh ]; then
-    source $HOME/.git-prompt.sh
-fi
-
-if [ -f $HOME/.git-completion.sh ]; then
-    source $HOME/.git-completion.sh
+if [ $PREFERENCES_OS == 'Darwin' ]; then
+    source $PREFERENCES_WORKSPACE_GIT_COMPLETION
+    source $PREFERENCES_WORKSPACE_GIT_PROMPT
 fi
 
 if type -t __git_ps1 | grep -q '^function$' 2>/dev/null; then
@@ -25,10 +21,11 @@ fi
 
 export GIT_EDITOR=vim
 
+PREFERENCES_GIT="$PREFERENCES_DIR/git"
 wrap '
     local config=$(findNearestParent $PWD ".gitconfig")
     if [ -z "$config" ]; then
         config=$PREFERENCES_GIT/config
     fi
-' '' git '-c include.path=$config -c core.excludesfile=$PREFERENCES_GIT/ignore -c user.useConfigOnly=true -c pull.rebase=true'
+' '' git '-c include.path=$config -c core.excludesfile=$PREFERENCES_GIT/ignore -c include.path=$PREFERENCES_GIT/config'
 

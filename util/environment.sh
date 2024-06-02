@@ -14,6 +14,7 @@ function currentOs {
             ;;
     esac
 }
+PREFERENCES_OS=$(currentOs)
 
 function currentLinuxDesktopEnvironment {
     local checkTags=('xfc' 'kde' 'unity' 'gnome' 'cinnamon' 'mate' 'deepin' 'budgie' 'lxqt')
@@ -33,4 +34,7 @@ function currentLinuxDesktopEnvironment {
 
     echo $de
 }
+PREFERENCES_DESKTOP_ENVIRONMENT=$(currentLinuxDesktopEnvironment)
+
+PREFERENCES_WORKSPACE="$PREFERENCES_DIR/.workspace"
 

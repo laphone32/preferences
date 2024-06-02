@@ -61,4 +61,8 @@ $content
     }" $fileName > $tmpFileName && mv $tmpFileName $fileName
 }
 
+function workspace {
+    local module=$1
+    echo "$PREFERENCES_WORKSPACE/$module"
+}
 

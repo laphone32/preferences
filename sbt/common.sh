@@ -1,5 +1,7 @@
+#!/usr/bin/env bash
 
-_preferencesSbtGlobalBase=$HOME/.sbt/1.0
-_preferencesSbtCoursierCache=$HOME/.cache/coursier
-_preferencesSbtIvyCache=$HOME/.cache/ivy2
+PREFERENCES_WORKSPACE_SBT="$(workspace sbt)"
+PREFERENCES_WORKSPACE_SBT_GLOBAL_BASE="$PREFERENCES_WORKSPACE_SBT/global_base"
+PREFERENCES_WORKSPACE_SBT_COURSIER_CACHE="$PREFERENCES_WORKSPACE_SBT/coursier_cache"
+PREFERENCES_WORKSPACE_SBT_IVY_CACHE="$PREFERENCES_WORKSPACE_SBT/ivy_cache"
 

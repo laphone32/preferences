@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 source $PREFERENCES_DIR/util/override.sh
-source $PREFERENCES_DIR/util/environment.sh
 
 function loadTerm {
     local colorSet=$1
@@ -17,9 +16,7 @@ function loadTerms {
     # Don't bother the shell within vim terminal
     [[ -z ${VIM:+x} ]] || loadTerm '' '' ''
 
-    local os=$(currentOs)
-
-    case $os in
+    case $PREFERENCES_OS in
         'Darwin')
             case $TERM_PROGRAM in
                 'iTerm'*)

@@ -118,7 +118,7 @@ let g:coc_user_config = {
         \ },
         \ 'linting': {
             \ 'pylintEnabled': v:true,
-            \ 'pylintArgs': ["--rcfile $PREFERENCES_DIR/python/google-pylintrc"],
+            \ 'pylintArgs': ["--rcfile $(workspace python)/google-pylintrc"],
             \ 'ruffEnabled': v:true,
         \ }
     \ },
