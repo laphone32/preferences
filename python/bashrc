@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+source $PREFERENCES_DIR/util/override.sh
+source $PREFERENCES_DIR/util/utils.sh
+
+source $PREFERENCES_DIR/python/common.sh
+source $PREFERENCES_DIR/python/pvenv.sh
+
+function pvenv {
+    if [ $(pythonVenvOn) == 'False' ]; then
+        local dir=$PWD
+        local requirements=($PREFERENCES_DIR/python/requirements.txt)
+        local nearestRequirement=$(findNearestParent $PWD "requirements.txt")
+
+        if [ -f $nearestRequirement ]; then
+            dir=$(dirname "$nearestRequirement")
+            requirements+=($nearestRequirement)
+        fi
+
+        local container=$(pythonVenvPath "$dir")
+        if [ ! -d "$container" ]; then
+            echo "Creating python vitual environment in $container"
+            pythonVenvCreate "$(basename "$dir")_venv" $container
+        fi
+
+        echo "Starting python vitual environment in $container"
+        pythonVenvStart $container
+
+        echo "Initialising python vitual environment in $container with (${requirements[@]})"
+        for file in "${requirements[@]}"; do
+            python -m pip install --upgrade -r $file
+        done
+    else
+        echo 'Already in python vitual environment'
+    fi
+}
+
+wrapParameterBind 'pylint' "--rcfile $PREFERENCES_WORKSPACE_PYTHON_PYLINTRC"
+
