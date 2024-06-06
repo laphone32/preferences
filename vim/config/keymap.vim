@@ -53,6 +53,8 @@ nmap <silent> ac <Plug>(auto-code-action-call)
 nmap <silent> af <Plug>(auto-fix-call)
 nmap <silent> ar <Plug>(auto-rename-call)
 nmap <silent> al <Plug>(auto-code-lens-call)
+nmap <silent> ai <Plug>(auto-import-call)
+nmap <silent> am <Plug>(auto-format-call)
 
 " Search list
 nmap <silent> <leader>p <Plug>(normal-find-file-call)

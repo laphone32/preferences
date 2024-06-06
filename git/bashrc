@@ -4,7 +4,7 @@ source $PREFERENCES_DIR/util/override.sh
 source $PREFERENCES_DIR/util/utils.sh
 source $PREFERENCES_DIR/git/common.sh
 
-if [ $PREFERENCES_OS == 'Darwin' ]; then
+if ! complete -p git &> /dev/null; then
     source $PREFERENCES_WORKSPACE_GIT_COMPLETION
     source $PREFERENCES_WORKSPACE_GIT_PROMPT
 fi

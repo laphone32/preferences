@@ -20,6 +20,8 @@ nnoremap <Plug>(auto-code-action-call) <Plug>(coc-codeaction)
 nnoremap <Plug>(auto-fix-call) <Plug>(coc-fix-current)
 nnoremap <Plug>(auto-rename-call) <Plug>(coc-rename)
 nnoremap <Plug>(auto-code-lens-call) <Plug>(coc-codelens-action)
+nnoremap <Plug>(auto-format-call) :call CocActionAsync('format')<CR>
+nnoremap <Plug>(auto-import-call) :call CocActionAsync('runCommand', 'editor.action.organizeImport')<CR>
 
 
 "call AddListKeyMappings('find-file-call', 'CocList files', 'CocList -I --input=%s files')

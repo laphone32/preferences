@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+source $PREFERENCES_DIR/docker/common.sh
+
+if ! complete -p docker &> /dev/null; then
+    source $PREFERENCES_WORKSPACE_DOCKER_COMPLETION
+fi
+
+if ! complete -p kubectl &> /dev/null; then
+    source $PREFERENCES_WORKSPACE_DOCKER_KUBECTL_COMPLETION
+fi
+
+

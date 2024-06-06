@@ -33,6 +33,13 @@ if has('autocmd')
         autocmd FileType c,cpp,java,scala,sbt,python,perl,bash,sh,groovy,vim autocmd BufWritePre <buffer> :call s:stripTaillingWhiteSpaces()
     augroup end
 
+
+    " Auto adjust the split
+    augroup resizeGroup
+        autocmd!
+        autocmd VimResized * wincmd =
+    augroup end
+
 endif
 
 
