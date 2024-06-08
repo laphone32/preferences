@@ -10,4 +10,4 @@ if ! complete -p kubectl &> /dev/null; then
     source $PREFERENCES_WORKSPACE_DOCKER_KUBECTL_COMPLETION
 fi
 
-
+export KUBE_EDITOR=vim

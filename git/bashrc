@@ -6,18 +6,19 @@ source $PREFERENCES_DIR/git/common.sh
 
 if ! complete -p git &> /dev/null; then
     source $PREFERENCES_WORKSPACE_GIT_COMPLETION
+fi
+
+if ! type -t __git_ps1 | grep -q '^function$' 2>/dev/null; then
     source $PREFERENCES_WORKSPACE_GIT_PROMPT
 fi
 
-if type -t __git_ps1 | grep -q '^function$' 2>/dev/null; then
-    GIT_PS1_SHOWDIRTYSTATE=true
-    GIT_PS1_SHOWSTASHSTATE=true
-    GIT_PS1_SHOWUNTRACKEDFILES=true
-    GIT_PS1_SHOWUPSTREAM="auto"
-    GIT_PS1_SHOWCOLORHINTS=true
+GIT_PS1_SHOWDIRTYSTATE=true
+GIT_PS1_SHOWSTASHSTATE=true
+GIT_PS1_SHOWUNTRACKEDFILES=true
+GIT_PS1_SHOWUPSTREAM="auto"
+GIT_PS1_SHOWCOLORHINTS=true
 
-    PS1='\[\033[0;32m\]\u\[\e[0m\]:\w\[\033[0;33m\]$(__git_ps1)\[\e[0m\]# '
-fi
+PS1='\[\033[0;32m\]\u\[\e[0m\]:\w\[\033[0;33m\]$(__git_ps1)\[\e[0m\]# '
 
 export GIT_EDITOR=vim
 
