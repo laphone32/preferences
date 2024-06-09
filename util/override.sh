@@ -30,11 +30,8 @@ function wrap {
             content=$(bindCommand "$origin" "$preCommand" "$name" "$postCommand")
             unset -f $name
             ;;
-        'keyword')
-            content=$(bindCommand "$name" "$preCommand command" "$name" "$postCommand $parameterPack")
-            ;;
-        'builtin' | 'file')
-            content=$(bindCommand "$name" "$preCommand command" "$name" "$postCommand $parameterPack")
+        'keyword' | 'builtin' | 'file')
+            content="$preCommand command $name $postCommand $parameterPack"
             ;;
         '')
             content="$preCommand $postCommand $parameterPack"
