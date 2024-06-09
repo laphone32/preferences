@@ -22,7 +22,7 @@ function wrap {
     case $(type -t $name) in
         'alias')
             local origin=$(alias $name | sed "s/^alias $name='\(.*\)'/\1/")
-            content=$(bindCommand "$origin" "$preCommand" "$name" "$postCommand $parameterPack")
+            content="$preCommand $(sed "s/\<$name\>/command $name/g" <<< $origin) $postCommand $parameterPack"
             unalias $name
             ;;
         'function')
@@ -31,13 +31,13 @@ function wrap {
             unset -f $name
             ;;
         'keyword')
-            content=$(bindCommand "$name" "$preCommand" "$name" "$postCommand $parameterPack")
+            content=$(bindCommand "$name" "$preCommand command" "$name" "$postCommand $parameterPack")
             ;;
         'builtin' | 'file')
             content=$(bindCommand "$name" "$preCommand command" "$name" "$postCommand $parameterPack")
             ;;
         '')
-            content=':;'
+            content="$preCommand $postCommand $parameterPack"
             ;;
         *)
             content=$(bindCommand "$name" "$preCommand" ${!name} "$postCommand $parameterPack")

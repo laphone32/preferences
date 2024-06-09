@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-alias ls='ls --color=auto'
-alias grep='grep --color=auto'
-alias python='python3'
+source $PREFERENCES_DIR/util/override.sh
+
+wrap '' '' 'ls' '--color=auto'
+wrap '' '' 'grep' '--color=auto'
 

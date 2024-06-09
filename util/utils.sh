@@ -66,3 +66,11 @@ function workspace {
     echo "$PREFERENCES_WORKSPACE/$module"
 }
 
+function githubLatestRelease {
+    local user=$1
+    local repo=$2
+
+    basename $(curl -Ls -o /dev/null -w %{url_effective} https://github.com/$user/$repo/releases/latest)
+
+}
+
