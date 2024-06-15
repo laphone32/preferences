@@ -10,6 +10,8 @@ if has('autocmd')
       autocmd BufRead,BufEnter *.pc set filetype=esqlc
       " *.sbt as scala
       autocmd BufRead,BufNewFile *.sbt set filetype=scala
+      " bashrc as sh
+      autocmd BufRead,BufNewFile bashrc set filetype=bash
     augroup end
 
 

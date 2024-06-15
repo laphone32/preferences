@@ -125,6 +125,15 @@ let g:coc_user_config = {
         \ }
     \ },
     \
+    \ 'pyright': {
+        \ 'organizeimports': {
+            \ 'provider': 'ruff',
+        \ },
+        \ 'testing': {
+            \ 'provider': 'pytest',
+        \ },
+    \ },
+    \
   \ }
 
 let g:coc_filetype_map = {
