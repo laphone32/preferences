@@ -1,4 +1,7 @@
-#!/bin/env bash
+#!/usr/bin/env bash
+[[ "${_PREFERENCES_UTIL_ENVIRONMENT_SOURCED:-""}" == "yes" ]] && return 0
+_PREFERENCES_UTIL_ENVIRONMENT_SOURCED=yes
+
 
 # Linux | Windows | Darwin
 function currentOs {

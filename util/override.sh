@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+[[ "${_PREFERENCES_UTIL_OVERRIDE_SOURCED:-""}" == "yes" ]] && return 0
+_PREFERENCES_UTIL_OVERRIDE_SOURCED=yes
 
 function bindCommand {
     local expression=$1

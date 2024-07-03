@@ -68,6 +68,7 @@ let g:coc_global_extensions = [
     \ 'coc-java',
     \ 'coc-lists',
     \ 'coc-markdownlint',
+    \ 'coc-markdown-preview-enhanced',
     \ 'coc-metals',
     \ 'coc-pyright',
     \ 'coc-sh',
@@ -75,6 +76,7 @@ let g:coc_global_extensions = [
     \ 'coc-thrift-syntax-support',
     \ 'coc-tsserver',
     \ 'coc-vimlsp',
+    \ 'coc-webview',
     \ 'coc-yaml',
     \]
 
@@ -99,6 +101,12 @@ let g:coc_user_config = {
         \ 'arguments': ['--background-index'],
     \ },
     \
+    \ 'markdownlint': {
+        \ 'config': {
+            \ 'default': v:true,
+            \ 'line_length': v:false,
+          \ }
+    \ },
     \ 'metals': {
         \ 'sbtScript': 'sbt',
         \ 'statusBarEnabled': v:true,

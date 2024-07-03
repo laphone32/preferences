@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+[[ "${_PREFERENCES_UTIL_UTILS_SOURCED:-""}" == "yes" ]] && return 0
+_PREFERENCES_UTIL_UTILS_SOURCED=yes
 
 function eachSubFile {
     local targetDir=$1

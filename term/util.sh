@@ -23,7 +23,11 @@ function loadTerms {
                     loadTerm 'iterm2' '' 'iterm2'
                     ;;
                 *)
-                    loadTerm 'xtermcontrol' 'apple_terminal' 'xtermcontrol'
+                    if [ -n "$KITTY_PID" ] && [ $KITTY_PID > 0 ]; then
+                        loadTerm 'xtermcontrol' 'kitty' 'xtermcontrol'
+                    else
+                        loadTerm 'xtermcontrol' 'apple_terminal' 'xtermcontrol'
+                    fi
                     ;;
             esac
             ;;
