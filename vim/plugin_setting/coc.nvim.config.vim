@@ -120,6 +120,11 @@ let g:coc_user_config = {
     \ },
     \
     \ 'python': {
+        \ 'analysis': {
+            \ 'diagnosticSeverityOverrides': {
+                \ 'reportAssertTypeFailure': "information",
+            \ }
+        \ },
         \ 'sortImports': {
             \ 'path': 'ruff',
         \ },

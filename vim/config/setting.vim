@@ -18,6 +18,7 @@ set smartindent
 set autoindent
 set nocursorline
 set fileformats=unix,dos
+set signcolumn=yes
 
 if g:os == 'Linux'
     set clipboard=unnamedplus

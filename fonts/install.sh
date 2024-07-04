@@ -5,17 +5,6 @@ source $PREFERENCES_DIR/util/utils.sh
 PREFERENCES_WORKSPACE_FONTS=$PREFERENCES_WORKSPACE/fonts
 mkdir -p $PREFERENCES_WORKSPACE_FONTS
 
-download_extension=".tar.bz2"
-download_url=$(curl -s https://api.github.com/repos/dejavu-fonts/dejavu-fonts/releases/latest | grep "dejavu-fonts-ttf-.*$download_extension" | grep download_url | cut -d : -f 2,3 | tr -d \")
-font_filename=$(basename $download_url)
-font_name=${font_filename%$download_extension}
-
-
-local_file=$PREFERENCES_WORKSPACE_FONTS/$font_filename
-
-curl -L $download_url -o $local_file
-tar -xvjf $local_file -C $PREFERENCES_WORKSPACE_FONTS
-
 font_install_folder="$HOME/.local/share/font"
 case $PREFERENCES_OS in
     'Darwin')
@@ -29,6 +18,32 @@ case $PREFERENCES_OS in
 esac
 
 mkdir -p $font_install_folder
-cp -r $PREFERENCES_WORKSPACE_FONTS/$font_name/ $font_install_folder/
-fc-cache -f -v
+
+function deploy_font {
+    local from=$1
+    local keyword=$2
+    local download_extension=$3
+
+    local download_url=$(curl -s https://api.github.com/repos/$from/releases/latest | grep "$keyword.*$download_extension" | grep browser_download_url | cut -d : -f 2,3 | tr -d \")
+    local font_filename=$(basename $download_url)
+    local font_name=${font_filename%$download_extension}
+
+    local local_file=$PREFERENCES_WORKSPACE_FONTS/$font_filename
+
+    curl -L $download_url -o $local_file
+
+    local workspace_font_dir=$PREFERENCES_WORKSPACE_FONTS/$font_name
+
+    mkdir -p $workspace_font_dir
+    tar -xf $local_file -C $workspace_font_dir
+
+    local installed_fontname=$font_install_folder/preferences_installed_font_$font_name
+    rm -rf $installed_fontname
+    cp -r $workspace_font_dir $installed_fontname
+}
+
+#deploy_font 'dejavu-fonts/dejavu-fonts' 'dejavu-fonts-ttf-' '.tar.bz2'
+deploy_font 'ryanoasis/nerd-fonts' 'DejaVuSansMono' '.tar.xz'
+
+fc-cache -f
 

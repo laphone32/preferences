@@ -30,11 +30,16 @@ echo "Required software all met"
 # workspace
 mkdir -p "$(workspace '')"
 
+
 # module installation
 function echoAndSource {
     local arg=$1
     echo "source $arg"
     source $arg
 }
-eachSubFile "$PREFERENCES_DIR" 'echoAndSource' 'install.sh'
 
+if [ "$#" -ge 1 ]; then
+    echoAndSource $PREFERENCES_DIR/$1/install.sh
+else
+    eachSubFile "$PREFERENCES_DIR" 'echoAndSource' 'install.sh'
+fi
