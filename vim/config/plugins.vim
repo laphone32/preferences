@@ -69,7 +69,9 @@ PlugAdd 'itchyny/lightline.vim'
 PlugAdd 'airblade/vim-rooter'
 PlugAdd 'AndrewRadev/linediff.vim', {'on': 'Linediff'}
 PlugAdd 'neoclide/coc.nvim', {'branch': 'release'}
-PlugAdd 'arcticicestudio/nord-vim'
+PlugAdd 'nordtheme/vim'
+""PlugAdd 'arcticicestudio/nord-vim'
+PlugAdd 'ap/vim-css-color'
 ""PlugAdd 'junegunn/fzf', { 'do': { -> fzf#install() }}
 ""PlugAdd 'junegunn/fzf.vim'
 call s:plugEnd()

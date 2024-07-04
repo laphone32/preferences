@@ -2,7 +2,7 @@
 
 foreground="#D8DEE9"
 background="#292520"
-cursor="#88C0D0" #rgb(136,192,208)
+#cursor="#88C0D0" #rgb(136,192,208)
 #mouse-foreground="COLOR"
 #mouse-background="COLOR"
 #geometry="WIDTHxHEIGHT+XOFF+YOFF"

@@ -2,6 +2,8 @@
 
 source $PREFERENCES_DIR/kitty/common.sh
 
+mkdir -p $PREFERENCES_KITTY_LOCAL
+
 ln -sf $PREFERENCES_KITTY/config/kitty.conf $PREFERENCES_KITTY_LOCAL/kitty.conf
 ln -sf $PREFERENCES_KITTY/fonts/default.conf $PREFERENCES_KITTY_LOCAL/fonts.conf
 ln -sf $PREFERENCES_KITTY/config/current-theme.conf $PREFERENCES_KITTY_LOCAL/current-theme.conf
