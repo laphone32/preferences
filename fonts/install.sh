@@ -5,13 +5,13 @@ source $PREFERENCES_DIR/util/utils.sh
 PREFERENCES_WORKSPACE_FONTS=$PREFERENCES_WORKSPACE/fonts
 mkdir -p $PREFERENCES_WORKSPACE_FONTS
 
-font_install_folder="$HOME/.local/share/font"
+font_install_folder=""
 case $PREFERENCES_OS in
     'Darwin')
         font_install_folder="$HOME/Library/Fonts"
         ;;
     'Linux')
-        font_install_folder="$HOME/.local/share/font"
+        font_install_folder="$HOME/.local/share/fonts"
         ;;
     *)
         ;;

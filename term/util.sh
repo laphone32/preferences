@@ -41,6 +41,9 @@ function loadTerms {
                 'kgx') # gnome-console
                     loadTerm 'xtermcontrol' '' 'xtermcontrol'
                     ;;
+                'kitty')
+                    loadTerm 'xtermcontrol' 'kitty' 'xtermcontrol'
+                    ;;
                 *)
                     loadTerm 'xtermcontrol' '' 'xtermcontrol'
                     ;;
