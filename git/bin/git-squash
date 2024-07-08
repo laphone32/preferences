@@ -6,5 +6,5 @@ echo "--- Squashing $commitNo commits ---"
 git reset --soft HEAD~$commitNo
 git merge --squash HEAD@{1}
 git commit
-echo '--- Squashed $commitNo into one ---'
+echo "--- Squashed $commitNo commits into one ---"
 

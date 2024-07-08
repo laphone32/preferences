@@ -3,9 +3,5 @@
 source $PREFERENCES_DIR/util/utils.sh
 source $PREFERENCES_DIR/util/environment.sh
 
-function echoAndSource {
-    echo $1
-    source "$1"
-}
 eachSubFile "$PREFERENCES_DIR" 'source' 'bashrc'
 

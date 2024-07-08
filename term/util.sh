@@ -2,7 +2,7 @@
 
 source $PREFERENCES_DIR/util/override.sh
 
-function loadTerm {
+function loadTermType {
     local colorSet=$1
     local fontSet=$2
     local titleSet=$3
@@ -14,19 +14,19 @@ function loadTerm {
 
 function loadTerms {
     # Don't bother the shell within vim terminal
-    [[ -z ${VIM:+x} ]] || loadTerm '' '' ''
+    [[ -z ${VIM:+x} ]] || loadTermType '' '' ''
 
     case $PREFERENCES_OS in
         'Darwin')
             case $TERM_PROGRAM in
-                'iTerm'*)
-                    loadTerm 'iterm2' '' 'iterm2'
+                iTerm*)
+                    loadTermType 'iterm2' '' 'iterm2'
                     ;;
                 *)
-                    if [ -n "$KITTY_PID" ] && [ $KITTY_PID > 0 ]; then
-                        loadTerm 'xtermcontrol' 'kitty' 'xtermcontrol'
+                    if [ -n "$KITTY_PID" ] && [ "$KITTY_PID" -gt 0 ]; then
+                        loadTermType '' '' 'xtermcontrol'
                     else
-                        loadTerm 'xtermcontrol' 'apple_terminal' 'xtermcontrol'
+                        loadTermType 'xtermcontrol' 'apple_terminal' 'xtermcontrol'
                     fi
                     ;;
             esac
@@ -36,16 +36,16 @@ function loadTerms {
 
             case $terminal in
                 'gnome-terminal'*)
-                    loadTerm 'xtermcontrol' 'gnome_terminal' 'xtermcontrol'
+                    loadTermType 'xtermcontrol' 'gnome_terminal' 'xtermcontrol'
                     ;;
                 'kgx') # gnome-console
-                    loadTerm 'xtermcontrol' '' 'xtermcontrol'
+                    loadTermType 'xtermcontrol' '' 'xtermcontrol'
                     ;;
                 'kitty')
-                    loadTerm 'xtermcontrol' 'kitty' 'xtermcontrol'
+                    loadTermType '' '' 'xtermcontrol'
                     ;;
                 *)
-                    loadTerm 'xtermcontrol' '' 'xtermcontrol'
+                    loadTermType 'xtermcontrol' '' 'xtermcontrol'
                     ;;
             esac
             ;;
