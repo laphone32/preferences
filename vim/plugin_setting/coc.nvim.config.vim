@@ -147,7 +147,19 @@ let g:coc_user_config = {
         \ },
     \ },
     \
-  \ }
+    \ 'languageserver': {
+        \ 'terraform': {
+		    \ 'command': 'terraform-ls',
+			\ 'args': ['serve'],
+            \ 'filetypes': [
+                \ 'terraform',
+                \ 'tf'
+            \ ],
+            \ 'initializationOptions': {},
+            \ 'settings': {}
+        \ }
+    \ }
+    \ }
 
 let g:coc_filetype_map = {
     \ 'json5': 'jsonc',

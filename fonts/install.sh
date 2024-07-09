@@ -44,6 +44,9 @@ function deploy_font {
 
 #deploy_font 'dejavu-fonts/dejavu-fonts' 'dejavu-fonts-ttf-' '.tar.bz2'
 deploy_font 'ryanoasis/nerd-fonts' 'DejaVuSansMono' '.tar.xz'
+#deploy_font 'ryanoasis/nerd-fonts' 'Noto' '.tar.xz'
+deploy_font 'ryanoasis/nerd-fonts' 'JetBrainsMono' '.tar.xz'
+deploy_font 'ryanoasis/nerd-fonts' 'CodeNewRoman' '.tar.xz'
 
 fc-cache -f
 
