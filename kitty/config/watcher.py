@@ -78,7 +78,7 @@ def on_cmd_startstop(boss: Boss, window: Window, data: Dict[str, Any]) -> None:
     # called when the shell starts/stops executing a command. Here
     # data will contain is_start, cmdline and time.
     profile = (
-        _cmd_to_profile(data["cmdline"] if "cmdline" in data else window.child.cmdline)
+        _cmd_to_profile(data["cmdline"])
         if data["is_start"]
         else "default"
     )
