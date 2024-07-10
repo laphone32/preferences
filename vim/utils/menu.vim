@@ -1,6 +1,7 @@
 vim9script
 
 import "./consistentPopup.vim" as cp
+import "./util.vim" as ut
 
 class MenuArea extends cp.ConsistentPopup
     var buffer: number
@@ -14,8 +15,8 @@ class MenuArea extends cp.ConsistentPopup
         }->extend(properties))
 
         this.OnFilter = this.KeyFilter
-        this.OnShow = properties->get('onShow', () => v:none )
-        this.OnHide = properties->get('onHide', () => v:none )
+        this.OnShow = properties->get('onShow', ut.DummyEventFunction )
+        this.OnHide = properties->get('onHide', ut.DummyEventFunction )
     enddef
 
     def Open(properties: dict<any>)

@@ -1,10 +1,13 @@
 vim9script
 
+import "./util.vim" as ut
+
 export class ConsistentPopup
     var id: number
     var OnFilter: func(string): bool
-    var OnShow: func() = () => v:none
-    var OnHide: func() = () => v:none
+
+    var OnShow: ut.EventFunctionType = ut.DummyEventFunction
+    var OnHide: ut.EventFunctionType = ut.DummyEventFunction
 
     def Show()
         popup_setoptions(this.id, { filter: this._Filter })

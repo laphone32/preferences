@@ -44,7 +44,7 @@ export class AsyncRgQuery extends aq.AsyncQuery
         if len(keyword) > 0
             this.lookup = [{}]
             this.asyncJob.Start({
-                        \ cmd: ['/bin/sh', '-c', 'rg --smart-case --fixed-strings --json -- ' .. shellescape(keyword)],
+                        \ cmd: ['/bin/sh', '-c', 'rg --follow --smart-case --fixed-strings --json -- ' .. shellescape(keyword)],
             \ })
         endif
 

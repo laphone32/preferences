@@ -1,10 +1,14 @@
 vim9script
 
+export type EventFunctionType = func(): void
+export def DummyEventFunction()
+enddef
+
 export class SeriesTimer
     var id: number
     var stages: list<dict<number>>
     var stage: number
-    var OnData: func() = () => v:none
+    var OnData: EventFunctionType = DummyEventFunction
 
     def new(this.OnData = v:none)
     enddef

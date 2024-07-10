@@ -84,7 +84,7 @@ export class List
     enddef
 
     def OnDialogKey(key: string, message: string)
-        if key ==# "\<cr>" && message !=# this.currentQuery.keyword
+        if key ==# "\<cr>" && message != this.currentQuery.keyword
             this.currentQuery.keyword = message
             this.Call(this.currentQueryType, this.currentQuery)
         endif

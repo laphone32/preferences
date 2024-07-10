@@ -1,21 +1,19 @@
 #!/usr/bin/env bash
 
-function pythonVenvPath {
-    local path=$1
-    echo "$path/.pvenv"
-}
-
-function pythonVenvCreate {
+function pythonVenvCreateOnce {
     local name=$1
-    local venvPath=$2
+    local container="$2/.pvenv"
 
-    python -m venv $venvPath --prompt $name
+    if [ ! -d "$container" ]; then
+        echo "Creating python vitual environment in $container"
+        python -m venv $container --prompt "${name}_venv"
+    fi
 }
 
 function pythonVenvStart {
-    local venvPath=$1
+    local container="$1/.pvenv"
 
-    source $venvPath/bin/activate
+    source $container/bin/activate
     alias exit='deactivate; unalias exit'
 }
 
@@ -29,19 +27,17 @@ function pvenv {
         local requirements=($PREFERENCES_DIR/python/requirements.txt)
         local nearestRequirement=$(findNearestParent $PWD "requirements.txt")
 
-        if [ -f $nearestRequirement ]; then
+        if [ -z ${nearestRequirement+x} ] && [ -f $nearestRequirement ]; then
             dir=$(dirname "$nearestRequirement")
             requirements+=($nearestRequirement)
+        else
+            dir=$PREFERENCES_WORKSPACE_PYTHON
         fi
 
-        local container=$(pythonVenvPath "$dir")
-        if [ ! -d "$container" ]; then
-            echo "Creating python vitual environment in $container"
-            pythonVenvCreate "$(basename "$dir")_venv" $container
-        fi
+        pythonVenvCreateOnce $(basename "$dir") $dir
 
         echo "Starting python vitual environment in $container"
-        pythonVenvStart $container
+        pythonVenvStart $dir
 
         echo "Initialising python vitual environment in $container with (${requirements[@]})"
         for file in "${requirements[@]}"; do

@@ -41,21 +41,22 @@ def _force_symlink(src: str, dst: str) -> bool:
     return False
 
 
-def _font_path(profile: str) -> str:
-    return f"{preferences_dir}/kitty/fonts/{profile}.conf"
+def _path(prefix: str, profile: str) -> str:
+    return f"{prefix}/{profile}.conf"
 
 
-def _color_path(profile: str) -> str:
-    return f"{preferences_dir}/.workspace/kitty/color-theme/{profile}.conf"
+def _valid_path(prefix: str, profile: str) -> str:
+    ret = _path(prefix, profile)
+    return ret if os.path.isfile(ret) else _path(prefix, "default")
 
 
-def _set_term(boss: Boss, profile: str) -> None:
+def _set_term(boss: Boss, profiles: dict[str, str]) -> None:
     reload = _force_symlink(
-        _font_path(profile if os.path.isfile(_font_path(profile)) else "default"),
+        profiles.get("font", "default"),
         f"{kitty_config}/fonts.conf",
     )
     reload |= _force_symlink(
-        _color_path(profile if os.path.isfile(_color_path(profile)) else "default"),
+        profiles.get("theme", "default"),
         f"{kitty_config}/theme.conf",
     )
 
@@ -63,20 +64,30 @@ def _set_term(boss: Boss, profile: str) -> None:
         boss.load_config_file(f"{kitty_config}/kitty.conf")
 
 
-window_profile = {}
+window_profile: dict[int, dict[str, str]] = {}
 
 
 def on_focus_change(boss: Boss, window: Window, data: Dict[str, Any]) -> None:
     # Here data will contain focused
     if data["focused"]:
-        profile = window_profile.get(window.id, "default")
-        _set_term(boss, profile)
+        profiles = window_profile.get(window.id, {})
+        _set_term(boss, profiles)
 
 
 def on_cmd_startstop(boss: Boss, window: Window, data: Dict[str, Any]) -> None:
     # called when the shell starts/stops executing a command. Here
     # data will contain is_start, cmdline and time.
-    profile = _cmd_to_profile(data["cmdline"]) if data["is_start"] else "default"
+    profile = (
+        _cmd_to_profile(data["cmdline"] if "cmdline" in data else window.child.cmdline)
+        if data["is_start"]
+        else "default"
+    )
 
-    window_profile[window.id] = profile
-    _set_term(boss, profile)
+    profiles = {
+        "theme": _valid_path(
+            f"{preferences_dir}/.workspace/kitty/color-theme", profile
+        ),
+        "font": _valid_path(f"{preferences_dir}/kitty/fonts", profile),
+    }
+    window_profile[window.id] = profiles
+    _set_term(boss, profiles)
