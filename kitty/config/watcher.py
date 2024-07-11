@@ -45,18 +45,18 @@ def _path(prefix: str, profile: str) -> str:
     return f"{prefix}/{profile}.conf"
 
 
-def _valid_path(prefix: str, profile: str) -> str:
+def _valid_path(prefix: str, profile: str = "default") -> str:
     ret = _path(prefix, profile)
     return ret if os.path.isfile(ret) else _path(prefix, "default")
 
 
 def _set_term(boss: Boss, profiles: dict[str, str]) -> None:
     reload = _force_symlink(
-        profiles.get("font", "default"),
+        profiles.get("font", _valid_path(f"{preferences_dir}/kitty/fonts")),
         f"{kitty_config}/fonts.conf",
     )
     reload |= _force_symlink(
-        profiles.get("theme", "default"),
+        profiles.get("theme", _valid_path(f"{preferences_dir}/.workspace/kitty/color-theme")),
         f"{kitty_config}/theme.conf",
     )
 

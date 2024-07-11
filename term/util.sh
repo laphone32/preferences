@@ -42,7 +42,7 @@ function loadTerms {
                     loadTermType 'xtermcontrol' '' 'xtermcontrol'
                     ;;
                 'kitty')
-                    loadTermType 'kitty' 'kitty' 'xtermcontrol'
+                    loadTermType '' '' 'xtermcontrol'
                     ;;
                 *)
                     loadTermType 'xtermcontrol' '' 'xtermcontrol'
