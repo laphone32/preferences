@@ -11,26 +11,6 @@ kitty_config = ""
 ### end of Preferences variables ###
 
 
-def _cmd_to_profile(cmd_str: str) -> str:
-    if len(cmd_str) > 0:
-        cmd = cmd_str.split()
-        match cmd[0]:
-            case "vim":
-                return "vim"
-            case "ssh":
-                for arg in cmd[1:]:
-                    if arg.startswith("prod."):
-                        return "prod"
-                    elif arg.startswith("uat."):
-                        return "uat"
-                    elif arg.startswith("docker.") or arg.startswith("container."):
-                        return "container"
-                else:
-                    return "remote"
-
-    return "default"
-
-
 def _force_symlink(src: str, dst: str) -> bool:
     current_dst = os.readlink(dst)
     if src != current_dst:
@@ -45,18 +25,44 @@ def _path(prefix: str, profile: str) -> str:
     return f"{prefix}/{profile}.conf"
 
 
-def _valid_path(prefix: str, profile: str = "default") -> str:
+def _valid_path(prefix: str, profile: str) -> str:
     ret = _path(prefix, profile)
     return ret if os.path.isfile(ret) else _path(prefix, "default")
 
 
+class Default:
+    profile = "default"
+    font_path = _valid_path(f"{preferences_dir}/kitty/fonts", profile)
+    theme_path = _valid_path(f"{preferences_dir}/.workspace/kitty/color-theme", profile)
+
+
+def _cmd_to_profile(cmd_str: str) -> str:
+    if len(cmd_str) > 0:
+        cmd = cmd_str.split()
+        match cmd[0]:
+            case "vim" | "vimdiff":
+                return "vim"
+            case "ssh":
+                for arg in cmd[1:]:
+                    if arg.startswith("prod."):
+                        return "prod"
+                    elif arg.startswith("uat."):
+                        return "uat"
+                    elif arg.startswith("docker.") or arg.startswith("container."):
+                        return "container"
+                else:
+                    return "remote"
+
+    return Default.profile
+
+
 def _set_term(boss: Boss, profiles: dict[str, str]) -> None:
     reload = _force_symlink(
-        profiles.get("font", _valid_path(f"{preferences_dir}/kitty/fonts")),
+        profiles.get("font", Default.font_path),
         f"{kitty_config}/fonts.conf",
     )
     reload |= _force_symlink(
-        profiles.get("theme", _valid_path(f"{preferences_dir}/.workspace/kitty/color-theme")),
+        profiles.get("theme", Default.theme_path),
         f"{kitty_config}/theme.conf",
     )
 
@@ -77,11 +83,7 @@ def on_focus_change(boss: Boss, window: Window, data: Dict[str, Any]) -> None:
 def on_cmd_startstop(boss: Boss, window: Window, data: Dict[str, Any]) -> None:
     # called when the shell starts/stops executing a command. Here
     # data will contain is_start, cmdline and time.
-    profile = (
-        _cmd_to_profile(data["cmdline"])
-        if data["is_start"]
-        else "default"
-    )
+    profile = _cmd_to_profile(data["cmdline"]) if data["is_start"] else Default.profile
 
     profiles = {
         "theme": _valid_path(
