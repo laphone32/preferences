@@ -6,7 +6,7 @@ function pythonVenvCreateOnce {
 
     if [ ! -d "$container" ]; then
         echo "Creating python vitual environment in $container"
-        python -m venv $container --prompt "${name}_venv"
+        python3 -m venv $container --prompt "${name}_venv"
     fi
 }
 
@@ -36,10 +36,10 @@ function pvenv {
 
         pythonVenvCreateOnce $(basename "$dir") $dir
 
-        echo "Starting python vitual environment in $container"
+        echo "Starting python vitual environment in $dir"
         pythonVenvStart $dir
 
-        echo "Initialising python vitual environment in $container with (${requirements[@]})"
+        echo "Initialising python vitual environment in $dir with (${requirements[@]})"
         for file in "${requirements[@]}"; do
             python -m pip install --upgrade -r $file
         done
