@@ -1,5 +1,8 @@
 # Local gitignore
 
+# personal
+.bak
+
 # vim
 *.swn
 *.swo
@@ -35,4 +38,7 @@ __pycache__
 
 # sbt bsp
 .bsp
+
+# terraform
+.terraform.lock.hcl
 

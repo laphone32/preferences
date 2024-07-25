@@ -27,7 +27,7 @@ function pvenv {
         local requirements=($PREFERENCES_DIR/python/requirements.txt)
         local nearestRequirement=$(findNearestParent $PWD "requirements.txt")
 
-        if [ -z ${nearestRequirement+x} ] && [ -f $nearestRequirement ]; then
+        if [ ! -z ${nearestRequirement+x} ] && [ -f $nearestRequirement ]; then
             dir=$(dirname "$nearestRequirement")
             requirements+=($nearestRequirement)
         else
