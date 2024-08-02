@@ -21,11 +21,9 @@ PS1='\[\033[0;32m\]\u\[\e[0m\]:\w\[\033[0;33m\]$(__git_ps1)\[\e[0m\]# '
 
 export GIT_EDITOR=vim
 
-PREFERENCES_GIT="$PREFERENCES_DIR/git"
 wrap '
     local config=$(findNearestParent $PWD ".gitconfig")
     if [ -z "$config" ]; then
-        config=$PREFERENCES_GIT/config
+        config=$PREFERENCES_WORKSPACE_GIT/config
     fi
-' '' git '-c include.path=$config -c core.excludesfile=$PREFERENCES_GIT/ignore -c include.path=$PREFERENCES_GIT/config'
-
+' '' git '-c include.path=$config -c include.path=$PREFERENCES_WORKSPACE_GIT/config'

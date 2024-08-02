@@ -1,3 +1,6 @@
+[core]
+    excludesFile = $PREFERENCES_DIR/git/ignore
+
 [user]
     useConfigOnly = true
 

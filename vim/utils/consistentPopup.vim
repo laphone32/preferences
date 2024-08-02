@@ -9,8 +9,8 @@ export class ConsistentPopup
     var OnShow: ut.EventFunctionType = ut.DummyEventFunction
     var OnHide: ut.EventFunctionType = ut.DummyEventFunction
 
-    def Show()
-        popup_setoptions(this.id, { filter: this._Filter })
+    def Show(properties: dict<any> = {})
+        popup_setoptions(this.id, properties->extend({ filter: this._Filter }))
         this.OnShow()
         popup_show(this.id)
     enddef

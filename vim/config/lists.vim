@@ -5,14 +5,10 @@ import "../utils/bufferQuery.vim" as sq
 import "../utils/findQuery.vim" as fq
 import "../utils/list.vim" as li
 
-var height = winheight(0)
-var width = float2nr(winwidth(0))
-var popupHeight = float2nr(height * 0.55)
-
 prop_type_add('FileStyle', {highlight: 'Statement', override: v:true})
 prop_type_add('MatchStyle', {highlight: 'Underlined', override: v:true})
 
-var list = li.List.new(height, width, popupHeight)
+var list = li.List.new(0.55)
 var _rg = rq.AsyncRgQuery.new()
 var _find = fq.AsyncFindQuery.new()
 var _buffer = sq.BufferQuery.new()

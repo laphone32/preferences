@@ -1,0 +1,3 @@
+
+# default shell
+shell $DEFAULT_SHELL --login

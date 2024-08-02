@@ -19,9 +19,11 @@ class MenuArea extends cp.ConsistentPopup
         this.OnHide = properties->get('onHide', ut.DummyEventFunction )
     enddef
 
-    def Open(properties: dict<any>)
-        this.OnKey = properties->get('onKey', this.OnKey)
-        popup_setoptions(this.id, { firstline: 1 }->extend(properties))
+    def Open(OnKey: func(string, number): bool = null_function)
+        if OnKey != null_function
+            this.OnKey = OnKey
+        endif
+        popup_setoptions(this.id, { firstline: 1 })
     enddef
 
     def Get(): number
@@ -47,21 +49,29 @@ endclass
 export class Menu extends cp.ConsistentPopup
     var menuArea: MenuArea
 
+    def _MenuBarPosition(): dict<any>
+        var menuId = this.menuArea.Get()
+        var opts = popup_getoptions(menuId)
+        var pos = popup_getpos(menuId)
+
+        return {
+            pos: 'topright',
+            line: pos.line,
+            col: pos.col + pos.width - 1,
+            maxheight: 1,
+            minheight: 1,
+            zindex: opts.zindex + 1,
+        }
+
+    enddef
+
     def new(properties: dict<any>)
         this.menuArea = MenuArea.new(properties)
         var menuId = this.menuArea.Get()
         var opts = popup_getoptions(menuId)
         var pos = popup_getpos(menuId)
 
-        this.id = popup_create(' 0 / 0 ', {
-            \ pos: 'topright',
-            \ line: pos.line,
-            \ col: pos.col + pos.width - 1,
-            \ maxheight: 1,
-            \ minheight: 1,
-            \ zindex: opts.zindex + 1,
-            \ hidden: v:true,
-          \ })
+        this.id = popup_create(' 0 / 0 ', { hidden: v:true })
     enddef
 
     def OnFilter(key: string): bool
@@ -72,8 +82,8 @@ export class Menu extends cp.ConsistentPopup
     enddef
 
     def Open(properties: dict<any> = {})
-        this.menuArea.Open(properties)
-        this.Show()
+        this.menuArea.Open(properties->get('onKey', null_function))
+        this.Show(properties)
     enddef
 
     def Update()
@@ -81,9 +91,9 @@ export class Menu extends cp.ConsistentPopup
         popup_settext(this.id, ' ' .. getcurpos(id)[1] .. ' / ' .. line('$', id) .. ' ')
     enddef
 
-    def Show()
-        this.menuArea.Show()
-        super.Show()
+    def Show(properties: dict<any>)
+        this.menuArea.Show(properties)
+        super.Show(this._MenuBarPosition())
     enddef
 
     def Hide()

@@ -1,18 +1,16 @@
 #!/usr/bin/env bash
 
-source $PREFERENCES_DIR/util/utils.sh
 source $PREFERENCES_DIR/kitty/common.sh
 
 mkdir -p $PREFERENCES_KITTY_LOCAL
 mkdir -p $PREFERENCES_WORKSPACE_KITTY
 
-# shell
-bash_shell=$(which bash)
-cat << EOT > $PREFERENCES_WORKSPACE_KITTY/device.conf
-shell ${bash_shell} --login
-EOT
+PREFERENCES_KITTY_CONFIG="$PREFERENCES_KITTY/config"
 
+# shell
+DEFAULT_SHELL=$(which bash) envsubst '$DEFAULT_SHELL' < $PREFERENCES_KITTY_CONFIG/device.conf.template > $PREFERENCES_WORKSPACE_KITTY/device.conf
 ln -sf $PREFERENCES_WORKSPACE_KITTY/device.conf $PREFERENCES_KITTY_LOCAL/device.conf
+
 
 # color scheme
 mkdir -p $PREFERENCES_WORKSPACE_KITTY/color-theme
@@ -28,6 +26,7 @@ dump_theme 'Red Alert' 'prod'
 
 ln -sf $PREFERENCES_WORKSPACE_KITTY/color-theme/default.conf $PREFERENCES_KITTY_LOCAL/theme.conf
 
+
 # os specific
 case $PREFERENCES_OS in
     'Darwin')
@@ -40,19 +39,16 @@ case $PREFERENCES_OS in
         ;;
 esac
 
+
 # fonts
 ln -sf $PREFERENCES_KITTY/fonts/default.conf $PREFERENCES_KITTY_LOCAL/fonts.conf
 
-# watcher
-cp $PREFERENCES_KITTY/config/watcher.py $PREFERENCES_WORKSPACE_KITTY/watcher.py
 
-kitty_install="\
-preferences_dir=\'$PREFERENCES_DIR\'\\
-kitty_config=\'$PREFERENCES_KITTY_LOCAL\'\
-"
-updateOrInsertSection "$PREFERENCES_WORKSPACE_KITTY/watcher.py" 'Preferences variables' "$kitty_install"
+# watcher
+PREFERENCES_KITTY_LOCAL=$PREFERENCES_KITTY_LOCAL envsubst '$PREFERENCES_DIR,$PREFERENCES_KITTY_LOCAL' < $PREFERENCES_KITTY_CONFIG/watcher.py.template > $PREFERENCES_WORKSPACE_KITTY/watcher.py
 ln -sf $PREFERENCES_WORKSPACE_KITTY/watcher.py $PREFERENCES_KITTY_LOCAL/watcher.py
 
+
 # configs
-ln -sf $PREFERENCES_KITTY/config/kitty.conf $PREFERENCES_KITTY_LOCAL/kitty.conf
+ln -sf $PREFERENCES_KITTY_CONFIG/kitty.conf $PREFERENCES_KITTY_LOCAL/kitty.conf
 

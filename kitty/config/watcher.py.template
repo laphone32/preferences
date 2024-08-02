@@ -6,8 +6,8 @@ from kitty.window import Window
 
 
 ### Preferences variables ###
-preferences_dir = ""
-kitty_config = ""
+preferences_dir = "$PREFERENCES_DIR"
+kitty_config = "$PREFERENCES_KITTY_LOCAL"
 ### end of Preferences variables ###
 
 

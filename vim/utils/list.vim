@@ -12,10 +12,50 @@ export class List
     var _dialog: ip.DoAsInput
     var _timer: ut.Timer
 
+    var _heightRatio: float
+
     var currentQuery: dict<any>
     var currentQueryType: qt.QueryType
 
-    def new(height: number, width: number, popupHeight: number)
+    def _MenuPosition(): dict<any>
+        var height = winheight(0)
+        var width = winwidth(0) - 5
+        var popupHeight = float2nr(height * this._heightRatio)
+
+        return {
+            pos: 'botleft',
+            line: height,
+            maxheight: popupHeight,
+            minheight: popupHeight,
+            maxwidth: width,
+            minwidth: width,
+            title: this.currentQuery.title,
+            onKey: this.ListOnKey,
+        }
+    enddef
+
+    def _DialogPosition(): dict<any>
+        var height = winheight(0)
+        var width = winwidth(0) - 5
+        var popupHeight = float2nr(height * this._heightRatio)
+
+        return {
+            pos: 'botleft',
+            line: height - popupHeight,
+            maxwidth: width,
+            minwidth: width,
+            title: this.currentQueryType.name,
+            buffer: this.currentQuery.keyword,
+            onType: this.OnDialogKey,
+        }
+    enddef
+
+    def new(heightRatio: float)
+        this._heightRatio = heightRatio
+
+        var height = winheight(0)
+        var width = winwidth(0)
+        var popupHeight = float2nr(height * heightRatio)
 
         this._buffer = rb.RichBuffer.new({
             name: '_listsBuffer_',
@@ -23,12 +63,6 @@ export class List
 
         this._menu = mu.Menu.new({
             buffer: this._buffer.Get(),
-            pos: 'botleft',
-            line: height,
-            maxheight: popupHeight,
-            minheight: popupHeight,
-            maxwidth: width,
-            minwidth: width,
             zindex: 200,
             onShow: () => {
               this._timer.Restart(100)
@@ -39,10 +73,6 @@ export class List
         })
 
         this._dialog = ip.DoAsInput.new({
-            pos: 'botleft',
-            line: height - popupHeight,
-            maxwidth: width,
-            minwidth: width,
             zindex: 250,
         })
 
@@ -68,10 +98,7 @@ export class List
         var currentQueryType = this.currentQueryType
 
         if key ==# '/'
-            this._dialog.Open({
-                title: currentQueryType.name,
-                buffer: this.currentQuery.keyword,
-            })
+            this._dialog.Open(this._DialogPosition())
         elseif key ==# "\<right>"
             currentQueryType.NextMode(line)
         elseif key ==# "\<left>"
@@ -103,21 +130,15 @@ export class List
 
         if currentQueryType.Start(query)
         else
-            this._dialog.Open({
-                title: currentQuery.title,
-                onType: this.OnDialogKey,
-            })
+            this._dialog.Open(this._DialogPosition())
         endif
 
-        this._menu.Open({
-            title: currentQuery.title,
-            onKey: this.ListOnKey,
-        })
+        this._menu.Open(this._MenuPosition())
     enddef
 
     def Resume()
         if this.currentQueryType != null_object
-            this._menu.Show()
+            this._menu.Show(this._MenuPosition())
         endif
     enddef
 endclass

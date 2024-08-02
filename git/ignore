@@ -1,7 +1,7 @@
 # Local gitignore
 
 # personal
-.bak
+*.bak
 
 # vim
 *.swn
@@ -40,5 +40,5 @@ __pycache__
 .bsp
 
 # terraform
-.terraform.lock.hcl
+**/.terraform.lock.hcl
 
