@@ -42,6 +42,13 @@ if has('autocmd')
         autocmd VimResized * wincmd =
     augroup end
 
+
+    " Diff always wrap
+    augroup diffGroup
+        autocmd!
+        autocmd VimEnter * if &diff | execute 'windo set wrap' | endif
+    augroup end
+
 endif
 
 
