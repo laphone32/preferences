@@ -13,8 +13,13 @@ function loadTermType {
 }
 
 function loadTerms {
-    # Don't bother the shell within vim terminal
-    [[ -z ${VIM:+x} ]] || loadTermType '' '' ''
+
+    # Don't bother the shell within vim terminal or from ssh
+    if [[ -z ${VIM:+x} ]] || [[ -z ${SSH_TTY:+x} ]]; then
+        echo "Skip loading term..."
+        loadTermType '' '' ''
+        return
+    fi
 
     case $PREFERENCES_OS in
         'Darwin')
