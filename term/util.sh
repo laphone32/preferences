@@ -13,13 +13,16 @@ function loadTermType {
 }
 
 function loadTerms {
-
     # Don't bother the shell within vim terminal or from ssh
-    if [[ -z ${VIM:+x} ]] || [[ -z ${SSH_TTY:+x} ]]; then
-        echo "Skip loading term..."
-        loadTermType '' '' ''
-        return
-    fi
+    local ignoring_key=(VIM SSH_TTY)
+
+    for key in "${ignoring_key[@]}"; do
+        if [[ ! -z ${!key:+x} ]]; then
+            echo "Skip loading term utils because environment variable $key is not null"
+            loadTermType '' '' ''
+            return
+        fi
+    done
 
     case $PREFERENCES_OS in
         'Darwin')

@@ -17,7 +17,9 @@ GIT_PS1_SHOWSTASHSTATE=true
 GIT_PS1_SHOWUNTRACKEDFILES=true
 GIT_PS1_SHOWUPSTREAM="auto"
 
-PS1='\[\033[0;32m\]\u\[\e[0m\]:\w\[\033[0;33m\]$(__git_ps1)\[\e[0m\]# '
+function PREFERENCES_GIT_PS1 {
+    __git_ps1
+}
 
 export GIT_EDITOR=vim
 

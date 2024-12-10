@@ -9,3 +9,12 @@ if ! command -v aws_completer &> /dev/null; then
     complete -C "$(which aws_completer)" aws
 fi
 
+function PREFERENCES_AWS_PS1 {
+    local ret=""
+    if [[ ! -z ${AWS_PROFILE:+x} ]]; then
+        ret="*$AWS_PROFILE*"
+    fi
+
+    echo $ret
+}
+
