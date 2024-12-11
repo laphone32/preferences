@@ -44,3 +44,12 @@ case $PREFERENCES_OS in
         ;;
 esac
 
+# Compose PS1 afterall
+#PS1='\[\033[0;32m\]\u\[\e[0m\]:\w\[\033[0;33m\]$(PREFERENCES_GIT_PS1)\[\033[1;36m\]$(PREFERENCES_AWS_PS1)\[\e[0m\]# '
+
+PS1='\[\033[0;32m\]\u'
+PS1+='\[\e[0m\]:\w'
+PS1+='\[\033[0;33m\]$(PREFERENCES_GIT_PS1)'
+PS1+='\[\033[1;36m\]$(PREFERENCES_AWS_PS1)'
+PS1+='\[\e[0m\]# '
+
