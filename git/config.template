@@ -1,9 +1,49 @@
+[branch]
+    sort = -committerdate
+
+[column]
+    ui = auto
+
+[commit]
+    verbose = true
+
 [core]
     excludesFile = $PREFERENCES_DIR/git/ignore
 
-[user]
-    useConfigOnly = true
+[diff]
+    algorithm = histogram
+    colorMoved = plain
+    mnemonicPrefix = true
+    renames = true
+
+[fetch]
+    prune = true
+    pruneTags = true
+    all = true
+
+[help]
+    autocorrect = prompt
 
 [pull]
     rebase = true
+
+[push]
+    default = simple
+    autoSetupRemote = true
+    followTags = true
+
+[rebase]
+    autoSquash = true
+    autoStash = true
+    updateRefs = true
+
+[rerere]
+    enabled = true
+    autoupdate = true
+
+[tag]
+    sort = version:refname
+
+[user]
+    useConfigOnly = true
 
