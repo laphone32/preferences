@@ -27,8 +27,11 @@ function loadTerms {
     case $PREFERENCES_OS in
         'Darwin')
             case $TERM_PROGRAM in
-                iTerm*)
+                'iTerm'*)
                     loadTermType 'iterm2' '' 'iterm2'
+                    ;;
+                'vscode'*)
+                    loadTermType 'xtermcontrol' '' ''
                     ;;
                 *)
                     if [ -n "$KITTY_PID" ] && [ "$KITTY_PID" -gt 0 ]; then
@@ -51,6 +54,9 @@ function loadTerms {
                     ;;
                 'kitty')
                     loadTermType '' '' 'xtermcontrol'
+                    ;;
+                'vscode'*)
+                    loadTermType 'xtermcontrol' '' ''
                     ;;
                 *)
                     loadTermType 'xtermcontrol' '' 'xtermcontrol'
