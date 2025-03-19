@@ -13,6 +13,8 @@ def clearCacheCommand(command: String, name: String, key: String) = Command.comm
     state
 }
 
+
 commands += clearCacheCommand("clearCsrCache", "coursier", "sbt.coursier.home")
 commands += clearCacheCommand("clearIvyCache", "ivy", "sbt.ivy.home")
 
+Global / semanticdbEnabled := true

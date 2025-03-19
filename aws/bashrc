@@ -12,9 +12,31 @@ fi
 function PREFERENCES_AWS_PS1 {
     local ret=""
     if [[ ! -z ${AWS_PROFILE:+x} ]]; then
-        ret="*$AWS_PROFILE*"
+        local second_to_expire=$(( ($(date -d $AWS_CREDENTIAL_EXPIRATION "+%s") - $(date "+%s")) ))
+        if [[ second_to_expire -gt 0 ]]; then
+            ret="{$AWS_PROFILE|$(date -u -d @${second_to_expire} +"%T")}"
+        else
+            export AWS_PROFILE=""
+        fi
     fi
 
     echo $ret
+}
+
+function awsLogin {
+    if [[ $# < 1 ]]; then
+        echo "usage: ${FUNCNAME} [profile]"
+        return
+    fi
+
+    local profile=$1
+    aws sso login --profile $profile
+
+    if [[ $? -eq 0 ]]; then
+        export AWS_PROFILE=$profile
+        eval $(aws configure export-credentials --profile $profile --format env)
+    else
+        echo "login $profile failed"
+    fi
 }
 
