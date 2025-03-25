@@ -17,10 +17,13 @@ export class List
     var currentQuery: dict<any>
     var currentQueryType: qt.QueryType
 
-    def _MenuPosition(): dict<any>
+    def _Position(): list<number>
         var height = winheight(0)
-        var width = winwidth(0) - 5
-        var popupHeight = float2nr(height * this._heightRatio)
+        return [height, winwidth(0) - 5, float2nr(height * this._heightRatio)]
+    enddef
+
+    def _MenuPosition(): dict<any>
+        var [height, width, popupHeight] = this._Position()
 
         return {
             pos: 'botleft',
@@ -35,9 +38,7 @@ export class List
     enddef
 
     def _DialogPosition(): dict<any>
-        var height = winheight(0)
-        var width = winwidth(0) - 5
-        var popupHeight = float2nr(height * this._heightRatio)
+        var [height, width, popupHeight] = this._Position()
 
         return {
             pos: 'botleft',
@@ -52,10 +53,6 @@ export class List
 
     def new(heightRatio: float)
         this._heightRatio = heightRatio
-
-        var height = winheight(0)
-        var width = winwidth(0)
-        var popupHeight = float2nr(height * heightRatio)
 
         this._buffer = rb.RichBuffer.new({
             name: '_listsBuffer_',

@@ -9,20 +9,23 @@ endif
 
 
 
-function s:afterPlugLoad(plugName) abort
-    call LoadConfig('plugin_setting/' .. a:plugName .. '.config.vim')
+function s:afterPlugLoad(confName) abort
+    call LoadConfig('plugin_setting/' .. a:confName .. '.config.vim')
+endfunction
+
+function s:repoToPlug(repo) abort
+    return [split(a:repo, '/')[1], substitute(a:repo, '/', '-', "")]
 endfunction
 
 let s:plug = {'toLoad': [], 'toHold': []}
 function s:plugAdd(repo, ...) abort
-    let plugName = split(a:repo, '/')[1]
     let s:property = (a:0 == 1) ? a:1 : {}
 
     if has_key(s:property, 'on') || has_key(s:property, 'for')
-        call add(s:plug.toHold, plugName)
+        call add(s:plug.toHold, a:repo)
     else
         let s:property.on = []
-        call add(s:plug.toLoad, plugName)
+        call add(s:plug.toLoad, a:repo)
     endif
 
     execute 'Plug ' .. string(a:repo) .. ', ' .. string(s:property)
@@ -38,8 +41,9 @@ function s:installAutocmd() abort
     execute 'augroup PlugLoadGroup'
     execute 'autocmd!'
 
-    for plugName in s:plug.toHold
-        execute 'autocmd User ' .. plugName .. ' call s:afterPlugLoad(' .. string(plugName) .. ')'
+    for repo in s:plug.toHold
+        let [plugName, confName] = s:repoToPlug(repo)
+        execute 'autocmd User ' .. plugName .. ' call s:afterPlugLoad(' .. string(confName) .. ')'
     endfor
 
     execute 'augroup end'
@@ -50,14 +54,15 @@ function s:plugEnd() abort
 
     execute 'call plug#end()'
 
-    for plug in s:plug.toLoad
-        call s:plugLoad(plug)
+    for repo in s:plug.toLoad
+        call s:plugLoad(repo)
     endfor
 endfunction
 
-function s:plugLoad(plugName) abort
-    call plug#load(a:plugName)
-    call s:afterPlugLoad(a:plugName)
+function s:plugLoad(repo) abort
+    let [plugName, confName] = s:repoToPlug(a:repo)
+    call plug#load(plugName)
+    call s:afterPlugLoad(confName)
 endfunction
 
 call s:plugBegin('~/.vim/bundle')

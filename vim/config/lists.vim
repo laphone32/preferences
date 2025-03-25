@@ -24,7 +24,6 @@ command! -nargs=? ListBuffer list.Call(_buffer, {
     \ keyword: <q-args>,
 \ })
 
-
 ### Test
 #command! -nargs=? ListTest ListAsyncRgCall({
 #    \ keyword: empty(<q-args>) ? '.' : <q-args>,

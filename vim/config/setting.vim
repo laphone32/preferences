@@ -48,7 +48,7 @@ set foldnestmax=15
 " Using 256 colors
 set t_Co=256
 "colorscheme desert
-colorscheme nord
+"colorscheme nord
 if (has('termguicolors'))
     set termguicolors
 endif
@@ -69,3 +69,4 @@ set updatetime=300
 
 " views
 set viewoptions-=options
+
