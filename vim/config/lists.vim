@@ -47,7 +47,7 @@ var term = te.Term.new()
 command! ShowTerm term.Show()
 command! HideTerm term.Hide()
 
-nnoremap <Plug>(show-terminal-call) :ShowTerm<cr>
-tnoremap <Plug>(show-terminal-call) :HideTerm<cr>
+nnoremap <Plug>(show-terminal-call) <c-w>:ShowTerm<cr>
+tnoremap <Plug>(hide-terminal-call) <c-w>:HideTerm<cr>
 autocmd QuitPre * term.Kill()
 

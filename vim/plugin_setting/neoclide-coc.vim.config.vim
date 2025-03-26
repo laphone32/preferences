@@ -71,6 +71,7 @@ let g:coc_global_extensions = [
     \ 'coc-markdown-preview-enhanced',
     \ 'coc-metals',
     \ 'coc-pyright',
+    \ 'coc-rust-analyzer',
     \ 'coc-sh',
     \ 'coc-sql',
     \ 'coc-thrift-syntax-support',
@@ -146,7 +147,16 @@ let g:coc_user_config = {
             \ 'provider': 'pytest',
         \ },
     \ },
+    \ 'rust-analyzer': {
+        \ 'server': {
+        \ }
+      \ },
     \
+    \ 'workspace.ignoredFolders': [
+        \ "$HOME",
+        \ "$HOME/.cargo/**",
+        \ "$HOME/.restup/**"
+      \ ],
     \ 'languageserver': {
         \ 'terraform': {
 		    \ 'command': 'terraform-ls',
@@ -158,7 +168,7 @@ let g:coc_user_config = {
             \ 'initializationOptions': {},
             \ 'settings': {}
         \ }
-    \ }
+    \ },
     \ }
 
 let g:coc_filetype_map = {
