@@ -6,6 +6,8 @@ import "./util.vim" as ut
 class MenuArea extends cp.ConsistentPopup
     var buffer: number
     var OnKey: func(string, number): bool
+    var OnShow: ut.EventFunctionType = ut.DummyEventFunction
+    var OnHide: ut.EventFunctionType = ut.DummyEventFunction
 
     def new(properties: dict<any>)
         this.buffer = properties->get('buffer', -1)
@@ -24,6 +26,16 @@ class MenuArea extends cp.ConsistentPopup
             this.OnKey = OnKey
         endif
         popup_setoptions(this.id, { firstline: 1 })
+    enddef
+
+    def Show(properties: dict<any> = {})
+        this.OnShow()
+        super.Show(properties)
+    enddef
+
+    def Hide()
+        this.OnHide()
+        super.Hide()
     enddef
 
     def Get(): number

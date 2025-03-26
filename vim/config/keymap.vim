@@ -26,8 +26,6 @@ map <F8> :vertical diffsplit
 map <F9> :set cursorline!<CR>
 map <F10> :set cursorcolumn!<CR>
 
-map <A-F12> :terminal<CR>
-
 nnoremap <S-Left>  <C-w><<CR>
 nnoremap <S-Right> <C-w>><CR>
 nnoremap <S-Up>    <C-w>-<CR>
@@ -35,7 +33,7 @@ nnoremap <S-Down>  <C-w>+<CR>
 
 let mapleader = '\'
 
-" Do not cover the register for the content operated by `dd' and `x'
+" Do not pollute the register for the content operated by `dd' and `x'
 noremap dd "9dd
 noremap x "9x
 
@@ -74,4 +72,8 @@ nmap <silent> <leader><leader> <Plug>(resume-list-call)
 
 " File manager
 nmap <silent> <leader>n <Plug>(file-manager-call)
+
+" Terminal
+nmap <silent> <c-`> <Plug>(show-terminal-call)
+tmap <silent> <c-`> <Plug>(hide-terminal-call)
 

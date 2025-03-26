@@ -35,7 +35,7 @@ export class BufferQuery extends qt.QueryType
     def Start(query: dict<any>): bool
         var keyword = query->get('keyword')
 
-        this.lookup = getbufinfo({ buflisted: v:true })->reduce((x, data) => {
+        this.lookup = getbufinfo({ buflisted: v:true })->filter('v:val.hidden != 1')->reduce((x, data) => {
             data->extend({ match: len(keyword) > 0 ? data->get('name', keyword)->matchstrpos(keyword) : [0, -2, -2] })
             x->add(data)
             return x
