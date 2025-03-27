@@ -7,11 +7,15 @@ export class Term extends cp.ConsistentPopup
     var buffer: number
 
     def new(properties: dict<any> = {})
+        this._CreateBuffer(null_job, 0)
+    enddef
+
+    def _CreateBuffer(job: job, status: number)
         this.buffer = term_start([&shell], {
             hidden: 1,
             term_finish: 'close',
+            exit_cb: this._CreateBuffer
         })
-
     enddef
 
     def Show(properties: dict<any> = {})

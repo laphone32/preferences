@@ -31,6 +31,9 @@ nnoremap <S-Right> <C-w>><CR>
 nnoremap <S-Up>    <C-w>-<CR>
 nnoremap <S-Down>  <C-w>+<CR>
 
+" Use enter to select suggestion
+inoremap <expr> <CR> pumvisible() ? "\<C-Y>" : "\<CR>"
+
 let mapleader = '\'
 
 " Do not pollute the register for the content operated by `dd' and `x'
