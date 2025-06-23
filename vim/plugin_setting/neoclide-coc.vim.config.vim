@@ -69,7 +69,6 @@ let g:coc_global_extensions = [
     \ 'coc-lists',
     \ 'coc-markdownlint',
     \ 'coc-markdown-preview-enhanced',
-    \ 'coc-metals',
     \ 'coc-pyright',
     \ 'coc-rust-analyzer',
     \ 'coc-sh',

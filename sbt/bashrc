@@ -2,5 +2,5 @@
 source $PREFERENCES_DIR/util/override.sh
 source $PREFERENCES_DIR/sbt/common.sh
 
-wrap '' 'SBT_OPTS="-Xms512M -Xmx8G -Xss2M -XX:MaxMetaspaceSize=1024M"' sbt "-Dsbt.global.base=$PREFERENCES_WORKSPACE_SBT_GLOBAL_BASE -Dsbt.coursier.home=$PREFERENCES_WORKSPACE_SBT_COURSIER_CACHE -Dsbt.ivy.home=$PREFERENCES_WORKSPACE_SBT_IVY_CACHE"
+wrap '' 'SBT_OPTS="-Xms512M -Xmx10G -Xss2M -XX:MaxMetaspaceSize=4096M"' sbt "-Dsbt.global.base=$PREFERENCES_WORKSPACE_SBT_GLOBAL_BASE -Dsbt.coursier.home=$PREFERENCES_WORKSPACE_SBT_COURSIER_CACHE -Dsbt.ivy.home=$PREFERENCES_WORKSPACE_SBT_IVY_CACHE"
 

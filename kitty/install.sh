@@ -52,3 +52,6 @@ ln -sf $PREFERENCES_WORKSPACE_KITTY/watcher.py $PREFERENCES_KITTY_LOCAL/watcher.
 # configs
 ln -sf $PREFERENCES_KITTY_CONFIG/kitty.conf $PREFERENCES_KITTY_LOCAL/kitty.conf
 
+# quick access terminal
+ln -sf $PREFERENCES_KITTY_CONFIG/quick-access-terminal.conf $PREFERENCES_KITTY_LOCAL/quick-access-terminal.conf
+
