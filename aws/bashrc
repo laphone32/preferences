@@ -9,12 +9,16 @@ if ! command -v aws_completer &> /dev/null; then
     complete -C "$(which aws_completer)" aws
 fi
 
+function awsLogined {
+    ! [ -z ${AWS_PROFILE:+x} ]
+}
+
 function PREFERENCES_AWS_PS1 {
     local ret=""
-    if [[ ! -z ${AWS_PROFILE:+x} ]]; then
+    if awsLogined; then
         local second_to_expire=$(( ($(date -d $AWS_CREDENTIAL_EXPIRATION "+%s") - $(date "+%s")) ))
-        if [[ second_to_expire -gt 0 ]]; then
-            ret="{$AWS_PROFILE|$(date -u -d @${second_to_expire} +"%T")}"
+        if [[ $second_to_expire -gt 0 ]]; then
+            ret=" {$AWS_PROFILE|$(date -u -d @${second_to_expire} +"%T")|$AWS_ACCOUNT_ID}"
         else
             export AWS_PROFILE=""
         fi
@@ -36,7 +40,62 @@ function awsLogin {
         export AWS_PROFILE=$profile
         eval $(aws configure export-credentials --profile $profile --format env)
     else
-        echo "login $profile failed"
+        echo "login with $profile failed"
     fi
+}
+
+
+function awsEcrLogin {
+    if ! awsLogined; then
+        echo "AWS_PROFILE is empty, awsLogin first"
+        return
+    fi
+
+    local accountID=$(aws sts get-caller-identity --query Account --output text --profile $AWS_PROFILE)
+    local addr="${accountID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
+    echo "login to ecr in ${addr}"
+    aws ecr get-login-password --profile $AWS_PROFILE | docker login --username AWS --password-stdin "$addr"
+
+    if [[ $? -eq 0 ]]; then
+        export AWS_ACCOUNT_ID=$accountID
+    fi
+}
+
+function awsEcsBash {
+    if ! awsLogined; then
+        echo "AWS_PROFILE is empty, awsLogin first"
+        return
+    fi
+
+    local clusterName='work'
+    local containerName='work'
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+          --cluster)
+            input_file="$2"
+            shift 2
+            ;;
+          --container)
+            output_dir="$2"
+            shift 2
+            ;;
+          --verbose)
+            set -x
+            shift
+            ;;
+          *)
+            echo "Unknown option: $1"
+            return 1
+            ;;
+        esac
+      done
+
+    local taskArn=$(aws ecs list-tasks --cluster $clusterName --query 'taskArns[0]' --output text)
+    if [ "$taskArn" == 'None' ]; then
+        echo "TaskArn is empty, start ecs first"
+        return
+    fi
+    aws ecs execute-command --cluster $clusterName --task $taskArn --container $containerName --interactive --command 'bash'
+    set +x
 }
 

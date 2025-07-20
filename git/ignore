@@ -7,6 +7,9 @@
 *.swn
 *.swo
 *.swp
+.swn
+.swo
+.swp
 
 # MACOSX
 **/.DS_Store
