@@ -1,2 +1,6 @@
 coc-settings.json
 .workspace
+.metals/
+.bsp/
+target/
+.DS_Store

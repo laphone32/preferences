@@ -1,0 +1,63 @@
+{
+    "files.watcherExclude": {
+        "**/.bloop": true,
+        "**/.metals": true,
+        "**/.ammonite": true,
+        "**/target": true
+    },
+    "files.insertFinalNewline": true,
+    "files.trimFinalNewlines": true,
+    "files.trimTrailingWhitespace": true,
+
+    "editor.fontSize": 18,
+    "editor.fontFamily": "'DejaVuSansM Nerd Font Mono'",
+    "editor.lineNumbers": "on",
+    "editor.formatOnSave": true,
+    "editor.minimap.enabled": false,
+    "workbench.editor.showTabs": "none",
+
+    "debug.console.fontSize": 16,
+    "java.debug.logLevel": "info",
+    "markdown.preview.fontSize": 16,
+    
+    "scm.inputFontSize": 14,
+    "window.zoomLevel": 0.4,
+    "vim.useSystemClipboard": true,
+    "vim.leader": "\\",
+
+
+    "workbench.colorTheme": "Nord",
+    "workbench.panel.defaultLocation": "right",
+
+    "search.exclude": {
+        "**/.git": true,
+        "**/target": true,
+        "**/.metals": true
+    },
+
+    "apc.stylesheet": {
+        ".anysphere-markdown-container-root": "font-size: 18px; line-height: 1.4;"
+    },
+    "metals.sbtScript": "sbt",
+    "metals.autoImportBuilds": "all",
+
+    "terminal.integrated.scrollback": 50000,
+    "terminal.integrated.fontSize": 18,
+    "terminal.integrated.fontFamily": "'CodeNewRoman Nerd Font Mono', monospace",
+    "terminal.integrated.profiles.osx": {
+        "preferences_bash": {
+            "path": "$DEFAULT_SHELL",
+            "args": ["--login"]
+        }
+    },
+    "terminal.integrated.defaultProfile.osx": "preferences_bash",
+
+    "terminal.integrated.profiles.linux": {
+        "preferences_bash": {
+            "path": "$DEFAULT_SHELL",
+            "args": ["--login"]
+        }
+    },
+    "terminal.integrated.defaultProfile.linux": "preferences_bash",
+}
+

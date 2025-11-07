@@ -1,0 +1,258 @@
+[
+    {
+        "key": "g r",
+        "command": "references-view.findReferences",
+        "when": "editorHasReferenceProvider && editorTextFocus && !inReferenceSearchEditor && vim.mode === 'Normal' && !isInEmbeddedEditor"
+    },
+    {
+        "key": "g d",
+        "command": "editor.action.revealDefinition",
+        "when": "editorHasDefinitionProvider && editorTextFocus && !isInEmbeddedEditor && vim.mode === 'Normal'"
+    },
+    {
+        "key": "g i",
+        "command": "editor.action.goToImplementation",
+        "when": "editorHasImplementationProvider && editorTextFocus && !isInEmbeddedEditor && vim.mode === 'Normal'"
+    },
+    {
+        "key": "g h",
+        "command": "editor.action.showHover",
+        "when": "editorTextFocus && vim.mode === 'Normal'"
+    },
+    {
+        "key": "g g",
+        "command": "cursorTop",
+        "when": "editorTextFocus && vim.mode === 'Normal'"
+    },
+    {
+        "key": "a f",
+        "command": "editor.action.autoFix",
+        "when": "editorTextFocus && !editorReadonly && supportedCodeAction =~ /(\\s|^)quickfix\\b/ && vim.mode == 'Normal'"
+    },
+    {
+        "key": "a i",
+        "command": "editor.action.organizeImports",
+        "when": "editorTextFocus && !editorReadonly && supportedCodeAction =~ /(\\s|^)source\\.organizeImports\\b/ && vim.mode == 'Normal'"
+    },
+    {
+        "key": "a m",
+        "command": "editor.action.formatDocument",
+        "when": "editorHasDocumentFormattingProvider && editorTextFocus && !editorReadonly && !inCompositeEditor && vim.mode == 'Normal'"
+    },
+    {
+        "key": "a r",
+        "command": "editor.action.rename",
+        "when": "editorHasRenameProvider && editorTextFocus && !editorReadonly && vim.mode == 'Normal'"
+    },
+    {
+        "key": "\\ s",
+        "command": "metals.symbol-search",
+        "when": "!terminalFocus && (editorLangId == 'java' || editorLangId == 'sbt' || editorLangId == 'sc' || editorLangId == 'scala') && vim.mode == 'Normal'"
+    },
+    {
+        "key": "\\ d",
+        "command": "workbench.actions.view.toggleProblems",
+        "when": "!terminalFocus && vim.mode == 'Normal'"
+    },
+    {
+        "key": "\\ b",
+        "command": "workbench.action.showAllEditors",
+        "when": "!terminalFocus && vim.mode == 'Normal'"
+    },
+    {
+        "key": "\\ n",
+        "command": "workbench.explorer.fileView.focus",
+        "when": "!terminalFocus && !filesExplorerFocus && vim.mode == 'Normal'"
+    },
+    {
+        "key": "\\ n",
+        "command": "workbench.action.closeSidebar",
+        "when": "!terminalFocus && filesExplorerFocus && vim.mode == 'Normal'"
+    },
+    {
+        "command": "runCommands",
+        "key": "\\ f",
+        "when": "!terminalFocus && !searchViewletVisible && editorHasSelection && vim.mode == 'Normal'",
+        "args": {
+            "commands": [
+                "workbench.action.findInFiles",
+                "search.action.focusSearchList"
+            ]
+        }
+    },
+    {
+        "key": "\\ f",
+        "command": "workbench.action.findInFiles",
+        "when": "!terminalFocus && !searchViewletVisible && !editorHasSelection && vim.mode == 'Normal'"
+    },
+    {
+        "key": "\\ f",
+        "command": "workbench.action.closeSidebar",
+        "when": "!terminalFocus && activeViewlet == 'workbench.view.search'"
+    },
+    {
+        "key": "enter",
+        "command": "search.action.focusSearchList",
+        "when": "searchViewletFocus && !searchResultListFocused"
+    },
+    {
+        "key": "enter",
+        "command": "workbench.action.focusActiveEditorGroup",
+        "when": "searchResultListFocused"
+    },
+    {
+        "key": "escape",
+        "command": "workbench.action.closeSidebar",
+        "when": "!terminalFocus && sideBarVisible"
+    },
+    //    {
+    //        "key": "escape",
+    //        "command": "search.action.focusSearchList",
+    //        "when": "hasSearchResult && sideBarVisiable && editorTextFocus && vim.mode == 'Normal'"
+    //    },
+    //    {
+    //        "key": "escape",
+    //        "command": "workbench.action.findInFiles",
+    //        "when": "searchResultListFocused"
+    //    },
+    {
+        "key": "\\ p",
+        "command": "workbench.action.quickOpen",
+        "when": "!terminalFocus && vim.mode == 'Normal'"
+    },
+    {
+        "command": "runCommands",
+        "key": "enter",
+        "when": "sideBarFocus && !explorerResourceIsFolder && activeViewlet != 'workbench.view.search'",
+        "args": {
+            "commands": [
+                "explorer.openAndPassFocus",
+                "workbench.action.closeSidebar"
+            ]
+        }
+    },
+    {
+        "command": "-workbench.action.terminal.toggleTerminal",
+        "key": "ctrl+`"
+    },
+    {
+        "command": "runCommands",
+        "key": "ctrl+`",
+        "when": "!terminalFocus",
+        "args": {
+            "commands": [
+                "workbench.action.files.saveAll",
+                "workbench.action.closeSidebar",
+                "workbench.action.toggleMaximizedPanel",
+                "workbench.action.terminal.focus"
+            ]
+        }
+    },
+    {
+        "command": "runCommands",
+        "key": "ctrl+`",
+        "when": "view.terminal.visible",
+        "args": {
+            "commands": [
+                "workbench.action.closeSidebar",
+                "workbench.action.toggleMaximizedPanel",
+                "workbench.action.closePanel",
+//                "workbench.action.maximizeEditorHideSidebar"
+            ]
+        }
+    },
+    {
+        "key": "cmd+1",
+        "command": "workbench.action.openEditorAtIndex1",
+        "when": "!terminalFocus"
+    },
+    {
+        "key": "ctrl+1",
+        "command": "workbench.action.terminal.focusAtIndex1",
+        "when": "terminalFocus"
+    },
+    {
+        "key": "cmd+2",
+        "command": "workbench.action.openEditorAtIndex2",
+        "when": "!terminalFocus"
+    },
+    {
+        "key": "ctrl+2",
+        "command": "workbench.action.terminal.focusAtIndex2",
+        "when": "terminalFocus"
+    },
+    {
+        "key": "cmd+3",
+        "command": "workbench.action.openEditorAtIndex3",
+        "when": "!terminalFocus"
+    },
+    {
+        "key": "ctrl+3",
+        "command": "workbench.action.terminal.focusAtIndex3",
+        "when": "terminalFocus"
+    },
+    {
+        "key": "cmd+4",
+        "command": "workbench.action.openEditorAtIndex4",
+        "when": "!terminalFocus"
+    },
+    {
+        "key": "ctrl+4",
+        "command": "workbench.action.terminal.focusAtIndex4",
+        "when": "terminalFocus"
+    },
+    {
+        "key": "cmd+5",
+        "command": "workbench.action.openEditorAtIndex5",
+        "when": "!terminalFocus"
+    },
+    {
+        "key": "ctrl+5",
+        "command": "workbench.action.terminal.focusAtIndex5",
+        "when": "terminalFocus"
+    },
+    {
+        "key": "cmd+6",
+        "command": "workbench.action.openEditorAtIndex6",
+        "when": "!terminalFocus"
+    },
+    {
+        "key": "ctrl+6",
+        "command": "workbench.action.terminal.focusAtIndex6",
+        "when": "terminalFocus"
+    },
+    {
+        "key": "cmd+7",
+        "command": "workbench.action.openEditorAtIndex7",
+        "when": "!terminalFocus"
+    },
+    {
+        "key": "ctrl+7",
+        "command": "workbench.action.terminal.focusAtIndex7",
+        "when": "terminalFocus"
+    },
+    {
+        "key": "cmd+8",
+        "command": "workbench.action.openEditorAtIndex8",
+        "when": "!terminalFocus"
+    },
+    {
+        "key": "ctrl+8",
+        "command": "workbench.action.terminal.focusAtIndex8",
+        "when": "terminalFocus"
+    },
+    {
+        "key": "cmd+9",
+        "command": "workbench.action.openEditorAtIndex9",
+        "when": "!terminalFocus"
+    },
+    {
+        "key": "ctrl+9",
+        "command": "workbench.action.terminal.focusAtIndex9",
+        "when": "terminalFocus"
+    },
+    {
+        "key": "ctrl+t",
+        "command": "workbench.action.terminal.new"
+    }
+]
