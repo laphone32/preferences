@@ -23,26 +23,10 @@ wrapParameterBind 'grep' '--color=auto'
 
 case $PREFERENCES_OS in
     'Darwin')
-        eval $(brew shellenv)
-        if [[ -f "$HOMEBREW_PREFIX/share/bash-completion/bash_completion" ]]; then
-            source "$HOMEBREW_PREFIX/share/bash-completion/bash_completion"
-        fi
-
-        if [[ -f "$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh" ]]; then
-            source "$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh"
-        fi
-
-        # core-utils
-        export PATH="$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin:$PATH"
-
-        # gnu-sed
-        export PATH="$HOMEBREW_PREFIX/opt/gnu-sed/libexec/gnubin:$PATH"
-
+        source $PREFERENCES_DIR/bash/os/bashrc_macos
         ;;
     'Linux')
-        if [[ $PS1 && -f /usr/share/bash-completion/bash_completion ]]; then
-            source /usr/share/bash-completion/bash_completion
-        fi
+        source $PREFERENCES_DIR/bash/os/bashrc_linux
         ;;
     *)
         ;;

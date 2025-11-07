@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+eval $(brew shellenv)
+if [[ -f "$HOMEBREW_PREFIX/share/bash-completion/bash_completion" ]]; then
+    source "$HOMEBREW_PREFIX/share/bash-completion/bash_completion"
+fi
+
+if [[ -f "$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh" ]]; then
+    source "$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh"
+fi
+
+# core-utils
+export PATH="$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin:$PATH"
+
+# gnu-sed
+export PATH="$HOMEBREW_PREFIX/opt/gnu-sed/libexec/gnubin:$PATH"
+
