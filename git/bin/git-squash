@@ -3,8 +3,8 @@
 commitNo=$1
 
 echo "--- Squashing $commitNo commits ---"
-git reset --soft HEAD~$commitNo
-git merge --squash HEAD@{1}
-git commit
+git reset --soft HEAD~$commitNo \
+    && git merge --squash HEAD@{1} \
+    && git commit
 echo "--- Squashed $commitNo commits into one ---"
 

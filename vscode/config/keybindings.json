@@ -56,7 +56,7 @@
     },
     {
         "key": "\\ b",
-        "command": "workbench.action.showAllEditors",
+        "command": "workbench.action.showAllEditorsByMostRecentlyUsed",
         "when": "!terminalFocus && vim.mode == 'Normal'"
     },
     {
