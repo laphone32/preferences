@@ -1,0 +1,114 @@
+#!/bin/bash
+set -e
+
+# Usage: run-isolated [--id <id>] -- <command>
+# Example: run-isolated -- make test
+
+ID=""
+COMMAND=()
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --id)
+            if [[ -z "$2" ]]; then
+                echo "Error: --id requires an argument"
+                exit 1
+            fi
+            ID="$2"
+            shift 2
+            ;;
+        --)
+            shift
+            COMMAND=("$@")
+            break
+            ;;
+        *)
+            # Found the command (start of positional args)
+            COMMAND=("$@")
+            break
+            ;;
+    esac
+done
+
+if [[ ${#COMMAND[@]} -eq 0 ]]; then
+    echo "Usage: $0 [--id <id>] -- <command>"
+    exit 1
+fi
+
+# Auto-generate ID if not provided
+if [[ -z "$ID" ]]; then
+    # Hash the command string to get a deterministic ID for this command
+    CMD_STR="${COMMAND[*]}"
+    ID=$(echo -n "$CMD_STR" | md5sum | cut -c1-8)
+    echo "INFO: Generated ID '$ID' for command: $CMD_STR"
+fi
+
+# Get repo info
+REPO_ROOT=$(git rev-parse --show-toplevel)
+REPO_NAME=$(basename "$REPO_ROOT")
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+# Sanitize branch name for path
+SAFE_BRANCH=${BRANCH//\//-}
+
+# Worktree location
+# We use .workspace/git-isolated to keep it clean and ignored (add .workspace to global .gitignore)
+WORKTREE_DIR="$REPO_ROOT/.workspace/git-isolated/${SAFE_BRANCH}-${ID}"
+
+# Create stash snapshot (returns commit hash, or empty if no changes)
+# We want a snapshot of HEAD + Index + Working Tree. 
+# git stash create does exactly this (creates a commit object).
+SNAPSHOT_COMMIT=$(git stash create)
+
+if [[ -z "$SNAPSHOT_COMMIT" ]]; then
+    # If no changes, use HEAD
+    SNAPSHOT_COMMIT=$(git rev-parse HEAD)
+    echo "INFO: No local changes detected. Using HEAD ($SNAPSHOT_COMMIT)."
+else
+    echo "INFO: Created snapshot commit: $SNAPSHOT_COMMIT"
+fi
+
+# Concurrency Control: Check for running process
+PID_FILE="$WORKTREE_DIR/.git-run-isolated.pid"
+if [[ -f "$PID_FILE" ]]; then
+    OLD_PID=$(cat "$PID_FILE")
+    if kill -0 "$OLD_PID" 2>/dev/null; then
+        echo "INFO: Killing previous instance (PID $OLD_PID) for ID '$ID'..."
+        # Try graceful kill first, then force if needed could be added, but strict kill is safer for "restart"
+        kill "$OLD_PID" 2>/dev/null || true
+        # Wait a moment
+        sleep 0.5
+    fi
+fi
+
+# Setup Worktree
+if [[ -d "$WORKTREE_DIR" ]]; then
+    echo "INFO: Reusing worktree at $WORKTREE_DIR"
+    # Ensure it's a valid git worktree? 
+    # If the user deleted .git/worktrees/... this might fail. 
+    # Git prune worktrees might be needed if it's in a bad state, but let's try to just update it.
+else
+    echo "INFO: Creating new worktree at $WORKTREE_DIR"
+    mkdir -p "$(dirname "$WORKTREE_DIR")"
+    git worktree add --detach "$WORKTREE_DIR" "$SNAPSHOT_COMMIT" > /dev/null
+fi
+
+# Save current PID
+echo $$ > "$WORKTREE_DIR/.git-run-isolated.pid"
+
+# Run the command in the worktree
+echo "INFO: Running command in isolated environment..."
+cd "$WORKTREE_DIR"
+
+# Checkout the specific snapshot
+# We do this even if we just created it, to be sure (if created with different commit)
+# 'git checkout' in a detached head worktree is cheap.
+git checkout -q "$SNAPSHOT_COMMIT" -- .
+
+# Execute
+# We use exec so the shell process is replaced by the command process, 
+# ensuring the PID file actually points to the running command (mostly).
+# Actually, if we want to clean up, we shouldn't exec directly or we handle traps.
+# But the user asked to kill "previous ones", which implies strict replacement.
+# If we exec, the PID matches.
+exec "${COMMAND[@]}"
