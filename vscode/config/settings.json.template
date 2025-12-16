@@ -9,18 +9,18 @@
     "files.trimFinalNewlines": true,
     "files.trimTrailingWhitespace": true,
 
-    "editor.fontSize": 18,
+    "editor.fontSize": ${PREFERENCES_VSCODE_EDITOR_FONT_SIZE},
     "editor.fontFamily": "'DejaVuSansM Nerd Font Mono'",
     "editor.lineNumbers": "on",
     "editor.formatOnSave": true,
     "editor.minimap.enabled": false,
     "workbench.editor.showTabs": "none",
 
-    "debug.console.fontSize": 16,
+    "debug.console.fontSize": ${PREFERENCES_VSCODE_DEBUG_FONT_SIZE},
     "java.debug.logLevel": "info",
-    "markdown.preview.fontSize": 16,
+    "markdown.preview.fontSize": ${PREFERENCES_VSCODE_MARKDOWN_FONT_SIZE},
     
-    "scm.inputFontSize": 14,
+    "scm.inputFontSize": ${PREFERENCES_VSCODE_SCM_FONT_SIZE},
     "window.zoomLevel": 0.4,
     "vim.useSystemClipboard": true,
     "vim.leader": "\\",
@@ -36,13 +36,13 @@
     },
 
     "apc.stylesheet": {
-        ".anysphere-markdown-container-root": "font-size: 18px; line-height: 1.4;"
+        ".anysphere-markdown-container-root": "font-size: ${PREFERENCES_VSCODE_APC_FONT_SIZE}px; line-height: 1.4;"
     },
     "metals.sbtScript": "sbt",
     "metals.autoImportBuilds": "all",
 
     "terminal.integrated.scrollback": 50000,
-    "terminal.integrated.fontSize": 18,
+    "terminal.integrated.fontSize": ${PREFERENCES_VSCODE_TERMINAL_FONT_SIZE},
     "terminal.integrated.fontFamily": "'CodeNewRoman Nerd Font Mono', monospace",
     "terminal.integrated.profiles.osx": {
         "preferences_bash": {
