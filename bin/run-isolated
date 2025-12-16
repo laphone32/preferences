@@ -55,19 +55,43 @@ SAFE_BRANCH=${BRANCH//\//-}
 # We use .workspace/git-isolated to keep it clean and ignored (add .workspace to global .gitignore)
 WORKTREE_DIR="$REPO_ROOT/.workspace/git-isolated/${SAFE_BRANCH}-${ID}"
 
-# Create stash snapshot (returns commit hash, or empty if no changes)
-# We want a snapshot of HEAD + Index + Working Tree. 
-# git stash create does exactly this (creates a commit object).
-# We also want untracked files (-u) so new files are included.
-SNAPSHOT_COMMIT=$(git stash create -u)
+# Create snapshot commit
+# We use a temporary index to capture the exact state of the working directory,
+# including staged, unstaged, and untracked files.
+# This avoids issues where 'git stash create' might ignore untracked files.
 
-if [[ -z "$SNAPSHOT_COMMIT" ]]; then
-    # If no changes, use HEAD
-    SNAPSHOT_COMMIT=$(git rev-parse HEAD)
-    echo "INFO: No local changes detected. Using HEAD ($SNAPSHOT_COMMIT)."
-else
-    echo "INFO: Created snapshot commit: $SNAPSHOT_COMMIT"
+# 1. Create a temporary index file
+TEMP_INDEX=$(mktemp)
+# Copy current index to preserved (staged) status bases
+GIT_DIR=$(git rev-parse --git-dir)
+if [[ -f "$GIT_DIR/index" ]]; then
+    cp "$GIT_DIR/index" "$TEMP_INDEX"
 fi
+
+# 2. Update the temp index with ALL current files (tracked + untracked)
+export GIT_INDEX_FILE="$TEMP_INDEX"
+# Set dummy identity for the snapshot commit to avoid config errors
+export GIT_AUTHOR_NAME="Git Run Isolated"
+export GIT_AUTHOR_EMAIL="run-isolated@localhost"
+export GIT_COMMITTER_NAME="Git Run Isolated"
+export GIT_COMMITTER_EMAIL="run-isolated@localhost"
+
+git add -A
+
+# 3. Create a tree and commit
+TREE_OID=$(git write-tree)
+# If HEAD exists, use it as parent. If not (initial commit), no parent.
+if git rev-parse --verify HEAD >/dev/null 2>&1; then
+    SNAPSHOT_COMMIT=$(echo "Snapshot for run-isolated $ID" | git commit-tree "$TREE_OID" -p HEAD)
+else
+    SNAPSHOT_COMMIT=$(echo "Snapshot for run-isolated $ID" | git commit-tree "$TREE_OID")
+fi
+
+# Cleanup
+rm -f "$TEMP_INDEX"
+unset GIT_INDEX_FILE
+
+echo "INFO: Created snapshot commit: $SNAPSHOT_COMMIT"
 
 # Concurrency Control: Check for running process
 PID_FILE="$WORKTREE_DIR/.git-run-isolated.pid"
