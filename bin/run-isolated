@@ -126,9 +126,11 @@ echo "INFO: Running command in isolated environment..."
 cd "$WORKTREE_DIR"
 
 # Checkout the specific snapshot
-# We do this even if we just created it, to be sure (if created with different commit)
-# 'git checkout' in a detached head worktree is cheap.
-git checkout -q "$SNAPSHOT_COMMIT" -- .
+# We use 'git reset --hard' to make the worktree exactly match the snapshot.
+# This ensures that files deleted in the snapshot are removed from the worktree.
+# Note: 'git reset --hard' leaves untracked/ignored files (like build artifacts) alone, 
+# which is good for incremental builds.
+git reset --hard "$SNAPSHOT_COMMIT" > /dev/null
 
 # Execute
 # We use exec so the shell process is replaced by the command process, 
