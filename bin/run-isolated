@@ -58,7 +58,8 @@ WORKTREE_DIR="$REPO_ROOT/.workspace/git-isolated/${SAFE_BRANCH}-${ID}"
 # Create stash snapshot (returns commit hash, or empty if no changes)
 # We want a snapshot of HEAD + Index + Working Tree. 
 # git stash create does exactly this (creates a commit object).
-SNAPSHOT_COMMIT=$(git stash create)
+# We also want untracked files (-u) so new files are included.
+SNAPSHOT_COMMIT=$(git stash create -u)
 
 if [[ -z "$SNAPSHOT_COMMIT" ]]; then
     # If no changes, use HEAD
