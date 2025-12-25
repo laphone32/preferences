@@ -32,7 +32,8 @@
     "search.exclude": {
         "**/.git": true,
         "**/target": true,
-        "**/.metals": true
+        "**/.metals": true,
+        "**/.workspace": true
     },
 
     "apc.stylesheet": {
@@ -44,6 +45,7 @@
     "terminal.integrated.scrollback": 50000,
     "terminal.integrated.fontSize": ${PREFERENCES_VSCODE_TERMINAL_FONT_SIZE},
     "terminal.integrated.fontFamily": "'CodeNewRoman Nerd Font Mono', monospace",
+    "terminal.integrated.suggest.enabled": false,
     "terminal.integrated.profiles.osx": {
         "preferences_bash": {
             "path": "$DEFAULT_SHELL",
