@@ -33,7 +33,8 @@
         "**/.git": true,
         "**/target": true,
         "**/.metals": true,
-        "**/.workspace": true
+        "**/.workspace": true,
+        "**/.logs": true
     },
 
     "apc.stylesheet": {
