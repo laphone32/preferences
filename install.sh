@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-PREFERENCES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+export PREFERENCES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 source $PREFERENCES_DIR/util/environment.sh
 source $PREFERENCES_DIR/util/utils.sh

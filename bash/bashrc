@@ -7,7 +7,7 @@ function addPath {
 }
 eachSubFile "$PREFERENCES_DIR" 'addPath' 'bin'
 
-export PATH=$HOME/bin:$PREFERENCES_DIR/bin:$PATH
+export PATH=$HOME/bin:$HOME/.local/bin:$PREFERENCES_DIR/bin:$PATH
 
 export EDITOR=vim
 export VISUAL=vim
