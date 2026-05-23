@@ -140,6 +140,15 @@ fi
 
 echo "Required software all met"
 
+# Install additional snap packages if available
+if command -v snap &> /dev/null; then
+    snap_packages=("surfshark" "spotify")
+    echo "Installing snap packages: ${snap_packages[*]}..."
+    for pkg in "${snap_packages[@]}"; do
+        sudo snap install "$pkg"
+    done
+fi
+
 # workspace
 mkdir -p "$(workspace '')"
 
