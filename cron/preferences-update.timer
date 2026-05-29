@@ -1,0 +1,11 @@
+[Unit]
+Description=Preferences Daily Cron Runner Timer
+Documentation=https://github.com/laphone32/preferences
+
+[Timer]
+OnCalendar=daily
+Persistent=true
+RandomizedDelaySec=15m
+
+[Install]
+WantedBy=timers.target

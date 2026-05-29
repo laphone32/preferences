@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 
-export PREFERENCES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
-source $PREFERENCES_DIR/util/environment.sh
-source $PREFERENCES_DIR/util/utils.sh
+source "$(dirname "${BASH_SOURCE[0]}")/util/bootstrap.sh"
 
 
 # Detect package manager (priority: apt > brew > snap)

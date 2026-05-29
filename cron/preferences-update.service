@@ -1,0 +1,13 @@
+[Unit]
+Description=Preferences Periodic Cron Runner
+Documentation=https://github.com/laphone32/preferences
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/bin/bash %PREFERENCES_DIR%/bin/preferences-cron-runner
+Environment=PREFERENCES_DIR=%PREFERENCES_DIR%
+
+[Install]
+WantedBy=default.target
