@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 
+source "$(dirname "${BASH_SOURCE[0]}")/../util/bootstrap.sh"
 source $PREFERENCES_DIR/sbt/common.sh
 
-mkdir -p $PREFERENCES_WORKSPACE_SBT_GLOBAL_BASE
-mkdir -p $PREFERENCES_WORKSPACE_SBT_COURSIER_CACHE
-mkdir -p $PREFERENCES_WORKSPACE_SBT_IVY_CACHE
+installPreferencesDir $PREFERENCES_WORKSPACE_SBT_GLOBAL_BASE
+installPreferencesDir $PREFERENCES_WORKSPACE_SBT_COURSIER_CACHE
+installPreferencesDir $PREFERENCES_WORKSPACE_SBT_IVY_CACHE
 
-ln -sf $PREFERENCES_DIR/sbt/global.sbt $PREFERENCES_WORKSPACE_SBT_GLOBAL_BASE/global-preferences.sbt
+installPreferencesSymlink $PREFERENCES_DIR/sbt/global.sbt $PREFERENCES_WORKSPACE_SBT_GLOBAL_BASE/global-preferences.sbt
 

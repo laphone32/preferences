@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-source $PREFERENCES_DIR/util/utils.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../util/bootstrap.sh"
 
-install="\
-export PREFERENCES_DIR=\'$PREFERENCES_DIR\'\\
-[[ -s \"\$PREFERENCES_DIR/bash/bashrc_loader\" ]] \&\& source \"\$PREFERENCES_DIR/bash/bashrc_loader\"\
+install="
+export PREFERENCES_DIR='$PREFERENCES_DIR'\
+[[ -s \"\$PREFERENCES_DIR/bash/bashrc_loader\" ]] && source \"\$PREFERENCES_DIR/bash/bashrc_loader\"\
 "
 
 bashProfileName="$HOME/.bashrc"
@@ -14,7 +14,7 @@ fi
 
 if [ -f $bashProfileName ]; then
     echo "install to $bashProfileName"
-    updateOrInsertSection $bashProfileName 'laphone preferences' "$install"
+    installPreferencesSection $bashProfileName 'laphone preferences' "$install"
 else
     echo "Cannot find neither .bashrc nor .bash_profile"
 fi

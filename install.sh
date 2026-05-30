@@ -138,7 +138,7 @@ fi
 echo "Required software all met"
 
 # Install additional snap packages if available
-if command -v snap &> /dev/null; then
+if command -v snap &> /dev/null && [ "$PREFERENCES_SKIP_SNAP" != "1" ]; then
     snap_packages=("surfshark" "spotify")
     echo "Installing snap packages: ${snap_packages[*]}..."
     for pkg in "${snap_packages[@]}"; do
@@ -147,7 +147,7 @@ if command -v snap &> /dev/null; then
 fi
 
 # workspace
-mkdir -p "$(workspace '')"
+installPreferencesDir "$(workspace '')"
 
 
 # module installation

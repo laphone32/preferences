@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 
-source $PREFERENCES_DIR/util/utils.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../util/bootstrap.sh"
 
-PREFERENCES_WORKSPACE_FONTS=$PREFERENCES_WORKSPACE/fonts
-mkdir -p $PREFERENCES_WORKSPACE_FONTS
+installPreferencesDir $PREFERENCES_WORKSPACE_FONTS
 
 font_install_folder=""
 case $PREFERENCES_OS in
@@ -39,7 +38,8 @@ function deploy_font {
 
     local installed_fontname=$font_install_folder/preferences_installed_font_$font_name
     rm -rf $installed_fontname
-    cp -r $workspace_font_dir $installed_fontname
+    installPreferencesFontDir $installed_fontname
+    cp -r $workspace_font_dir/. $installed_fontname
 }
 
 #deploy_font 'dejavu-fonts/dejavu-fonts' 'dejavu-fonts-ttf-' '.tar.bz2'

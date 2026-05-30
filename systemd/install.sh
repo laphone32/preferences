@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+source "$(dirname "${BASH_SOURCE[0]}")/../util/bootstrap.sh"
+
 # systemd is only available on Linux, skip on other OSes
 if [ "$PREFERENCES_OS" != "Linux" ]; then
     exit 0
@@ -16,6 +18,5 @@ if [ $? -eq 0 ] && [ "$running" == "systemd" ]; then
     $PREFERENCES_SYSTEMD/max_battery_limit.sh
 
     # preferences settings
-    sudo mkdir -p /etc/systemd/logind.conf.d/
-    sudo ln -sf $PREFERENCES_SYSTEMD/logind.conf /etc/systemd/logind.conf.d/preferences.conf
+    installPreferencesSudoSymlink $PREFERENCES_SYSTEMD/logind.conf /etc/systemd/logind.conf.d/preferences.conf
 fi

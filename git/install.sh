@@ -1,12 +1,9 @@
 #!/usr/bin/env bash
 
-if [ -z "$PREFERENCES_DIR" ]; then
-    export PREFERENCES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
-fi
-
+source "$(dirname "${BASH_SOURCE[0]}")/../util/bootstrap.sh"
 source $PREFERENCES_DIR/git/common.sh
 
-mkdir -p $PREFERENCES_WORKSPACE_GIT
+installPreferencesDir $PREFERENCES_WORKSPACE_GIT
 
 GIT_REPO="https://raw.githubusercontent.com/git/git/v$(git version | awk -F' ' '{print $3}')"
 
