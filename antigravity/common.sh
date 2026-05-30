@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+PREFERENCES_ANTIGRAVITY=$PREFERENCES_DIR/antigravity
+
+PREFERENCES_ANTIGRAVITY_LOCAL=$HOME/.config/antigravity
+
+PREFERENCES_WORKSPACE_ANTIGRAVITY="$(workspace antigravity)"
