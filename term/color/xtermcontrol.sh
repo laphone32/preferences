@@ -38,6 +38,8 @@ function setTermColor {
             \")
     fi
 
-    xtermcontrol ${!cache}
+    if command -v xtermcontrol &> /dev/null; then
+        xtermcontrol ${!cache}
+    fi
 }
 

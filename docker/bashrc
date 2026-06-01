@@ -2,12 +2,12 @@
 
 source $PREFERENCES_DIR/docker/common.sh
 
-if ! complete -p docker &> /dev/null; then
-    source $PREFERENCES_WORKSPACE_DOCKER_COMPLETION
+if ! complete -p docker &> /dev/null && [ -f "$PREFERENCES_WORKSPACE_DOCKER_COMPLETION" ]; then
+    source "$PREFERENCES_WORKSPACE_DOCKER_COMPLETION"
 fi
 
-if ! complete -p kubectl &> /dev/null; then
-    source $PREFERENCES_WORKSPACE_DOCKER_KUBECTL_COMPLETION
+if ! complete -p kubectl &> /dev/null && [ -f "$PREFERENCES_WORKSPACE_DOCKER_KUBECTL_COMPLETION" ]; then
+    source "$PREFERENCES_WORKSPACE_DOCKER_KUBECTL_COMPLETION"
 fi
 
 export KUBE_EDITOR=vim

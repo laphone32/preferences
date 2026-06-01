@@ -35,9 +35,16 @@ export class BufferQuery extends qt.QueryType
     def Start(query: dict<any>): bool
         var keyword = query->get('keyword')
 
-        this.lookup = getbufinfo({ buflisted: v:true })->filter('v:val.hidden != 1')->reduce((x, data) => {
-            data->extend({ match: len(keyword) > 0 ? data->get('name', keyword)->matchstrpos(keyword) : [0, -2, -2] })
-            x->add(data)
+        this.lookup = getbufinfo({ buflisted: v:true })->reduce((x, data) => {
+            if getbufvar(data.bufnr, '&buftype') == 'terminal' || data.name =~ '^!'
+                return x
+            endif
+            var path = len(data.name) > 0 ? data.name : ' [NO NAME] '
+            var match = len(keyword) > 0 ? path->matchstrpos(keyword) : [0, -2, -2]
+            if len(keyword) == 0 || match[1] >= 0
+                data->extend({ match: match })
+                x->add(data)
+            endif
             return x
         }, [{}])
 
@@ -49,7 +56,7 @@ export class BufferQuery extends qt.QueryType
     def OnListKey(key: string, line: number)
         if line < len(this.lookup)
             if key ==# "\<cr>"
-                execute 'silent! buffer ' .. this.lookup[line]['name']
+                execute 'silent! buffer ' .. this.lookup[line]['bufnr']
             endif
         endif
     enddef

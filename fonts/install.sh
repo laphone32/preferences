@@ -23,7 +23,7 @@ function deploy_font {
     local keyword=$2
     local download_extension=$3
 
-    local download_url=$(curl -s https://api.github.com/repos/$from/releases/latest | grep "$keyword.*$download_extension" | grep browser_download_url | cut -d : -f 2,3 | tr -d \")
+    local download_url=$(curl -s https://api.github.com/repos/$from/releases/latest | grep "$keyword.*$download_extension" | grep browser_download_url | cut -d : -f 2,3 | tr -d \" | head -n 1)
     local font_filename=$(basename $download_url)
     local font_name=${font_filename%$download_extension}
 

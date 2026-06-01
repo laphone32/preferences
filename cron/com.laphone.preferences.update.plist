@@ -7,12 +7,12 @@
     <key>ProgramArguments</key>
     <array>
         <string>/bin/bash</string>
-        <string>%PREFERENCES_DIR%/bin/preferences-cron-runner</string>
+        <string>$PREFERENCES_DIR/bin/preferences-cron-runner</string>
     </array>
     <key>EnvironmentVariables</key>
     <dict>
         <key>PREFERENCES_DIR</key>
-        <string>%PREFERENCES_DIR%</string>
+        <string>$PREFERENCES_DIR</string>
     </dict>
     <key>StartCalendarInterval</key>
     <dict>

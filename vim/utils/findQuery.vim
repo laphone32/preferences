@@ -46,7 +46,7 @@ export class AsyncFindQuery extends aq.AsyncQuery
     def OnListKey(key: string, line: number)
         if line < len(this.lookup)
             if key ==# "\<cr>"
-                execute 'silent! edit ' .. this.lookup[line].lines.text
+                execute 'silent! edit ' .. fnameescape(this.lookup[line].lines.text)
             endif
         endif
     enddef

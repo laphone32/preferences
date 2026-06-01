@@ -18,18 +18,20 @@ function pythonVenvStart {
 }
 
 function pythonVenvOn {
-    python -c 'import sys; print (sys.prefix != sys.base_prefix)' 2>/dev/null
+    local pyCmd="python3"
+    command -v python3 &>/dev/null || pyCmd="python"
+    $pyCmd -c 'import sys; print (sys.prefix != sys.base_prefix)' 2>/dev/null
 }
 
 function pvenv {
-    if [ $(pythonVenvOn) == 'False' ]; then
+    if [ "$(pythonVenvOn)" == 'False' ]; then
         local dir=$PWD
         local requirements=($PREFERENCES_DIR/python/requirements.txt)
         local nearestRequirement=$(findNearestParent $PWD "requirements.txt")
 
-        if [ ! -z ${nearestRequirement+x} ] && [ -f $nearestRequirement ]; then
+        if [ ! -z ${nearestRequirement+x} ] && [ -f "$nearestRequirement" ]; then
             dir=$(dirname "$nearestRequirement")
-            requirements+=($nearestRequirement)
+            requirements+=("$nearestRequirement")
         else
             dir=$PREFERENCES_WORKSPACE_PYTHON
         fi

@@ -4,7 +4,7 @@ vim9script
 
 export class ConsistentPopup
     var id: number
-    var OnFilter: func(string): bool
+    var OnFilter: func(string): bool = (key) => v:false
 
 #    var OnShow: ut.EventFunctionType = ut.DummyEventFunction
 #    var OnHide: ut.EventFunctionType = ut.DummyEventFunction

@@ -55,7 +55,7 @@ export class AsyncRgQuery extends aq.AsyncQuery
         if line < len(this.lookup)
             if key ==# "\<cr>"
                 var data = this.lookup[line]
-                execute 'silent! edit ' .. data.path.text
+                execute 'silent! edit ' .. fnameescape(data.path.text)
                 silent! cursor(data.line_number, data.submatches[0].start)
             endif
         endif

@@ -4,7 +4,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/../util/bootstrap.sh"
 
 # systemd is only available on Linux, skip on other OSes
 if [ "$PREFERENCES_OS" != "Linux" ]; then
-    exit 0
+    return 0
 fi
 
 PREFERENCES_SYSTEMD=$PREFERENCES_DIR/systemd

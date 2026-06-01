@@ -158,7 +158,9 @@ function echoAndSource {
 }
 
 if [ "$#" -ge 1 ]; then
-    echoAndSource $PREFERENCES_DIR/$1/install.sh
+    for module in "$@"; do
+        echoAndSource "$PREFERENCES_DIR/$module/install.sh"
+    done
 else
     eachSubFile "$PREFERENCES_DIR" 'echoAndSource' 'install.sh'
 fi

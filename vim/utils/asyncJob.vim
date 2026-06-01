@@ -13,6 +13,7 @@ export class AsyncJob
     enddef
 
     def Start(properties: dict<any>)
+        this.Stop()
         this._OnData = properties->get('onData', this._OnData)
         this._id = job_start(properties->get('cmd', ['/bin/sh', '-c', "echo \'No command for async job\'"]), { pty: 1, out_cb: this._OnOut })
     enddef

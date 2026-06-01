@@ -11,6 +11,8 @@ function setTermTitle {
         fi
     fi
 
-    xtermcontrol --title="${!cache} $2"
+    if command -v xtermcontrol &> /dev/null; then
+        xtermcontrol --title="${!cache} $2"
+    fi
 }
 

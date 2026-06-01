@@ -5,26 +5,46 @@ source $PREFERENCES_DIR/util/override.sh
 #localstack
 wrap '' 'AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test AWS_DEFAULT_REGION=${DEFAULT_REGION:-$AWS_DEFAULT_REGION} aws --endpoint-url=http://${LOCALSTACK_HOST:-localhost}:4566' awslocal
 
-if ! command -v aws_completer &> /dev/null; then
-    complete -C "$(which aws_completer)" aws
+if command -v aws_completer &> /dev/null; then
+    complete -C "$(command -v aws_completer)" aws
 fi
 
 function awsLogined {
     ! [ -z ${AWS_PROFILE:+x} ]
 }
 
+function parse_date_to_epoch {
+    local date_str="$1"
+    if [ "$PREFERENCES_OS" == "Darwin" ]; then
+        date -j -f "%Y-%m-%dT%H:%M:%SZ" "$date_str" "+%s" 2>/dev/null || \
+        date -j -f "%Y-%m-%dT%H:%M:%S%z" "$date_str" "+%s" 2>/dev/null || \
+        date -j -f "%Y-%m-%d %H:%M:%S%z" "$date_str" "+%s" 2>/dev/null || \
+        date -j "$date_str" "+%s" 2>/dev/null
+    else
+        date -d "$date_str" "+%s" 2>/dev/null
+    fi
+}
+
 function PREFERENCES_AWS_PS1 {
     local ret=""
     if awsLogined; then
-        local second_to_expire=$(( ($(date -d $AWS_CREDENTIAL_EXPIRATION "+%s") - $(date "+%s")) ))
-        if [[ $second_to_expire -gt 0 ]]; then
-            ret=" {$AWS_PROFILE|$(date -u -d @${second_to_expire} +"%T")|$AWS_ACCOUNT_ID}"
-        else
-            export AWS_PROFILE=""
+        local expire_epoch=$(parse_date_to_epoch "$AWS_CREDENTIAL_EXPIRATION")
+        if [ -n "$expire_epoch" ]; then
+            local second_to_expire=$(( expire_epoch - $(date "+%s") ))
+            if [[ $second_to_expire -gt 0 ]]; then
+                local hh=$(( second_to_expire / 3600 ))
+                local mm=$(( (second_to_expire % 3600) / 60 ))
+                local ss=$(( second_to_expire % 60 ))
+                local duration
+                printf -v duration "%02d:%02d:%02d" $hh $mm $ss
+                ret=" {$AWS_PROFILE|$duration|$AWS_ACCOUNT_ID}"
+            else
+                export AWS_PROFILE=""
+            fi
         fi
     fi
 
-    echo $ret
+    echo "$ret"
 }
 
 function awsLogin {
