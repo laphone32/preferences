@@ -50,5 +50,15 @@ export class AsyncFindQuery extends aq.AsyncQuery
             endif
         endif
     enddef
+
+    def Preview(line: number)
+        if line < len(this.lookup)
+            var data = this.lookup[line]
+            if !empty(data) && has_key(data, 'lines')
+                execute 'silent! edit ' .. fnameescape(data.lines.text)
+                redraw
+            endif
+        endif
+    enddef
 endclass
 

@@ -41,5 +41,8 @@ export class QueryType
         this.toRefresh = []
         return tmp
     enddef
+
+    def Preview(line: number)
+    enddef
 endclass
 

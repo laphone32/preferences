@@ -73,7 +73,11 @@ PlugAdd 'Xuyuanp/nerdtree-git-plugin', {'on': '<Plug>(file-manager-call)'}
 PlugAdd 'itchyny/lightline.vim'
 PlugAdd 'airblade/vim-rooter'
 PlugAdd 'AndrewRadev/linediff.vim', {'on': 'Linediff'}
-PlugAdd 'neoclide/coc.nvim', {'branch': 'release'}
+""PlugAdd 'neoclide/coc.nvim', {'branch': 'release'}
+PlugAdd 'prabirshrestha/vim-lsp'
+PlugAdd 'mattn/vim-lsp-settings'
+PlugAdd 'prabirshrestha/asyncomplete.vim'
+PlugAdd 'prabirshrestha/asyncomplete-lsp.vim'
 PlugAdd 'nordtheme/vim'
 ""PlugAdd 'arcticicestudio/nord-vim'
 PlugAdd 'ap/vim-css-color'

@@ -16,6 +16,7 @@ export class List
 
     var currentQuery: dict<any>
     var currentQueryType: qt.QueryType
+    var previewTimer: number = -1
 
     def _Position(): list<number>
         var height = winheight(0)
@@ -66,6 +67,10 @@ export class List
             },
             onHide: () => {
               this._timer.Restart(1000)
+              if this.previewTimer != -1
+                  timer_stop(this.previewTimer)
+                  this.previewTimer = -1
+              endif
             },
         })
 
@@ -101,7 +106,17 @@ export class List
         elseif key ==# "\<left>"
             currentQueryType.PrevMode(line)
         else
+            if key ==# "\<cr>"
+                if this.previewTimer != -1
+                    timer_stop(this.previewTimer)
+                    this.previewTimer = -1
+                endif
+            endif
+
             currentQueryType.OnListKey(key, line)
+            if ["\<up>", 'k', "\<c-n>", "\<down>", 'j', "\<c-p>", "\<pageup>", "\<c-b>", "\<pagedown>", "\<c-f>", "\<home>", "\<end>", 'G']->index(key) >= 0
+                this._TriggerPreview(line)
+            endif
         endif
 
         return key ==# "\<cr>"
@@ -137,6 +152,16 @@ export class List
         if this.currentQueryType != null_object
             this._menu.Show(this._MenuPosition())
         endif
+    enddef
+
+    def _TriggerPreview(line: number)
+        if this.previewTimer != -1
+            timer_stop(this.previewTimer)
+        endif
+        this.previewTimer = timer_start(100, (_) => {
+            this.previewTimer = -1
+            this.currentQueryType.Preview(line)
+        })
     enddef
 endclass
 

@@ -3,6 +3,7 @@ vim9script
 import "../utils/rgQuery.vim" as rq
 import "../utils/bufferQuery.vim" as sq
 import "../utils/findQuery.vim" as fq
+import "../utils/diagnosticQuery.vim" as dq
 import "../utils/list.vim" as li
 import "../utils/term.vim" as te
 
@@ -13,6 +14,7 @@ var list = li.List.new(0.55)
 var _rg = rq.AsyncRgQuery.new()
 var _find = fq.AsyncFindQuery.new()
 var _buffer = sq.BufferQuery.new()
+var _diagnostics = dq.DiagnosticQuery.new()
 
 command! -nargs=0 ListResume list.Resume()
 command! -nargs=? ListGrep list.Call(_rg, {
@@ -22,6 +24,9 @@ command! -nargs=? ListFind list.Call(_find, {
     \ keyword: <q-args>,
 \ })
 command! -nargs=? ListBuffer list.Call(_buffer, {
+    \ keyword: <q-args>,
+\ })
+command! -nargs=? ListDiagnostics list.Call(_diagnostics, {
     \ keyword: <q-args>,
 \ })
 
@@ -40,6 +45,7 @@ command! -nargs=? ListBuffer list.Call(_buffer, {
 call AddListKeyMappings('find-file-call', 'ListFind', "ListFind %s")
 call AddListKeyMappings('grep-file-call', 'ListGrep', 'ListGrep %s')
 call AddListKeyMappings('find-buffer-call', 'ListBuffer', 'ListBuffer %s')
+call AddListKeyMappings('find-diagnostic-call', 'ListDiagnostics', 'ListDiagnostics %s')
 nnoremap <Plug>(resume-list-call) :ListResume<cr>
 
 var term = te.Term.new()
@@ -50,4 +56,16 @@ command! HideTerm term.Hide()
 nnoremap <Plug>(show-terminal-call) <c-w>:ShowTerm<cr>
 tnoremap <Plug>(hide-terminal-call) <c-w>:HideTerm<cr>
 autocmd QuitPre * term.Kill()
+
+def RefreshDiagnostics()
+    if list.currentQueryType == _diagnostics
+        _diagnostics.Start(list.currentQuery)
+    endif
+enddef
+
+augroup DiagnosticPopupAutoRefresh
+    autocmd!
+    autocmd User lsp_diagnostics_updated RefreshDiagnostics()
+augroup END
+
 

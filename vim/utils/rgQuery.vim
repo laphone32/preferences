@@ -60,5 +60,20 @@ export class AsyncRgQuery extends aq.AsyncQuery
             endif
         endif
     enddef
+
+    def Preview(line: number)
+        if line < len(this.lookup)
+            var data = this.lookup[line]
+            if !empty(data) && has_key(data, 'path')
+                execute 'silent! edit ' .. fnameescape(data.path.text)
+                var start_col = 1
+                if has_key(data, 'submatches') && len(data.submatches) > 0
+                    start_col = data.submatches[0].start + 1
+                endif
+                silent! cursor(data.line_number, start_col)
+                redraw
+            endif
+        endif
+    enddef
 endclass
 
