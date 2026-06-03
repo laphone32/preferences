@@ -1,8 +1,10 @@
-" For Delphi
-let g:pascal_delphi = 1
+vim9script
+
+# For Delphi
+g:pascal_delphi = 1
 
 set encoding=utf-8
-" English
+# English
 language mes en_US.UTF-8
 set langmenu=en_US.UTF-8
 
@@ -35,38 +37,37 @@ set incsearch
 set laststatus=2
 set backspace=indent,eol,start
 
-" No beep
+# No beep
 set noeb vb t_vb=
 
-" Folding
-"set foldmarker={,}
-"set foldmethod=marker
+# Folding
+#set foldmarker={,}
+#set foldmethod=marker
 set foldmethod=syntax
-set foldlevel=0 " Close in default
+set foldlevel=0 # Close in default
 set foldnestmax=15
 
-" Using 256 colors
+# Using 256 colors
 set t_Co=256
-"colorscheme desert
-"colorscheme nord
-if (has('termguicolors'))
+#colorscheme desert
+#colorscheme nord
+if has('termguicolors')
     set termguicolors
 endif
 
-" For chinese
+# For chinese
 set ambiwidth=double
 
-" Don't give |ins-completion-menu| messages.
+# Don't give |ins-completion-menu| messages.
 set shortmess+=c
 
-" set shell
+# set shell
 set shell=bash
 
-" Let plugin handle the mode
+# Let plugin handle the mode
 set noshowmode
 
 set updatetime=300
 
-" views
+# views
 set viewoptions-=options
-

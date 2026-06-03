@@ -1,31 +1,94 @@
+" ============================================================================
+" IdeaVim Configuration (.ideavimrc)
+" Self-contained configuration decoupled from the main vimrc (Vim9 script).
+" ============================================================================
 
-source ~/preferences/vimrc
-
+" --- Basic Vim Settings ---
+set hlsearch
+set ignorecase
+set smartcase
+set incsearch
 set clipboard+=ideaput
 
-""" CtrlP like
+" Sync clipboard with system clipboard
+if has('mac') || has('macunix')
+    set clipboard+=unnamed
+else
+    set clipboard+=unnamedplus
+endif
+
+" --- Mapleader ---
+let mapleader = '\'
+
+" --- Register pollution prevention (from keymap.vim) ---
+noremap dd "9dd
+noremap x "9x
+
+" --- Tab Switching Mappings (from keymap.vim) ---
+map <A-1> 1gt
+imap <A-1> <ESC>1gt
+map <A-2> 2gt
+imap <A-2> <ESC>2gt
+map <A-3> 3gt
+imap <A-3> <ESC>3gt
+map <A-4> 4gt
+imap <A-4> <ESC>4gt
+map <A-5> 5gt
+imap <A-5> <ESC>5gt
+map <A-6> 6gt
+imap <A-6> <ESC>6gt
+map <A-7> 7gt
+imap <A-7> <ESC>7gt
+map <A-8> 8gt
+imap <A-8> <ESC>8gt
+map <A-9> 9gt
+imap <A-9> <ESC>9gt
+map <A-Right> :tabn<CR>
+imap <A-Right> <ESC>:tabn<CR>
+map <A-Left> :tabp<CR>
+imap <A-Left> <ESC>:tabp<CR>
+
+" --- Window Resizing Mappings (from keymap.vim) ---
+nnoremap <S-Left>  <C-w><<CR>
+nnoremap <S-Right> <C-w>><CR>
+nnoremap <S-Up>    <C-w>-<CR>
+nnoremap <S-Down>  <C-w>+<CR>
+
+" --- IDE Action Mappings ---
+
+" Search & Files (CtrlP / FZF like)
 map <leader>p :action GotoFile<CR>
 map <leader>b :action RecentFiles<CR>
 map <leader>f :action FindInPath<CR>
 map <leader>s :action GoToSymbol<CR>
 
-""" search in file content
+" Terminal
 map <A-F12> :action ActivateTerminalToolWindow<CR>
+nmap <silent> <c-`> :action ActivateTerminalToolWindow<CR>
 
-""" NerdTree
+" File manager / Project Tree (NerdTree like)
 noremap <leader>n :action ActivateProjectToolWindow<CR>
 
-""" Code analysis
+" Locations / Jump list
+nnoremap <C-o> :action Back<CR>
+nnoremap <C-i> :action Forward<CR>
+
+" Debugger
+nnoremap dr :action Resume<CR>
+
+" --- LSP / Code Intelligence Mappings (mapped to IntelliJ actions) ---
 nnoremap gd :action GotoDeclaration<CR>
+nnoremap gc :action GotoDeclaration<CR>
+nnoremap gy :action GotoTypeDeclaration<CR>
 nnoremap gi :action GotoImplementation<CR>
 nnoremap gr :action FindUsages<CR>
 nnoremap g[ :action GotoPrevError<CR>
 nnoremap g] :action GotoNextError<CR>
 
-""" Locations
-nnoremap <C-o> :action Back<CR>
-nnoremap <C-i> :action Forward<CR>
-
-""" Debugger
-nnoremap dr :action Resume<CR>
-
+" Additional LSP actions from keymap.vim mapped to equivalent IDE actions
+nnoremap gh :action QuickJavaDoc<CR>
+nnoremap ac :action ShowIntentionActions<CR>
+nnoremap af :action ShowIntentionActions<CR>
+nnoremap ar :action RenameElement<CR>
+nnoremap ai :action OptimizeImports<CR>
+nnoremap am :action ReformatCode<CR>

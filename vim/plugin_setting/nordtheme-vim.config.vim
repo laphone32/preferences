@@ -1,5 +1,7 @@
-"""""""""""""""""""""""""""""""""""""" vim-nord
-let g:nord_uniform_diff_background = 1
+vim9script
+
+# vim-nord
+g:nord_uniform_diff_background = 1
 
 augroup ColorOverrideGroup
     autocmd!

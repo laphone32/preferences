@@ -1,14 +1,14 @@
+vim9script
 
-function! FromSelected(command)
-  let l:saved_unnamed_register = @@
-  normal! `<v`>y
-  let l:word = escape(substitute(@@, '\n$', '', 'g'), '| ')
-  let @@ = l:saved_unnamed_register
-  execute substitute(a:command, '%s', '' .. l:word .. '', 'g')
-endfunction
+def g:FromSelected(command: string)
+    var saved_unnamed_register = @@
+    normal! `<v`>y
+    var word = escape(substitute(@@, '\n$', '', 'g'), '| ')
+    @@ = saved_unnamed_register
+    execute substitute(command, '%s', word, 'g')
+enddef
 
-function AddListKeyMappings(call, normal_command, virtual_command)
-    execute 'nnoremap <Plug>(normal-' .. a:call .. ') :' .. a:normal_command .. '<cr>'
-    execute 'vnoremap <Plug>(virtual-' .. a:call .. ") :<C-u>call FromSelected(\'" .. a:virtual_command .. "\')<cr>"
-endfunction
-
+def g:AddListKeyMappings(call_name: string, normal_command: string, virtual_command: string)
+    execute 'nnoremap <Plug>(normal-' .. call_name .. ') :' .. normal_command .. '<cr>'
+    execute 'vnoremap <Plug>(virtual-' .. call_name .. ") :<C-u>call FromSelected('" .. virtual_command .. "')<cr>"
+enddef

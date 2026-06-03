@@ -1,4 +1,8 @@
-" Key-mappings for tab switching
+vim9script
+
+g:mapleader = '\'
+
+# Key-mappings for tab switching
 map <A-1> 1gt
 imap <A-1> <ESC>1gt
 map <A-2> 2gt
@@ -31,16 +35,14 @@ nnoremap <S-Right> <C-w>><CR>
 nnoremap <S-Up>    <C-w>-<CR>
 nnoremap <S-Down>  <C-w>+<CR>
 
-" Use enter to select suggestion
+# Use enter to select suggestion
 inoremap <expr> <CR> pumvisible() ? "\<C-Y>" : "\<CR>"
 
-let mapleader = '\'
-
-" Do not pollute the register for the content operated by `dd' and `x'
+# Do not pollute the register for the content operated by `dd' and `x'
 noremap dd "9dd
 noremap x "9x
 
-" LSP
+# LSP
 nmap <silent> gd <Plug>(go-to-definition-call)
 nmap <silent> gc <Plug>(go-to-declaration-call)
 nmap <silent> gy <Plug>(go-to-type-definition-call)
@@ -57,7 +59,7 @@ nmap <silent> al <Plug>(auto-code-lens-call)
 nmap <silent> ai <Plug>(auto-import-call)
 nmap <silent> am <Plug>(auto-format-call)
 
-" Search list
+# Search list
 nmap <silent> <leader>p <Plug>(normal-find-file-call)
 vmap <silent> <leader>p <Plug>(virtual-find-file-call)
 
@@ -73,10 +75,9 @@ vmap <silent> <leader>s <Plug>(virtual-find-symbol-call)
 nmap <silent> <leader>d <Plug>(normal-find-diagnostic-call)
 nmap <silent> <leader><leader> <Plug>(resume-list-call)
 
-" File manager
+# File manager
 nmap <silent> <leader>n <Plug>(file-manager-call)
 
-" Terminal
+# Terminal
 nmap <silent> <c-`> <Plug>(show-terminal-call)
 tmap <silent> <c-`> <Plug>(hide-terminal-call)
-

@@ -1,4 +1,6 @@
-"""""""""""""""""""""""""""""""""""" Vim Plug
-function! GitBranchName() abort
-    return FugitiveHead()
-endfunction
+vim9script
+
+# Vim Plug
+def g:GitBranchName(): string
+    return exists('*FugitiveHead') ? call('FugitiveHead', []) : ''
+enddef

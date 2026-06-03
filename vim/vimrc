@@ -1,3 +1,5 @@
+set nocompatible
+
 " Detect OS - Linux | Windows | Darwin
 if !exists('g:os')
     if has('win64') || has('win32') || has('win16')
@@ -10,22 +12,16 @@ endif
 " vimrc dir
 let g:vimrcDir = fnamemodify(resolve(expand('<sfile>:p')), ':h')
 
-function s:getConfigPath(configPath) abort
-    return g:vimrcDir . '/' . a:configPath
-endfunction
-
-function LoadConfig(configPath) abort
-    let file = s:getConfigPath(a:configPath)
+function! g:LoadConfig(configPath) abort
+    let file = g:vimrcDir . '/' . a:configPath
     if filereadable(file)
         execute 'source' file
     endif
 endfunction
 
-
-call LoadConfig('config/utils.vim')
-call LoadConfig('config/plugins.vim')
-call LoadConfig('config/setting.vim')
-call LoadConfig('config/autocmd.vim')
-call LoadConfig('config/lists.vim')
-call LoadConfig('config/keymap.vim')
-
+call g:LoadConfig('config/utils.vim')
+call g:LoadConfig('config/plugins.vim')
+call g:LoadConfig('config/setting.vim')
+call g:LoadConfig('config/autocmd.vim')
+call g:LoadConfig('config/lists.vim')
+call g:LoadConfig('config/keymap.vim')

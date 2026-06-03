@@ -35,7 +35,9 @@ export class Term extends cp.ConsistentPopup
 
     def Kill()
         this.Hide()
-        execute "bw! " .. this.buffer
+        if this.buffer > 0 && bufexists(this.buffer)
+            execute "bw! " .. this.buffer
+        endif
     enddef
 endclass
 

@@ -1,87 +1,86 @@
+vim9script
 
 set nocompatible
-"""""""""""""""""""""""""""""""""""" Vim Plug
-let data_dir = has('nvim') ? stdpath('data') . '/site' : '~/.vim'
-    if empty(glob(data_dir . '/autoload/plug.vim'))
-        silent execute '!curl -fLo '.data_dir.'/autoload/plug.vim --create-dirs  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
-        autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+
+# Vim Plug
+var data_dir = has('nvim') ? stdpath('data') .. '/site' : '~/.vim'
+if empty(glob(data_dir .. '/autoload/plug.vim'))
+    silent execute '!curl -fLo ' .. data_dir .. '/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+    autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 
+def g:AfterPlugLoad(confName: string)
+    g:LoadConfig('plugin_setting/' .. confName .. '.config.vim')
+enddef
 
+def RepoToPlug(repo: string): list<string>
+    return [split(repo, '/')[1], substitute(repo, '/', '-', '')]
+enddef
 
-function s:afterPlugLoad(confName) abort
-    call LoadConfig('plugin_setting/' .. a:confName .. '.config.vim')
-endfunction
+var plug = {toLoad: [], toHold: []}
 
-function s:repoToPlug(repo) abort
-    return [split(a:repo, '/')[1], substitute(a:repo, '/', '-', "")]
-endfunction
-
-let s:plug = {'toLoad': [], 'toHold': []}
-function s:plugAdd(repo, ...) abort
-    let s:property = (a:0 == 1) ? a:1 : {}
-
-    if has_key(s:property, 'on') || has_key(s:property, 'for')
-        call add(s:plug.toHold, a:repo)
+def g:PlugAdd(repo: string, property_arg = {})
+    var property = property_arg
+    if has_key(property, 'on') || has_key(property, 'for')
+        add(plug.toHold, repo)
     else
-        let s:property.on = []
-        call add(s:plug.toLoad, a:repo)
+        property.on = []
+        add(plug.toLoad, repo)
     endif
 
-    execute 'Plug ' .. string(a:repo) .. ', ' .. string(s:property)
-endfunction
+    execute 'Plug ' .. string(repo) .. ', ' .. string(property)
+enddef
 
-function s:plugBegin(plugPath) abort
-    execute 'call plug#begin(' .. string(a:plugPath) .. ')'
+def PlugBegin(plugPath: string)
+    plug#begin(plugPath)
+    command! -nargs=+ -bar PlugAdd call g:PlugAdd(<args>)
+enddef
 
-    command! -nargs=+ -bar PlugAdd call s:plugAdd(<args>)
-endfunction
+def InstallAutocmd()
+    augroup PlugLoadGroup
+        autocmd!
+        for repo in plug.toHold
+            var val = RepoToPlug(repo)
+            var plugName = val[0]
+            var confName = val[1]
+            execute 'autocmd User ' .. plugName .. ' call g:AfterPlugLoad(' .. string(confName) .. ')'
+        endfor
+    augroup END
+enddef
 
-function s:installAutocmd() abort
-    execute 'augroup PlugLoadGroup'
-    execute 'autocmd!'
+def PlugLoad(repo: string)
+    var val = RepoToPlug(repo)
+    var plugName = val[0]
+    var confName = val[1]
+    plug#load(plugName)
+    g:AfterPlugLoad(confName)
+enddef
 
-    for repo in s:plug.toHold
-        let [plugName, confName] = s:repoToPlug(repo)
-        execute 'autocmd User ' .. plugName .. ' call s:afterPlugLoad(' .. string(confName) .. ')'
+def PlugEnd()
+    InstallAutocmd()
+    plug#end()
+    for repo in plug.toLoad
+        PlugLoad(repo)
     endfor
+enddef
 
-    execute 'augroup end'
-endfunction
-
-function s:plugEnd() abort
-    call s:installAutocmd()
-
-    execute 'call plug#end()'
-
-    for repo in s:plug.toLoad
-        call s:plugLoad(repo)
-    endfor
-endfunction
-
-function s:plugLoad(repo) abort
-    let [plugName, confName] = s:repoToPlug(a:repo)
-    call plug#load(plugName)
-    call s:afterPlugLoad(confName)
-endfunction
-
-call s:plugBegin('~/.vim/bundle')
+# Load all plugins
+PlugBegin('~/.vim/bundle')
 PlugAdd 'tpope/vim-fugitive'
 PlugAdd 'Raimondi/delimitMate'
-PlugAdd 'preservim/nerdtree', {'on': '<Plug>(file-manager-call)'}
-PlugAdd 'Xuyuanp/nerdtree-git-plugin', {'on': '<Plug>(file-manager-call)'}
+PlugAdd 'preservim/nerdtree', {on: '<Plug>(file-manager-call)'}
+PlugAdd 'Xuyuanp/nerdtree-git-plugin', {on: '<Plug>(file-manager-call)'}
 PlugAdd 'itchyny/lightline.vim'
 PlugAdd 'airblade/vim-rooter'
-PlugAdd 'AndrewRadev/linediff.vim', {'on': 'Linediff'}
-""PlugAdd 'neoclide/coc.nvim', {'branch': 'release'}
+PlugAdd 'AndrewRadev/linediff.vim', {on: 'Linediff'}
+# PlugAdd 'neoclide/coc.nvim', {branch: 'release'}
 PlugAdd 'prabirshrestha/vim-lsp'
 PlugAdd 'mattn/vim-lsp-settings'
 PlugAdd 'prabirshrestha/asyncomplete.vim'
 PlugAdd 'prabirshrestha/asyncomplete-lsp.vim'
 PlugAdd 'nordtheme/vim'
-""PlugAdd 'arcticicestudio/nord-vim'
+# PlugAdd 'arcticicestudio/nord-vim'
 PlugAdd 'ap/vim-css-color'
-""PlugAdd 'junegunn/fzf', { 'do': { -> fzf#install() }}
-""PlugAdd 'junegunn/fzf.vim'
-call s:plugEnd()
-
+# PlugAdd 'junegunn/fzf', { 'do': { -> fzf#install() }}
+# PlugAdd 'junegunn/fzf.vim'
+PlugEnd()

@@ -1,6 +1,8 @@
-"""""""""""""""""""""""""""""""""""" vim-lsp & vim-lsp-settings
+vim9script
 
-" 1. Map existing <Plug> hooks to vim-lsp
+# vim-lsp & vim-lsp-settings
+
+# 1. Map existing <Plug> hooks to vim-lsp
 nmap <Plug>(go-to-definition-call)      <Plug>(lsp-definition)
 nmap <Plug>(go-to-declaration-call)     <Plug>(lsp-declaration)
 nmap <Plug>(go-to-type-definition-call) <Plug>(lsp-type-definition)
@@ -9,82 +11,81 @@ nmap <Plug>(go-to-references-call)      <Plug>(lsp-references)
 nmap <Plug>(go-to-diagnostic-prev-call) <Plug>(lsp-previous-diagnostic)
 nmap <Plug>(go-to-diagnostics-next-call) <Plug>(lsp-next-diagnostic)
 
-" Custom documentation and action hooks
-nnoremap <Plug>(go-to-help-call)            :call LspGoToHelp()<CR>
+# Custom documentation and action hooks
+nnoremap <Plug>(go-to-help-call)        :call LspGoToHelp()<CR>
 nmap <Plug>(auto-code-action-call)      <Plug>(lsp-code-action)
-nnoremap <Plug>(auto-fix-call)              :LspCodeAction quickfix<CR>
+nnoremap <Plug>(auto-fix-call)          :LspCodeAction quickfix<CR>
 nmap <Plug>(auto-rename-call)           <Plug>(lsp-rename)
-nnoremap <Plug>(auto-format-call)           :LspDocumentFormat<CR>
-nnoremap <Plug>(auto-import-call)           :LspCodeAction source.organizeImports<CR>
+nnoremap <Plug>(auto-format-call)       :LspDocumentFormat<CR>
+nnoremap <Plug>(auto-import-call)       :LspCodeAction source.organizeImports<CR>
 
-" 2. Diagnostics Styling (matching your Coc style)
-let g:lsp_diagnostics_enabled = 1
-let g:lsp_diagnostics_echo_cursor = 0
-let g:lsp_diagnostics_float_cursor = 0
-let g:lsp_diagnostics_virtual_text_enabled = 0
-let g:lsp_diagnostics_signs_enabled = 1
-let g:lsp_diagnostics_signs_error = {'text': '>>'}
-let g:lsp_diagnostics_signs_warning = {'text': '!!'}
-let g:lsp_diagnostics_signs_information = {'text': '->'}
-let g:lsp_diagnostics_signs_hint = {'text': '**'}
+# 2. Diagnostics Styling (matching your Coc style)
+g:lsp_diagnostics_enabled = 1
+g:lsp_diagnostics_echo_cursor = 0
+g:lsp_diagnostics_float_cursor = 0
+g:lsp_diagnostics_virtual_text_enabled = 0
+g:lsp_diagnostics_signs_enabled = 1
+g:lsp_diagnostics_signs_error = {text: '>>'}
+g:lsp_diagnostics_signs_warning = {text: '!!'}
+g:lsp_diagnostics_signs_information = {text: '->'}
+g:lsp_diagnostics_signs_hint = {text: '**'}
 
-" Highlight reference symbols under cursor on hover
-let g:lsp_document_highlight_enabled = 1
+# Highlight reference symbols under cursor on hover
+g:lsp_document_highlight_enabled = 1
 
-" 3. Floating window scrolling using C-f and C-b (matching Coc style)
-function! LspHasFloatingWindow() abort
+# 3. Floating window scrolling using C-f and C-b (matching Coc style)
+def g:LspHasFloatingWindow(): bool
     try
-        let l:Window = vital#lsp#import('VS.Vim.Window')
-        let l:float_wins = l:Window.find({ winid -> l:Window.is_floating(winid) })
-        return !empty(l:float_wins)
+        var Window = vital#lsp#import('VS.Vim.Window')
+        var float_wins = Window.find((winid) => Window.is_floating(winid))
+        return !empty(float_wins)
     catch
-        return 0
+        return false
     endtry
-endfunction
+enddef
 
-nnoremap <expr> <C-f> LspHasFloatingWindow() ? lsp#scroll(+4) : "\<C-f>"
-nnoremap <expr> <C-b> LspHasFloatingWindow() ? lsp#scroll(-4) : "\<C-b>"
-inoremap <expr> <C-f> LspHasFloatingWindow() ? lsp#scroll(+4) : "\<Right>"
-inoremap <expr> <C-b> LspHasFloatingWindow() ? lsp#scroll(-4) : "\<Left>"
-vnoremap <expr> <C-f> LspHasFloatingWindow() ? lsp#scroll(+4) : "\<C-f>"
-vnoremap <expr> <C-b> LspHasFloatingWindow() ? lsp#scroll(-4) : "\<C-b>"
+nnoremap <expr> <C-f> g:LspHasFloatingWindow() ? lsp#scroll(+4) : "\<C-f>"
+nnoremap <expr> <C-b> g:LspHasFloatingWindow() ? lsp#scroll(-4) : "\<C-b>"
+inoremap <expr> <C-f> g:LspHasFloatingWindow() ? lsp#scroll(+4) : "\<Right>"
+inoremap <expr> <C-b> g:LspHasFloatingWindow() ? lsp#scroll(-4) : "\<Left>"
+vnoremap <expr> <C-f> g:LspHasFloatingWindow() ? lsp#scroll(+4) : "\<C-f>"
+vnoremap <expr> <C-b> g:LspHasFloatingWindow() ? lsp#scroll(-4) : "\<C-b>"
 
-" 4. Go to Help: Diagnostic detail or hover documentation (matching Coc style)
-function! LspGoToHelp() abort
-    " Check if there is a diagnostic under the cursor
-    let l:diag = lsp#internal#diagnostics#under_cursor#get_diagnostic()
-    if !empty(l:diag) && has_key(l:diag, 'message')
-        " Format diagnostic nicely
-        let l:severity = 'Diagnostic'
-        if has_key(l:diag, 'severity')
-            if l:diag['severity'] == 1
-                let l:severity = 'Error'
-            elseif l:diag['severity'] == 2
-                let l:severity = 'Warning'
-            elseif l:diag['severity'] == 3
-                let l:severity = 'Information'
-            elseif l:diag['severity'] == 4
-                let l:severity = 'Hint'
+# 4. Go to Help: Diagnostic detail or hover documentation (matching Coc style)
+def g:LspGoToHelp()
+    # Check if there is a diagnostic under the cursor
+    var diag = lsp#internal#diagnostics#under_cursor#get_diagnostic()
+    if !empty(diag) && has_key(diag, 'message')
+        # Format diagnostic nicely
+        var severity = 'Diagnostic'
+        if has_key(diag, 'severity')
+            if diag['severity'] == 1
+                severity = 'Error'
+            elseif diag['severity'] == 2
+                severity = 'Warning'
+            elseif diag['severity'] == 3
+                severity = 'Information'
+            elseif diag['severity'] == 4
+                severity = 'Hint'
             endif
         endif
         
-        let l:source_info = ''
-        if has_key(l:diag, 'source') && !empty(l:diag['source'])
-            let l:source_info = ' [' . l:diag['source'] . ']'
+        var source_info = ''
+        if has_key(diag, 'source') && !empty(diag['source'])
+            source_info = ' [' .. diag['source'] .. ']'
         endif
-        if has_key(l:diag, 'code') && !empty(l:diag['code'])
-            let l:source_info .= ' (' . l:diag['code'] . ')'
+        if has_key(diag, 'code') && !empty(diag['code'])
+            source_info ..= ' (' .. diag['code'] .. ')'
         endif
         
-        let l:title = '**[' . l:severity . ']' . l:source_info . '**'
-        let l:lines = lsp#utils#_split_by_eol(l:diag['message'])
-        let l:display_lines = [l:title, ''] + l:lines
+        var title = '**[' .. severity .. ']' .. source_info .. '**'
+        var lines = lsp#utils#_split_by_eol(diag['message'])
+        var display_lines = [title, ''] + lines
         
-        " Open in hover floating window
-        call lsp#ui#vim#output#preview('', l:display_lines, {})
+        # Open in hover floating window
+        lsp#ui#vim#output#preview('', display_lines, {})
     else
-        " Trigger standard LSP hover documentation
+        # Trigger standard LSP hover documentation
         execute 'LspHover'
     endif
-endfunction
-
+enddef
