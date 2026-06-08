@@ -1,0 +1,26 @@
+{
+  "colorScheme": "tokyo night",
+  "statusLine": {
+    "type": "",
+    "command": "",
+    "enabled": true
+  },
+  "permissions": {
+    "allow": [
+      "command(ls)",
+      "command(cat)",
+      "command(which)",
+      "command(find)",
+      "command(rg)",
+      "command(grep)",
+      "command(git status)",
+      "command(git log)",
+      "command(git diff)",
+      "command(git show)",
+      "command(git branch)",
+      "command(git ls-files)",
+      "command(git rev-parse)",
+      "command(git submodule)"
+    ]
+  }
+}

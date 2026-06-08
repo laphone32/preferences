@@ -16,6 +16,12 @@ else
 fi
 
 installPreferencesDir $PREFERENCES_WORKSPACE_ANTIGRAVITY
+installPreferencesDir $PREFERENCES_ANTIGRAVITY_GLOBAL_CONFIG
+
+# Link settings.json if present
+if [ -f "$PREFERENCES_ANTIGRAVITY/config/settings.json" ]; then
+    installPreferencesSymlink "$PREFERENCES_ANTIGRAVITY/config/settings.json" "$PREFERENCES_ANTIGRAVITY_GLOBAL_CONFIG/settings.json"
+fi
 
 # Link config if present
 if [ -d "$PREFERENCES_ANTIGRAVITY/config" ]; then
