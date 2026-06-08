@@ -11,6 +11,39 @@ export class QueryType
 
 
 
+    public var cursorLine: number = -1
+
+    def GetTitle(keyword: string): string
+        return this.name .. keyword .. ' '
+    enddef
+
+    def HasCustomKey(key: string): bool
+        return v:false
+    enddef
+
+    def PreviewFile(path: string, line_num: number = 1, col: number = 1)
+        var was_listed = buflisted(path)
+        execute 'silent! edit ' .. fnameescape(path)
+        if !was_listed
+            setlocal nobuflisted
+            setlocal noswapfile
+        endif
+        cursor(line_num, col)
+        redraw
+    enddef
+
+    def OpenFile(path: string, line_num: number = 1, col: number = 1)
+        execute 'silent! edit ' .. fnameescape(path)
+        if isdirectory(path)
+            setlocal nobuflisted
+            setlocal noswapfile
+        else
+            setlocal buflisted
+            setlocal swapfile
+        endif
+        cursor(line_num, col)
+    enddef
+
     def Start(query: dict<any>): bool
         return v:true
     enddef

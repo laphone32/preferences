@@ -46,7 +46,7 @@ export class AsyncFindQuery extends aq.AsyncQuery
     def OnListKey(key: string, line: number)
         if line < len(this.lookup)
             if key ==# "\<cr>"
-                execute 'silent! edit ' .. fnameescape(this.lookup[line].lines.text)
+                this.OpenFile(this.lookup[line].lines.text)
             endif
         endif
     enddef
@@ -55,8 +55,7 @@ export class AsyncFindQuery extends aq.AsyncQuery
         if line < len(this.lookup)
             var data = this.lookup[line]
             if !empty(data) && has_key(data, 'lines')
-                execute 'silent! edit ' .. fnameescape(data.lines.text)
-                redraw
+                this.PreviewFile(data.lines.text)
             endif
         endif
     enddef

@@ -39,6 +39,13 @@ export class RichBuffer
         prop_clear(from, to, this.prop)
     enddef
 
+    def Truncate(from: number)
+        var count = this.LineCount()
+        if count >= from
+            deletebufline(this.buffer, from, '$')
+        endif
+    enddef
+
     def Refresh(properties: dict<string>)
         if && properties.to >= properties.from
             var line = properties.from

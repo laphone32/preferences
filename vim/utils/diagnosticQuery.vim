@@ -81,8 +81,7 @@ export class DiagnosticQuery extends qt.QueryType
         if line < len(this.lookup)
             if key ==# "\<cr>"
                 var data = this.lookup[line]
-                execute 'silent! edit ' .. data.path
-                cursor(data.line, data.col)
+                this.OpenFile(data.path, data.line, data.col)
             endif
         endif
     enddef
@@ -91,9 +90,7 @@ export class DiagnosticQuery extends qt.QueryType
         if line < len(this.lookup)
             var data = this.lookup[line]
             if !empty(data) && has_key(data, 'path')
-                execute 'silent! edit ' .. data.path
-                cursor(data.line, data.col)
-                redraw
+                this.PreviewFile(data.path, data.line, data.col)
             endif
         endif
     enddef

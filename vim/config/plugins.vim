@@ -68,8 +68,8 @@ enddef
 PlugBegin('~/.vim/bundle')
 PlugAdd 'tpope/vim-fugitive'
 PlugAdd 'Raimondi/delimitMate'
-PlugAdd 'preservim/nerdtree', {on: '<Plug>(file-manager-call)'}
-PlugAdd 'Xuyuanp/nerdtree-git-plugin', {on: '<Plug>(file-manager-call)'}
+# PlugAdd 'preservim/nerdtree', {on: '<Plug>(file-manager-call)'}
+# PlugAdd 'Xuyuanp/nerdtree-git-plugin', {on: '<Plug>(file-manager-call)'}
 PlugAdd 'itchyny/lightline.vim'
 PlugAdd 'airblade/vim-rooter'
 PlugAdd 'AndrewRadev/linediff.vim', {on: 'Linediff'}

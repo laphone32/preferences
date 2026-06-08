@@ -6,15 +6,19 @@ import "../utils/findQuery.vim" as fq
 import "../utils/diagnosticQuery.vim" as dq
 import "../utils/list.vim" as li
 import "../utils/term.vim" as te
+import "../utils/pathQuery.vim" as pq
 
-prop_type_add('FileStyle', {highlight: 'Statement', override: v:true})
-prop_type_add('MatchStyle', {highlight: 'Underlined', override: v:true})
+silent! prop_type_add('FileStyle', {highlight: 'Statement', override: v:true})
+silent! prop_type_add('MatchStyle', {highlight: 'Underlined', override: v:true})
+silent! prop_type_delete('DirectoryStyle')
+silent! prop_type_add('DirectoryStyle', {highlight: 'Type', override: v:true})
 
 var list = li.List.new(0.55)
 var _rg = rq.AsyncRgQuery.new()
 var _find = fq.AsyncFindQuery.new()
 var _buffer = sq.BufferQuery.new()
 var _diagnostics = dq.DiagnosticQuery.new()
+var _path = pq.PathQuery.new()
 
 command! -nargs=0 ListResume list.Resume()
 command! -nargs=? ListGrep list.Call(_rg, {
@@ -27,6 +31,9 @@ command! -nargs=? ListBuffer list.Call(_buffer, {
     \ keyword: <q-args>,
 \ })
 command! -nargs=? ListDiagnostics list.Call(_diagnostics, {
+    \ keyword: <q-args>,
+\ })
+command! -nargs=? ListPath list.Call(_path, {
     \ keyword: <q-args>,
 \ })
 
@@ -47,6 +54,7 @@ call AddListKeyMappings('grep-file-call', 'ListGrep', 'ListGrep %s')
 call AddListKeyMappings('find-buffer-call', 'ListBuffer', 'ListBuffer %s')
 call AddListKeyMappings('find-diagnostic-call', 'ListDiagnostics', 'ListDiagnostics %s')
 nnoremap <Plug>(resume-list-call) :ListResume<cr>
+nnoremap <Plug>(file-manager-call) :ListPath<cr>
 
 var term = te.Term.new()
 
@@ -57,7 +65,7 @@ nnoremap <Plug>(show-terminal-call) <c-w>:ShowTerm<cr>
 tnoremap <Plug>(hide-terminal-call) <c-w>:HideTerm<cr>
 autocmd QuitPre * term.Kill()
 
-def RefreshDiagnostics()
+def g:RefreshDiagnostics()
     if list.currentQueryType == _diagnostics
         _diagnostics.Start(list.currentQuery)
     endif
@@ -65,7 +73,7 @@ enddef
 
 augroup DiagnosticPopupAutoRefresh
     autocmd!
-    autocmd User lsp_diagnostics_updated RefreshDiagnostics()
+    autocmd User lsp_diagnostics_updated g:RefreshDiagnostics()
 augroup END
 
 

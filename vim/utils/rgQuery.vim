@@ -55,8 +55,11 @@ export class AsyncRgQuery extends aq.AsyncQuery
         if line < len(this.lookup)
             if key ==# "\<cr>"
                 var data = this.lookup[line]
-                execute 'silent! edit ' .. fnameescape(data.path.text)
-                silent! cursor(data.line_number, data.submatches[0].start)
+                var start_col = 1
+                if has_key(data, 'submatches') && len(data.submatches) > 0
+                    start_col = data.submatches[0].start + 1
+                endif
+                this.OpenFile(data.path.text, data.line_number, start_col)
             endif
         endif
     enddef
@@ -65,13 +68,11 @@ export class AsyncRgQuery extends aq.AsyncQuery
         if line < len(this.lookup)
             var data = this.lookup[line]
             if !empty(data) && has_key(data, 'path')
-                execute 'silent! edit ' .. fnameescape(data.path.text)
                 var start_col = 1
                 if has_key(data, 'submatches') && len(data.submatches) > 0
                     start_col = data.submatches[0].start + 1
                 endif
-                silent! cursor(data.line_number, start_col)
-                redraw
+                this.PreviewFile(data.path.text, data.line_number, start_col)
             endif
         endif
     enddef
