@@ -15,13 +15,14 @@ else
     echo "✓ agy CLI is already installed"
 fi
 
-installPreferencesDir $PREFERENCES_ANTIGRAVITY_LOCAL
 installPreferencesDir $PREFERENCES_WORKSPACE_ANTIGRAVITY
 
 # Link config if present
-PREFERENCES_ANTIGRAVITY_CONFIG="$PREFERENCES_ANTIGRAVITY/config"
-if [ -d "$PREFERENCES_ANTIGRAVITY_CONFIG" ]; then
-    for conf in "$PREFERENCES_ANTIGRAVITY_CONFIG"/*.conf; do
-        [ -f "$conf" ] && installPreferencesSymlink "$conf" "$PREFERENCES_ANTIGRAVITY_LOCAL/$(basename "$conf")"
-    done
+if [ -d "$PREFERENCES_ANTIGRAVITY/config" ]; then
+    installPreferencesSymlink "$PREFERENCES_ANTIGRAVITY/config" "$PREFERENCES_ANTIGRAVITY_LOCAL"
+fi
+
+# Link portable skills if present
+if [ -d "$PREFERENCES_ANTIGRAVITY/skills" ]; then
+    installPreferencesSymlink "$PREFERENCES_ANTIGRAVITY/skills" "$PREFERENCES_ANTIGRAVITY_GLOBAL_SKILLS"
 fi

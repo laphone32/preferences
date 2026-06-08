@@ -44,6 +44,15 @@ function installPreferencesSymlink {
     local source=$1
     local target=$2
     
+    # Strip trailing slash if present to avoid dereferencing directory symlinks
+    target="${target%/}"
+    
+    if [ -L "$target" ] || [ -f "$target" ]; then
+        rm -f "$target"
+    elif [ -d "$target" ]; then
+        rmdir "$target" 2>/dev/null || true
+    fi
+    
     ln -sf "$source" "$target"
     appendManifest "$PREFERENCES_INSTALL_ACTION_SYMLINK" "$target"
 }
