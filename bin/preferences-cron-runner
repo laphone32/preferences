@@ -14,10 +14,31 @@ LOG_FILE="$LOG_DIR/cron.log"
     echo "👤 User: $(whoami) | OS: $PREFERENCES_OS"
     echo "=========================================="
     
-    # Discovery and source all submodule cron.sh files
-    eachSubFile "$PREFERENCES_DIR" 'source' 'cron.sh'
+    # Discovery and source all submodule cron.sh files in isolated subshells
+    failures=0
+    for dir in "$PREFERENCES_DIR"/*/; do
+        if [ -f "${dir}cron.sh" ]; then
+            rel_path="${dir#$PREFERENCES_DIR/}"
+            echo "[$(date '+%Y-%m-%d %H:%M:%S')] ▶ Starting task: ${rel_path}cron.sh"
+            
+            # Run in subshell to isolate environment and prevent premature exit/termination
+            (
+                cd "$dir"
+                source "cron.sh"
+            )
+            status=$?
+            
+            if [ $status -eq 0 ]; then
+                echo "[$(date '+%Y-%m-%d %H:%M:%S')] 🟢 Completed task: ${rel_path}cron.sh (Exit: 0)"
+            else
+                echo "[$(date '+%Y-%m-%d %H:%M:%S')] 🔴 Failed task: ${rel_path}cron.sh (Exit: $status)"
+                failures=$((failures + 1))
+            fi
+            echo ""
+        fi
+    done
     
     echo "=========================================="
-    echo "✅ Preferences Cron Completed: $(date)"
+    echo "✅ Preferences Cron Completed: $(date) (Failures: $failures)"
     echo ""
 } >> "$LOG_FILE" 2>&1
