@@ -29,12 +29,14 @@ function mapPackageName {
             case $commandName in
                 'rg') echo "ripgrep" ;;
                 'node') echo "nodejs" ;;
+                '7z') echo "7zip 7zip-rar" ;;
                 *) echo "$commandName" ;;
             esac
             ;;
         'brew')
             case $commandName in
                 'rg') echo "ripgrep" ;;
+                '7z') echo "sevenzip unar" ;;
                 *) echo "$commandName" ;;
             esac
             ;;
@@ -42,6 +44,7 @@ function mapPackageName {
             case $commandName in
                 'rg') echo "ripgrep" ;;
                 'node') echo "node" ;;
+                '7z') echo "7zip" ;;
                 *) echo "$commandName" ;;
             esac
             ;;
@@ -70,6 +73,14 @@ function installPackages {
             ;;
         'brew')
             brew install "${packages[@]}"
+            if echo "${packages[@]}" | grep -q "sevenzip"; then
+                local brew_bin
+                brew_bin="$(brew --prefix)/bin"
+                if [ -f "$brew_bin/7zz" ] && [ ! -f "$brew_bin/7z" ]; then
+                    echo "Creating symlink for 7z -> 7zz in $brew_bin"
+                    ln -sf 7zz "$brew_bin/7z"
+                fi
+            fi
             ;;
         'snap')
             for pkg in "${packages[@]}"; do
@@ -84,7 +95,7 @@ function installPackages {
 }
 
 # Required software (unified for all platforms)
-requirements=('curl' 'git' 'node' 'npm' 'rg' 'vim' 'xtermcontrol')
+requirements=('curl' 'git' 'node' 'npm' 'rg' 'vim' 'xtermcontrol' '7z')
 
 # Check which packages are missing
 missing_commands=()
@@ -113,7 +124,9 @@ if [ ${#missing_commands[@]} -gt 0 ]; then
             echo "Note: npm is included with node, skipping separate installation"
             continue
         fi
-        packages_to_install+=("$pkg")
+        for p in $pkg; do
+            packages_to_install+=("$p")
+        done
     done
 
     if [ ${#packages_to_install[@]} -gt 0 ]; then
