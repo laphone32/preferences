@@ -81,3 +81,8 @@ nmap <silent> <leader>n <Plug>(file-manager-call)
 # Terminal
 nmap <silent> <c-`> <Plug>(show-terminal-call)
 tmap <silent> <c-`> <Plug>(hide-terminal-call)
+
+# Coding Assistant (agy)
+nmap <silent> <leader>' <Plug>(show-assistant-call)
+tmap <silent> <leader>' <Plug>(hide-assistant-call)
+vmap <silent> <leader>' <Plug>(visual-assistant-call)

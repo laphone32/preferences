@@ -7,6 +7,7 @@ import "../utils/diagnosticQuery.vim" as dq
 import "../utils/list.vim" as li
 import "../utils/term.vim" as te
 import "../utils/pathQuery.vim" as pq
+import "../utils/assistant.vim"
 
 silent! prop_type_add('FileStyle', {highlight: 'Statement', override: v:true})
 silent! prop_type_add('MatchStyle', {highlight: 'Underlined', override: v:true})
