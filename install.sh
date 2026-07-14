@@ -3,10 +3,16 @@
 source "$(dirname "${BASH_SOURCE[0]}")/util/bootstrap.sh"
 
 
-# Detect package manager (priority: apt > brew > snap)
+# Detect package manager (priority: apt > paru > yay > pacman > brew > snap)
 function detectPackageManager {
     if command -v apt-get &> /dev/null; then
         echo "apt"
+    elif command -v paru &> /dev/null; then
+        echo "paru"
+    elif command -v yay &> /dev/null; then
+        echo "yay"
+    elif command -v pacman &> /dev/null; then
+        echo "pacman"
     elif command -v brew &> /dev/null; then
         echo "brew"
     elif command -v snap &> /dev/null; then
@@ -17,6 +23,16 @@ function detectPackageManager {
 }
 
 PACKAGE_MANAGER=$(detectPackageManager)
+
+if [ "$PACKAGE_MANAGER" == "pacman" ]; then
+    echo "Bootstrapping paru since only pacman was detected..."
+    sudo pacman -S --needed --noconfirm base-devel git
+    git clone https://aur.archlinux.org/paru.git /tmp/paru-build
+    (cd /tmp/paru-build && makepkg -si --noconfirm)
+    rm -rf /tmp/paru-build
+    PACKAGE_MANAGER="paru"
+fi
+
 echo "Detected package manager: $PACKAGE_MANAGER"
 
 # Map command name to package name for specific package manager
@@ -30,6 +46,15 @@ function mapPackageName {
                 'rg') echo "ripgrep" ;;
                 'node') echo "nodejs" ;;
                 '7z') echo "7zip 7zip-rar" ;;
+                *) echo "$commandName" ;;
+            esac
+            ;;
+        'paru'|'yay')
+            case $commandName in
+                'rg') echo "ripgrep" ;;
+                'node') echo "nodejs" ;;
+                '7z') echo "7zip" ;;
+                'xtermcontrol') echo "xtermcontrol" ;;
                 *) echo "$commandName" ;;
             esac
             ;;
@@ -70,6 +95,13 @@ function installPackages {
         'apt')
             sudo apt-get update
             sudo apt-get install -y "${packages[@]}"
+            ;;
+
+        'paru')
+            paru -S --noconfirm --needed "${packages[@]}"
+            ;;
+        'yay')
+            yay -S --noconfirm --needed "${packages[@]}"
             ;;
         'brew')
             brew install "${packages[@]}"
