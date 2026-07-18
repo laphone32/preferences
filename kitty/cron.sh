@@ -34,16 +34,15 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 echo "🐈 Checking for Kitty Terminal updates..."
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-# 1. If Kitty is not installed, install it
+# 1. Check if Kitty is installed and managed by the fallback
 if ! command -v kitty &> /dev/null; then
-    echo "Kitty terminal is not installed. Performing initial installation..."
-    if bash "$PREFERENCES_DIR/kitty/fetchKitty.sh"; then
-        NEW_VER=$(kitty --version 2>/dev/null | cut -d' ' -f2)
-        echo "✓ Successfully installed Kitty terminal (version $NEW_VER)."
-        send_kitty_update_notification "$NEW_VER"
-    else
-        echo "⚠ Error: Failed to perform initial Kitty installation."
-    fi
+    echo "Kitty terminal is not installed. Skipping update."
+    return 0
+fi
+
+KITTY_BIN_PATH="$(command -v kitty)"
+if [[ "$KITTY_BIN_PATH" != "$HOME/.local/bin/kitty" ]] && [[ "$KITTY_BIN_PATH" != *".local/kitty.app"* ]]; then
+    echo "✓ Kitty terminal is managed by package manager ($KITTY_BIN_PATH). Deferring updates."
     return 0
 fi
 
@@ -68,7 +67,7 @@ echo "Latest version:    $LATEST_VERSION"
 if [ "$CURRENT_VERSION" != "$LATEST_VERSION" ]; then
     echo "📥 A new version is available! Updating Kitty from v$CURRENT_VERSION to v$LATEST_VERSION..."
     
-    if bash "$PREFERENCES_DIR/kitty/fetchKitty.sh"; then
+    if curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin >/dev/null 2>&1; then
         # Re-verify update success
         VERIFIED_VERSION=$(kitty --version 2>/dev/null | cut -d' ' -f2)
         if [ "$VERIFIED_VERSION" = "$LATEST_VERSION" ]; then

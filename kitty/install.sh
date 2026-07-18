@@ -8,12 +8,7 @@ if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
     export PATH="$HOME/.local/bin:$PATH"
 fi
 
-# Install kitty terminal if not already present
-if ! command -v kitty &> /dev/null; then
-    bash "$PREFERENCES_DIR/kitty/fetchKitty.sh"
-else
-    echo "✓ kitty terminal is already installed"
-fi
+
 
 installPreferencesDir $PREFERENCES_KITTY_LOCAL
 installPreferencesDir $PREFERENCES_WORKSPACE_KITTY

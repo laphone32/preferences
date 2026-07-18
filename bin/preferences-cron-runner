@@ -16,9 +16,9 @@ LOG_FILE="$LOG_DIR/cron.log"
     
     # Discovery and source all submodule cron.sh files in isolated subshells
     failures=0
-    for dir in "$PREFERENCES_DIR"/*/; do
+    for dir in "$PREFERENCES_DIR/.workspace"/*/; do
         if [ -f "${dir}cron.sh" ]; then
-            rel_path="${dir#$PREFERENCES_DIR/}"
+            rel_path="${dir#$PREFERENCES_DIR/.workspace/}"
             echo "[$(date '+%Y-%m-%d %H:%M:%S')] ▶ Starting task: ${rel_path}cron.sh"
             
             # Run in subshell to isolate environment and prevent premature exit/termination

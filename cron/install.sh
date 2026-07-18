@@ -12,6 +12,7 @@ function install_crontab {
 
 # Ensure log workspace directory exists
 installPreferencesDir "$PREFERENCES_DIR/.workspace/cron"
+installPreferencesSymlink "$PREFERENCES_DIR/cron/cron.sh" "$PREFERENCES_DIR/.workspace/cron/cron.sh"
 
 echo "=========================================="
 echo "🔧 Setting up Preferences Task Scheduler"

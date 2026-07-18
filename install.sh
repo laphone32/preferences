@@ -138,7 +138,18 @@ function installPackages {
             yay -S --noconfirm --needed "${packages[@]}"
             ;;
         'brew')
-            brew install "${packages[@]}"
+            local failed=0
+            for pkg in "${packages[@]}"; do
+                echo "Installing $pkg..."
+                if ! brew install "$pkg"; then
+                    echo "Trying as cask: $pkg"
+                    if ! brew install --cask "$pkg"; then
+                        echo "Failed to install $pkg via brew"
+                        failed=1
+                    fi
+                fi
+            done
+            if [ $failed -ne 0 ]; then return 1; fi
             if echo "${packages[@]}" | grep -q "sevenzip"; then
                 local brew_bin
                 brew_bin="$(brew --prefix)/bin"
@@ -162,17 +173,32 @@ function installPackages {
     esac
 }
 
-# Source software lists
-source "$(dirname "${BASH_SOURCE[0]}")/packages.sh"
+# Initialize arrays
+packages=()
+optional_packages=()
+
+# Source global and module packages
+if [ -f "$PREFERENCES_DIR/packages.sh" ]; then
+    source "$PREFERENCES_DIR/packages.sh"
+fi
+for req_file in "$PREFERENCES_DIR"/*/required.sh; do
+    if [ -f "$req_file" ]; then
+        source "$req_file"
+    fi
+done
 
 # Check which packages are missing
 missing_commands=()
-for commandName in ${requirements[@]}; do
-    if ! command -v $commandName &> /dev/null; then
-        echo "Required software [$commandName] not found."
+for commandName in "${packages[@]}"; do
+    if ! command -v "$commandName" &> /dev/null; then
         missing_commands+=("$commandName")
-    else
-        echo "✓ $commandName is already installed"
+    fi
+done
+
+missing_optional=()
+for commandName in "${optional_packages[@]}"; do
+    if ! command -v "$commandName" &> /dev/null; then
+        missing_optional+=("$commandName")
     fi
 done
 
@@ -219,25 +245,39 @@ function installPackageList {
 
 # Install missing packages in batch
 if [ ${#missing_commands[@]} -gt 0 ]; then
-    installPackageList "requirements" "true" "${missing_commands[@]}"
-
-    # Verify installations
-    echo ""
-    echo "Verifying installations..."
-    for commandName in "${missing_commands[@]}"; do
-        if ! command -v $commandName &> /dev/null; then
-            echo "⚠ Warning: $commandName is still not available. You may need to restart your shell or add it to PATH manually."
-        else
-            echo "✓ Successfully installed $commandName"
-        fi
-    done
+    installPackageList "packages" "true" "${missing_commands[@]}"
 fi
 
-echo "Required software all met"
-
 # Install additional optional packages (GUI apps, etc.)
-if [ "$PREFERENCES_SKIP_ADDITIONAL" != "1" ]; then
-    installPackageList "additional software" "false" "${additional_software[@]}"
+if [ "$PREFERENCES_SKIP_ADDITIONAL" != "1" ] && [ ${#missing_optional[@]} -gt 0 ]; then
+    installPackageList "optional packages" "false" "${missing_optional[@]}"
+fi
+
+# Execute fallback scripts for still-missing packages
+for fallback_file in "$PREFERENCES_DIR"/*/required_fallback.sh; do
+    if [ -f "$fallback_file" ]; then
+        source "$fallback_file"
+    fi
+done
+
+# Final verification
+still_missing=()
+echo ""
+echo "Verifying installations..."
+for commandName in "${packages[@]}"; do
+    if ! command -v "$commandName" &> /dev/null; then
+        echo "⚠ Error: $commandName is still not available after fallbacks. You may need to restart your shell or add it to PATH manually."
+        still_missing+=("$commandName")
+    else
+        echo "✓ Successfully verified $commandName"
+    fi
+done
+
+if [ ${#still_missing[@]} -gt 0 ]; then
+    echo "Fatal: Some required packages failed to install."
+    exit 1
+else
+    echo "Required software all met"
 fi
 
 # workspace

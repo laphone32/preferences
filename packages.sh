@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-# Required software (unified for all platforms)
-requirements=('curl' 'git' 'node' 'npm' 'rg' 'vim' 'xtermcontrol' '7z')
+# Global required software (unified for all platforms)
+packages=('curl' 'node' 'npm' '7z')
 
 # Additional optional software (GUI apps, etc.)
-additional_software=('surfshark' 'spotify')
+optional_packages=('surfshark' 'spotify')
