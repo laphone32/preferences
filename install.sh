@@ -4,79 +4,113 @@ source "$(dirname "${BASH_SOURCE[0]}")/util/bootstrap.sh"
 
 
 # Detect package manager (priority: apt > paru > yay > pacman > brew > snap)
+# Returns: PRIMARY,SECONDARY
 function detectPackageManager {
-    if command -v apt-get &> /dev/null; then
-        echo "apt"
-    elif command -v paru &> /dev/null; then
-        echo "paru"
-    elif command -v yay &> /dev/null; then
-        echo "yay"
-    elif command -v pacman &> /dev/null; then
-        echo "pacman"
-    elif command -v brew &> /dev/null; then
-        echo "brew"
-    elif command -v snap &> /dev/null; then
-        echo "snap"
-    else
-        echo "none"
-    fi
+    local managers=("apt-get" "paru" "yay" "pacman" "brew" "snap")
+    local primary="none"
+    local secondary="none"
+
+    for pm in "${managers[@]}"; do
+        if command -v "$pm" &> /dev/null; then
+            local mapped_pm="$pm"
+            if [ "$pm" == "apt-get" ]; then
+                mapped_pm="apt"
+            elif [ "$pm" == "pacman" ]; then
+                if command -v paru &> /dev/null; then
+                    mapped_pm="paru"
+                elif command -v yay &> /dev/null; then
+                    mapped_pm="yay"
+                else
+                    >&2 echo "Bootstrapping paru since pacman was detected but no AUR helper is present..."
+                    sudo pacman -S --needed --noconfirm base-devel git >&2
+                    git clone https://aur.archlinux.org/paru.git /tmp/paru-build >&2
+                    (cd /tmp/paru-build && makepkg -si --noconfirm) >&2
+                    rm -rf /tmp/paru-build >&2
+                    mapped_pm="paru"
+                fi
+            fi
+            
+            if [ "$primary" == "$mapped_pm" ]; then
+                continue
+            fi
+
+            if [ "$primary" == "none" ]; then
+                primary="$mapped_pm"
+            elif [ "$secondary" == "none" ]; then
+                secondary="$mapped_pm"
+                break
+            fi
+        fi
+    done
+
+    echo "$primary,$secondary"
 }
 
-PACKAGE_MANAGER=$(detectPackageManager)
+IFS=',' read -r PRIMARY_PKG_MANAGER SECONDARY_PKG_MANAGER <<< "$(detectPackageManager)"
 
-if [ "$PACKAGE_MANAGER" == "pacman" ]; then
-    echo "Bootstrapping paru since only pacman was detected..."
-    sudo pacman -S --needed --noconfirm base-devel git
-    git clone https://aur.archlinux.org/paru.git /tmp/paru-build
-    (cd /tmp/paru-build && makepkg -si --noconfirm)
-    rm -rf /tmp/paru-build
-    PACKAGE_MANAGER="paru"
-fi
+echo "Detected primary package manager: $PRIMARY_PKG_MANAGER"
+echo "Detected secondary package manager: $SECONDARY_PKG_MANAGER"
 
-echo "Detected package manager: $PACKAGE_MANAGER"
+# Map an array of commands to their package names for the specific package manager
+function mapPackages {
+    local pkgManager=$1
+    shift
+    local packages=("$@")
+    local mapped_packages=()
 
-# Map command name to package name for specific package manager
-function mapPackageName {
-    local commandName=$1
-    local pkgManager=$2
+    for cmd in "${packages[@]}"; do
+        local mapped=""
+        case $pkgManager in
+            'apt')
+                case $cmd in
+                    'rg') mapped="ripgrep" ;;
+                    'node') mapped="nodejs" ;;
+                    '7z') mapped="7zip 7zip-rar" ;;
+                    *) mapped="$cmd" ;;
+                esac
+                ;;
+            'paru'|'yay')
+                case $cmd in
+                    'rg') mapped="ripgrep" ;;
+                    'node') mapped="nodejs" ;;
+                    '7z') mapped="7zip" ;;
+                    'xtermcontrol') mapped="xtermcontrol" ;;
+                    'surfshark') mapped="surfshark-client" ;;
+                    *) mapped="$cmd" ;;
+                esac
+                ;;
+            'brew')
+                case $cmd in
+                    'rg') mapped="ripgrep" ;;
+                    '7z') mapped="sevenzip unar" ;;
+                    *) mapped="$cmd" ;;
+                esac
+                ;;
+            'snap')
+                case $cmd in
+                    'rg') mapped="ripgrep" ;;
+                    'node') mapped="node" ;;
+                    'npm')
+                        >&2 echo "Note: npm is included with node, skipping separate installation"
+                        mapped=""
+                        ;;
+                    '7z') mapped="7zip" ;;
+                    *) mapped="$cmd" ;;
+                esac
+                ;;
+            *)
+                mapped="$cmd"
+                ;;
+        esac
 
-    case $pkgManager in
-        'apt')
-            case $commandName in
-                'rg') echo "ripgrep" ;;
-                'node') echo "nodejs" ;;
-                '7z') echo "7zip 7zip-rar" ;;
-                *) echo "$commandName" ;;
-            esac
-            ;;
-        'paru'|'yay')
-            case $commandName in
-                'rg') echo "ripgrep" ;;
-                'node') echo "nodejs" ;;
-                '7z') echo "7zip" ;;
-                'xtermcontrol') echo "xtermcontrol" ;;
-                *) echo "$commandName" ;;
-            esac
-            ;;
-        'brew')
-            case $commandName in
-                'rg') echo "ripgrep" ;;
-                '7z') echo "sevenzip unar" ;;
-                *) echo "$commandName" ;;
-            esac
-            ;;
-        'snap')
-            case $commandName in
-                'rg') echo "ripgrep" ;;
-                'node') echo "node" ;;
-                '7z') echo "7zip" ;;
-                *) echo "$commandName" ;;
-            esac
-            ;;
-        *)
-            echo "$commandName"
-            ;;
-    esac
+        for p in $mapped; do
+            if [ -n "$p" ]; then
+                mapped_packages+=("$p")
+            fi
+        done
+    done
+
+    echo "${mapped_packages[@]}"
 }
 
 # Install packages using the detected package manager (batch install)
@@ -115,9 +149,11 @@ function installPackages {
             fi
             ;;
         'snap')
+            local failed=0
             for pkg in "${packages[@]}"; do
-                sudo snap install "$pkg" --classic
+                sudo snap install "$pkg" --classic || failed=1
             done
+            return $failed
             ;;
         'none')
             echo "Error: No supported package manager found. Please install packages manually: ${packages[@]}"
@@ -126,8 +162,8 @@ function installPackages {
     esac
 }
 
-# Required software (unified for all platforms)
-requirements=('curl' 'git' 'node' 'npm' 'rg' 'vim' 'xtermcontrol' '7z')
+# Source software lists
+source "$(dirname "${BASH_SOURCE[0]}")/packages.sh"
 
 # Check which packages are missing
 missing_commands=()
@@ -140,55 +176,68 @@ for commandName in ${requirements[@]}; do
     fi
 done
 
+function installPackageList {
+    local list_name=$1
+    local is_fatal=$2
+    shift 2
+    local packages_to_map=("$@")
+
+    if [ ${#packages_to_map[@]} -eq 0 ]; then
+        return 0
+    fi
+
+    if [ "$PRIMARY_PKG_MANAGER" == "none" ]; then
+        echo "Error: No primary package manager available."
+        if [ "$is_fatal" == "true" ]; then exit 1; else return 1; fi
+    fi
+
+    local mapped_primary=($(mapPackages "$PRIMARY_PKG_MANAGER" "${packages_to_map[@]}"))
+
+    if [ ${#mapped_primary[@]} -gt 0 ]; then
+        echo "Installing $list_name via primary package manager ($PRIMARY_PKG_MANAGER)..."
+        if ! installPackages "$PRIMARY_PKG_MANAGER" "${mapped_primary[@]}"; then
+            echo "Failed to install $list_name with primary package manager."
+            if [ "$SECONDARY_PKG_MANAGER" != "none" ]; then
+                echo "Trying secondary package manager ($SECONDARY_PKG_MANAGER)..."
+                local mapped_secondary=($(mapPackages "$SECONDARY_PKG_MANAGER" "${packages_to_map[@]}"))
+                if [ ${#mapped_secondary[@]} -gt 0 ]; then
+                    if ! installPackages "$SECONDARY_PKG_MANAGER" "${mapped_secondary[@]}"; then
+                        echo "Failed to install $list_name with both primary and secondary package managers."
+                        if [ "$is_fatal" == "true" ]; then exit 1; else return 1; fi
+                    fi
+                else
+                    echo "No valid packages mapped for secondary package manager."
+                    if [ "$is_fatal" == "true" ]; then exit 1; else return 1; fi
+                fi
+            else
+                echo "Please install them manually."
+                if [ "$is_fatal" == "true" ]; then exit 1; else return 1; fi
+            fi
+        fi
+    fi
+}
+
 # Install missing packages in batch
 if [ ${#missing_commands[@]} -gt 0 ]; then
-    if [ "$PACKAGE_MANAGER" == "none" ]; then
-        echo "Error: No package manager available. Please install the following requirements manually: ${missing_commands[@]}"
-        exit 1
-    fi
+    installPackageList "requirements" "true" "${missing_commands[@]}"
 
-    # Map command names to package names
-    packages_to_install=()
-    for cmd in "${missing_commands[@]}"; do
-        pkg=$(mapPackageName "$cmd" "$PACKAGE_MANAGER")
-        # Skip npm for snap as it's included with node
-        if [ "$PACKAGE_MANAGER" == "snap" ] && [ "$cmd" == "npm" ]; then
-            echo "Note: npm is included with node, skipping separate installation"
-            continue
+    # Verify installations
+    echo ""
+    echo "Verifying installations..."
+    for commandName in "${missing_commands[@]}"; do
+        if ! command -v $commandName &> /dev/null; then
+            echo "⚠ Warning: $commandName is still not available. You may need to restart your shell or add it to PATH manually."
+        else
+            echo "✓ Successfully installed $commandName"
         fi
-        for p in $pkg; do
-            packages_to_install+=("$p")
-        done
     done
-
-    if [ ${#packages_to_install[@]} -gt 0 ]; then
-        if ! installPackages "$PACKAGE_MANAGER" "${packages_to_install[@]}"; then
-            echo "Failed to install packages. Please install them manually."
-            exit 1
-        fi
-
-        # Verify installations
-        echo ""
-        echo "Verifying installations..."
-        for commandName in "${missing_commands[@]}"; do
-            if ! command -v $commandName &> /dev/null; then
-                echo "⚠ Warning: $commandName is still not available. You may need to restart your shell or add it to PATH manually."
-            else
-                echo "✓ Successfully installed $commandName"
-            fi
-        done
-    fi
 fi
 
 echo "Required software all met"
 
-# Install additional snap packages if available
-if command -v snap &> /dev/null && [ "$PREFERENCES_SKIP_SNAP" != "1" ]; then
-    snap_packages=("surfshark" "spotify")
-    echo "Installing snap packages: ${snap_packages[*]}..."
-    for pkg in "${snap_packages[@]}"; do
-        sudo snap install "$pkg"
-    done
+# Install additional optional packages (GUI apps, etc.)
+if [ "$PREFERENCES_SKIP_ADDITIONAL" != "1" ]; then
+    installPackageList "additional software" "false" "${additional_software[@]}"
 fi
 
 # workspace
