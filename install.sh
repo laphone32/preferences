@@ -29,7 +29,7 @@ function detectPackageManager {
                     mapped_pm="paru"
                 fi
             fi
-            
+
             if [ "$primary" == "$mapped_pm" ]; then
                 continue
             fi
@@ -66,6 +66,7 @@ function mapPackages {
                     'rg') mapped="ripgrep" ;;
                     'node') mapped="nodejs" ;;
                     '7z') mapped="7zip 7zip-rar" ;;
+                    'kitty') mapped="" ;; # Skip it from apt
                     *) mapped="$cmd" ;;
                 esac
                 ;;
