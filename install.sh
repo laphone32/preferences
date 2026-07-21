@@ -51,6 +51,23 @@ IFS=',' read -r PRIMARY_PKG_MANAGER SECONDARY_PKG_MANAGER <<< "$(detectPackageMa
 echo "Detected primary package manager: $PRIMARY_PKG_MANAGER"
 echo "Detected secondary package manager: $SECONDARY_PKG_MANAGER"
 
+function loadPackageManager {
+    local pkgManager=$1
+    unset packageNameMap
+    unset -f packageManagerInstall 2>/dev/null || true
+    declare -g -A packageNameMap=()
+
+    local base_script="$PREFERENCES_DIR/install/package_manager/${pkgManager}.sh"
+    if [ -f "$base_script" ]; then
+        source "$base_script"
+    fi
+
+    local distro_script="$PREFERENCES_DIR/install/package_manager/${pkgManager}_${PREFERENCES_DISTRO}.sh"
+    if [ -f "$distro_script" ]; then
+        source "$distro_script"
+    fi
+}
+
 # Map an array of commands to their package names for the specific package manager
 function mapPackages {
     local pkgManager=$1
@@ -58,51 +75,15 @@ function mapPackages {
     local packages=("$@")
     local mapped_packages=()
 
+    loadPackageManager "$pkgManager"
+
     for cmd in "${packages[@]}"; do
         local mapped=""
-        case $pkgManager in
-            'apt')
-                case $cmd in
-                    'rg') mapped="ripgrep" ;;
-                    'node') mapped="nodejs" ;;
-                    '7z') mapped="7zip 7zip-rar" ;;
-                    'kitty') mapped="" ;; # Skip it from apt
-                    *) mapped="$cmd" ;;
-                esac
-                ;;
-            'paru'|'yay')
-                case $cmd in
-                    'rg') mapped="ripgrep" ;;
-                    'node') mapped="nodejs" ;;
-                    '7z') mapped="7zip" ;;
-                    'xtermcontrol') mapped="xtermcontrol" ;;
-                    'surfshark') mapped="surfshark-client" ;;
-                    *) mapped="$cmd" ;;
-                esac
-                ;;
-            'brew')
-                case $cmd in
-                    'rg') mapped="ripgrep" ;;
-                    '7z') mapped="sevenzip unar" ;;
-                    *) mapped="$cmd" ;;
-                esac
-                ;;
-            'snap')
-                case $cmd in
-                    'rg') mapped="ripgrep" ;;
-                    'node') mapped="node" ;;
-                    'npm')
-                        >&2 echo "Note: npm is included with node, skipping separate installation"
-                        mapped=""
-                        ;;
-                    '7z') mapped="7zip" ;;
-                    *) mapped="$cmd" ;;
-                esac
-                ;;
-            *)
-                mapped="$cmd"
-                ;;
-        esac
+        if [ ${packageNameMap[$cmd]+isset} ]; then
+            mapped="${packageNameMap[$cmd]}"
+        else
+            mapped="$cmd"
+        fi
 
         for p in $mapped; do
             if [ -n "$p" ]; then
@@ -126,52 +107,18 @@ function installPackages {
 
     echo "Installing packages using $pkgManager: ${packages[@]}"
 
-    case $pkgManager in
-        'apt')
-            sudo apt-get update
-            sudo apt-get install -y "${packages[@]}"
-            ;;
+    loadPackageManager "$pkgManager"
 
-        'paru')
-            paru -S --noconfirm --needed "${packages[@]}"
-            ;;
-        'yay')
-            yay -S --noconfirm --needed "${packages[@]}"
-            ;;
-        'brew')
-            local failed=0
-            for pkg in "${packages[@]}"; do
-                echo "Installing $pkg..."
-                if ! brew install "$pkg"; then
-                    echo "Trying as cask: $pkg"
-                    if ! brew install --cask "$pkg"; then
-                        echo "Failed to install $pkg via brew"
-                        failed=1
-                    fi
-                fi
-            done
-            if [ $failed -ne 0 ]; then return 1; fi
-            if echo "${packages[@]}" | grep -q "sevenzip"; then
-                local brew_bin
-                brew_bin="$(brew --prefix)/bin"
-                if [ -f "$brew_bin/7zz" ] && [ ! -f "$brew_bin/7z" ]; then
-                    echo "Creating symlink for 7z -> 7zz in $brew_bin"
-                    ln -sf 7zz "$brew_bin/7z"
-                fi
-            fi
-            ;;
-        'snap')
-            local failed=0
-            for pkg in "${packages[@]}"; do
-                sudo snap install "$pkg" --classic || failed=1
-            done
-            return $failed
-            ;;
-        'none')
+    if declare -f packageManagerInstall &>/dev/null; then
+        packageManagerInstall "${packages[@]}"
+    else
+        if [ "$pkgManager" == "none" ]; then
             echo "Error: No supported package manager found. Please install packages manually: ${packages[@]}"
-            return 1
-            ;;
-    esac
+        else
+            echo "Error: No packageManagerInstall handler found for package manager '$pkgManager'."
+        fi
+        return 1
+    fi
 }
 
 # Initialize arrays
@@ -179,9 +126,6 @@ packages=()
 optional_packages=()
 
 # Source global and module packages
-if [ -f "$PREFERENCES_DIR/packages.sh" ]; then
-    source "$PREFERENCES_DIR/packages.sh"
-fi
 for req_file in "$PREFERENCES_DIR"/*/required.sh; do
     if [ -f "$req_file" ]; then
         source "$req_file"
