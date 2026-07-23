@@ -1,13 +1,9 @@
 #!/usr/bin/env bash
 
-declare -g -A packageNameMap=(
-    ["rg"]="ripgrep"
-    ["node"]="nodejs"
-    ["7z"]="7zip"
-    ["surfshark"]="surfshark-client"
-)
+source "$(dirname "${BASH_SOURCE[0]}")/aur.sh"
 
 function packageManagerInstall {
     local packages=("$@")
     paru -S --noconfirm --needed "${packages[@]}"
 }
+
