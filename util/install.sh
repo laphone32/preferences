@@ -47,10 +47,8 @@ function installPreferencesSymlink {
     # Strip trailing slash if present to avoid dereferencing directory symlinks
     target="${target%/}"
     
-    if [ -L "$target" ] || [ -f "$target" ]; then
-        rm -f "$target"
-    elif [ -d "$target" ]; then
-        rmdir "$target" 2>/dev/null || true
+    if [ -L "$target" ] || [ -f "$target" ] || [ -d "$target" ]; then
+        rm -rf "$target"
     fi
     
     ln -sf "$source" "$target"
