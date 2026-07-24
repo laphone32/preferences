@@ -5,5 +5,13 @@ declare -g -A packageNameMap=(
     ["node"]="nodejs"
     ["7z"]="7zip"
     ["surfshark"]="surfshark-client"
-    ["docker"]="docker docker-compose"
+    ["docker"]="docker docker-compose containerd"
 )
+
+function aurPostInstall {
+    local packages=("$@")
+    if [[ " ${packages[*]} " =~ " docker " ]]; then
+        sudo systemctl enable --now docker
+    fi
+}
+
