@@ -16,7 +16,7 @@ echo "=========================================="
 
 if ! command -v kitty &> /dev/null; then
     echo "Installing kitty via official installer binary..."
-    curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
+    curl -sSL https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin launch=n
 
     # Create symbolic links for PATH integration
     mkdir -p "$HOME/.local/bin"

@@ -72,7 +72,9 @@ function githubLatestRelease {
     local user=$1
     local repo=$2
 
-    basename $(curl -Ls -o /dev/null -w %{url_effective} https://github.com/$user/$repo/releases/latest)
-
+    local tag=$(basename $(curl -Ls -o /dev/null -w %{url_effective} https://github.com/$user/$repo/releases/latest 2>/dev/null))
+    if [ "$tag" != "latest" ] && [ -n "$tag" ]; then
+        echo "$tag"
+    fi
 }
 

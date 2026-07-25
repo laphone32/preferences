@@ -54,7 +54,7 @@ if [ -z "$CURRENT_VERSION" ]; then
 fi
 
 LATEST_TAG=$(githubLatestRelease kovidgoyal kitty 2>/dev/null)
-if [ -z "$LATEST_TAG" ]; then
+if [ -z "$LATEST_TAG" ] || [ "$LATEST_TAG" = "latest" ]; then
     echo "⚠ Warning: Failed to fetch the latest Kitty release tag from GitHub (network offline?)."
     return 0
 fi
@@ -67,7 +67,7 @@ echo "Latest version:    $LATEST_VERSION"
 if [ "$CURRENT_VERSION" != "$LATEST_VERSION" ]; then
     echo "📥 A new version is available! Updating Kitty from v$CURRENT_VERSION to v$LATEST_VERSION..."
     
-    if curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin >/dev/null 2>&1; then
+    if curl -sSL https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin launch=n >/dev/null 2>&1; then
         # Re-verify update success
         VERIFIED_VERSION=$(kitty --version 2>/dev/null | cut -d' ' -f2)
         if [ "$VERIFIED_VERSION" = "$LATEST_VERSION" ]; then
