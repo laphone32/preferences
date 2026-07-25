@@ -11,14 +11,41 @@ source "$PREFERENCES_DIR/util/bootstrap.sh"
 source "$PREFERENCES_DIR/antigravity/common.sh"
 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "🤖 Checking Antigravity Skills Symlinks..."
+echo "🤖 Checking Antigravity Configuration & Skills Symlinks..."
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+# Check AGENTS.md symlink
+if [ -f "$PREFERENCES_ANTIGRAVITY/config/AGENTS.md" ]; then
+    TARGET="$PREFERENCES_ANTIGRAVITY_GLOBAL_CONFIG/AGENTS.md"
+    EXPECTED="$PREFERENCES_ANTIGRAVITY/config/AGENTS.md"
+    if [ -L "$TARGET" ] && [ "$(readlink -f "$TARGET")" = "$(readlink -f "$EXPECTED")" ]; then
+        echo "✓ AGENTS.md symlink is intact ($TARGET -> $EXPECTED)."
+    else
+        echo "⚠ AGENTS.md symlink is missing or crushed. Re-linking..."
+        installPreferencesSymlink "$EXPECTED" "$TARGET"
+        if [ -L "$TARGET" ] && [ "$(readlink -f "$TARGET")" = "$(readlink -f "$EXPECTED")" ]; then
+            echo "✓ Successfully re-linked AGENTS.md."
+        else
+            echo "⚠ Failed to re-link AGENTS.md."
+        fi
+    fi
+fi
 
 # Ensure global skills target is a real directory (remove top-level symlink if present)
 if [ -L "$PREFERENCES_ANTIGRAVITY_GLOBAL_SKILLS" ]; then
     rm -f "$PREFERENCES_ANTIGRAVITY_GLOBAL_SKILLS"
 fi
 installPreferencesDir "$PREFERENCES_ANTIGRAVITY_GLOBAL_SKILLS"
+
+# Clean up broken skill symlinks
+if [ -d "$PREFERENCES_ANTIGRAVITY_GLOBAL_SKILLS" ]; then
+    for link in "$PREFERENCES_ANTIGRAVITY_GLOBAL_SKILLS"/*; do
+        if [ -L "$link" ] && [ ! -e "$link" ]; then
+            echo "🧹 Removing broken skill symlink: $(basename "$link")"
+            rm -f "$link"
+        fi
+    done
+fi
 
 if [ -d "$PREFERENCES_ANTIGRAVITY/skills" ]; then
     for skill_path in "$PREFERENCES_ANTIGRAVITY/skills"/*; do

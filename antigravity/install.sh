@@ -23,6 +23,11 @@ if [ -f "$PREFERENCES_ANTIGRAVITY/config/settings.json" ]; then
     installPreferencesSymlink "$PREFERENCES_ANTIGRAVITY/config/settings.json" "$PREFERENCES_ANTIGRAVITY_GLOBAL_CONFIG/settings.json"
 fi
 
+# Link AGENTS.md if present
+if [ -f "$PREFERENCES_ANTIGRAVITY/config/AGENTS.md" ]; then
+    installPreferencesSymlink "$PREFERENCES_ANTIGRAVITY/config/AGENTS.md" "$PREFERENCES_ANTIGRAVITY_GLOBAL_CONFIG/AGENTS.md"
+fi
+
 # Link config if present
 if [ -d "$PREFERENCES_ANTIGRAVITY/config" ]; then
     installPreferencesSymlink "$PREFERENCES_ANTIGRAVITY/config" "$PREFERENCES_ANTIGRAVITY_LOCAL"
@@ -33,6 +38,15 @@ if [ -L "$PREFERENCES_ANTIGRAVITY_GLOBAL_SKILLS" ]; then
     rm -f "$PREFERENCES_ANTIGRAVITY_GLOBAL_SKILLS"
 fi
 installPreferencesDir "$PREFERENCES_ANTIGRAVITY_GLOBAL_SKILLS"
+
+# Clean up broken skill symlinks
+if [ -d "$PREFERENCES_ANTIGRAVITY_GLOBAL_SKILLS" ]; then
+    for link in "$PREFERENCES_ANTIGRAVITY_GLOBAL_SKILLS"/*; do
+        if [ -L "$link" ] && [ ! -e "$link" ]; then
+            rm -f "$link"
+        fi
+    done
+fi
 
 # Link portable skills subdirectories individually
 if [ -d "$PREFERENCES_ANTIGRAVITY/skills" ]; then

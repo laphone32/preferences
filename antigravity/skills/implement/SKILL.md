@@ -1,11 +1,11 @@
 ---
-name: implementation-steps
+name: implement
 description: Guides development tasks through a strict workflow, writing the plan to an interactive artifact for CLI review.
 ---
 
 # Implementation Workflow
 
-Use this skill whenever you are tasked with implementing features, refactoring code, or modifying configurations in this project, **and the design or solution has already been decided and agreed upon**. If the request is exploratory, asks for options/feasibility/ideas, or asks how to do something, you must **NOT** use this skill; instead, use the `discussion-partner` skill to brainstorm, research, and align first. You must strictly follow these phases:
+Use this skill whenever you are tasked with implementing features, refactoring code, or modifying configurations in this project, **and the design or solution has already been decided and agreed upon**. If the request is exploratory, asks for options/feasibility/ideas, or asks how to do something, you must **NOT** use this skill; instead, use the `discuss` skill to brainstorm, research, and align first. You must strictly follow these phases:
 
 ## Phase 1: Implementation Plan
 - **Rule**: Do not modify any files or system settings in this phase.

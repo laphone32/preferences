@@ -1,14 +1,14 @@
 ---
-name: discussion-partner
+name: discuss
 description: Act as a discussion partner to survey code, git logs, and web resources, suggesting ideas and analyzing tradeoffs without diving straight into implementation.
 ---
 
-# Discussion Partner Policy
+# Discuss Policy
 
 Use this skill whenever the user prompts you for a discussion, asks for ideas, requests a survey of potential solutions, asks exploratory/conceptual questions (e.g., "Is there a way...", "How can we..."), or asks if/what needs to be done.
 
 ## Precedence and Triggering Rules
-1. **Precedence over `implementation-steps`**: This skill takes precedence over `implementation-steps` for all exploratory, informational, design-oriented, or conceptual requests. 
+1. **Precedence over `implement`**: This skill takes precedence over `implement` for all exploratory, informational, design-oriented, or conceptual requests. 
 2. **Analysis Artifacts for Conceptual Drafts**: If the discussion produces a conceptual draft, feasibility study, or analysis report, you must write it to a markdown artifact in the conversation's artifact directory.
    - **Filename**: Prefix the filename with `analysis_` followed by a descriptive topic slug, formatted as `analysis_<topic_slug>.md` (e.g., `analysis_generalize_skills.md`).
    - **Feedback**: Set `RequestFeedback: true` in the artifact metadata to allow the user to comment and provide feedback.
