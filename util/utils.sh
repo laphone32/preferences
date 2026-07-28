@@ -33,34 +33,9 @@ function updateOrInsertSection {
     local fileName=$1
     local section=$2
     local content=$3
+    local scriptDir="${PREFERENCES_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}/util"
 
-    local headNote="### $section ###"
-    local footNote="### end of $section ###"
-
-    local leadLine="^$headNote\$"
-    local tailLine="^$footNote\$"
-
-    tmpFileName="$fileName.tmp"
-
-    sed -e "
-    /$leadLine/,/$tailLine/{
-    h
-    /$leadLine/{
-    p
-    a \\
-$content
-    }
-    /$tailLine/p
-    d
-    }
-    \${
-    x
-    /^$/{
-    s||$headNote\\n$content\\n$footNote\\n|
-    H
-    }
-    x
-    }" $fileName > $tmpFileName && mv $tmpFileName $fileName
+    python3 "$scriptDir/update_section.py" "$fileName" "$section" "$content"
 }
 
 function workspace {

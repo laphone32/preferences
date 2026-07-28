@@ -12,7 +12,7 @@ function setTermTitle {
     fi
 
     if command -v xtermcontrol &> /dev/null; then
-        xtermcontrol --title="${!cache} $2"
+        xtermcontrol --title="${!cache} $2" 2>/dev/null
     fi
 }
 

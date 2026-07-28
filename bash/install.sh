@@ -2,10 +2,8 @@
 
 source "$(dirname "${BASH_SOURCE[0]}")/../util/bootstrap.sh"
 
-install="
-export PREFERENCES_DIR='$PREFERENCES_DIR'\
-[[ -s \"\$PREFERENCES_DIR/bash/bashrc_loader\" ]] && source \"\$PREFERENCES_DIR/bash/bashrc_loader\"\
-"
+install="export PREFERENCES_DIR='$PREFERENCES_DIR'
+[[ -s \"\$PREFERENCES_DIR/bash/bashrc_loader\" ]] && source \"\$PREFERENCES_DIR/bash/bashrc_loader\""
 
 bashProfileName="$HOME/.bashrc"
 if [ ! -f $bashProfileName ]; then

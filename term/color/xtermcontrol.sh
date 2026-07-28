@@ -39,7 +39,7 @@ function setTermColor {
     fi
 
     if command -v xtermcontrol &> /dev/null; then
-        xtermcontrol ${!cache}
+        xtermcontrol ${!cache} 2>/dev/null
     fi
 }
 
