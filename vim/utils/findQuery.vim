@@ -43,12 +43,14 @@ export class AsyncFindQuery extends aq.AsyncQuery
         return len(keyword) > 0
     enddef
 
-    def OnListKey(key: string, line: number)
+    def OnListKey(key: string, line: number): bool
         if line < len(this.lookup)
             if key ==# "\<cr>"
                 this.OpenFile(this.lookup[line].lines.text)
+                return v:true
             endif
         endif
+        return v:true
     enddef
 
     def Preview(line: number)

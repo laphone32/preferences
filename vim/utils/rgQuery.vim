@@ -51,7 +51,7 @@ export class AsyncRgQuery extends aq.AsyncQuery
         return len(keyword) > 0
     enddef
 
-    def OnListKey(key: string, line: number)
+    def OnListKey(key: string, line: number): bool
         if line < len(this.lookup)
             if key ==# "\<cr>"
                 var data = this.lookup[line]
@@ -60,8 +60,10 @@ export class AsyncRgQuery extends aq.AsyncQuery
                     start_col = data.submatches[0].start + 1
                 endif
                 this.OpenFile(data.path.text, data.line_number, start_col)
+                return v:true
             endif
         endif
+        return v:true
     enddef
 
     def Preview(line: number)

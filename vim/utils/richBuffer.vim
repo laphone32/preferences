@@ -58,7 +58,18 @@ export class RichBuffer
     enddef
 
     def RefreshLine(line: number, result: dict<any>)
-        setbufline(this.buffer, line, result.text)
+        var count = this.LineCount()
+        if line > count + 1
+            for l in range(count + 1, line - 1)
+                appendbufline(this.buffer, l - 1, '')
+            endfor
+            appendbufline(this.buffer, line - 1, result.text)
+        elseif line == count + 1
+            appendbufline(this.buffer, count, result.text)
+        else
+            setbufline(this.buffer, line, result.text)
+        endif
+
         for textprop in result->get('props', [])
             prop_add_list({bufnr: this.buffer, type: textprop.type}, textprop.location)
         endfor

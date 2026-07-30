@@ -53,12 +53,14 @@ export class BufferQuery extends qt.QueryType
         return v:true
     enddef
 
-    def OnListKey(key: string, line: number)
+    def OnListKey(key: string, line: number): bool
         if line < len(this.lookup)
             if key ==# "\<cr>"
                 execute 'silent! buffer ' .. this.lookup[line]['bufnr']
+                return v:true
             endif
         endif
+        return v:true
     enddef
 endclass
 

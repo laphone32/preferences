@@ -16,11 +16,6 @@ export class List
 
     var currentQuery: dict<any>
     var currentQueryType: qt.QueryType
-    var previewTimer: number = -1
-
-    var _originalBuffer: number = -1
-    var _originalBufferWasEmpty: bool = v:false
-    var _accepted: bool = v:false
 
     def _Position(): list<number>
         var height = winheight(0)
@@ -71,25 +66,6 @@ export class List
             },
             onHide: () => {
               this._timer.Restart(1000)
-              if this.previewTimer != -1
-                  timer_stop(this.previewTimer)
-                  this.previewTimer = -1
-              endif
-
-              if !this._accepted && this._originalBuffer > 0
-                  timer_start(0, (_) => {
-                      if this._originalBufferWasEmpty
-                          execute('silent! enew')
-                      elseif bufexists(this._originalBuffer)
-                          setbufvar(this._originalBuffer, '&buflisted', 1)
-                          execute('silent! buffer ' .. this._originalBuffer)
-                      else
-                          execute('silent! enew')
-                      endif
-                  })
-              endif
-              this._originalBuffer = -1
-              this._originalBufferWasEmpty = v:false
             },
         })
 
@@ -125,45 +101,42 @@ export class List
 
     def ListOnKey(key: string, line: number): bool
         var currentQueryType = this.currentQueryType
+        var shouldClose: bool = v:true
 
         if key ==# '/'
             this._dialog.Open(this._DialogPosition())
+            return v:false
         elseif key ==# "\<right>"
             if currentQueryType.HasCustomKey(key)
-                currentQueryType.OnListKey(key, line)
-                this._TriggerPreview(1)
+                shouldClose = currentQueryType.OnListKey(key, line)
+                if currentQueryType.cursorLine > 0
+                    win_execute(this._menu.menuArea.Get(), 'cursor(' .. currentQueryType.cursorLine .. ', 1)')
+                    currentQueryType.cursorLine = -1
+                endif
             else
                 currentQueryType.NextMode(line)
+                shouldClose = v:false
             endif
         elseif key ==# "\<left>"
             if currentQueryType.HasCustomKey(key)
-                currentQueryType.OnListKey(key, line)
-                this._TriggerPreview(1)
+                shouldClose = currentQueryType.OnListKey(key, line)
+                if currentQueryType.cursorLine > 0
+                    win_execute(this._menu.menuArea.Get(), 'cursor(' .. currentQueryType.cursorLine .. ', 1)')
+                    currentQueryType.cursorLine = -1
+                endif
             else
                 currentQueryType.PrevMode(line)
+                shouldClose = v:false
             endif
         else
-            if key ==# "\<cr>"
-                this._accepted = v:true
-                if this.previewTimer != -1
-                    timer_stop(this.previewTimer)
-                    this.previewTimer = -1
-                endif
-            endif
-
-            currentQueryType.OnListKey(key, line)
+            shouldClose = currentQueryType.OnListKey(key, line)
             if currentQueryType.cursorLine > 0
                 win_execute(this._menu.menuArea.Get(), 'cursor(' .. currentQueryType.cursorLine .. ', 1)')
                 currentQueryType.cursorLine = -1
             endif
-            if ["\<up>", 'k', "\<c-n>", "\<down>", 'j', "\<c-p>", "\<pageup>", "\<c-b>", "\<pagedown>", "\<c-f>", "\<home>", "\<end>", 'G']->index(key) >= 0
-                this._TriggerPreview(line)
-            elseif ['h', 'l']->index(key) >= 0
-                this._TriggerPreview(1)
-            endif
         endif
 
-        return key ==# "\<cr>"
+        return key ==# "\<cr>" && shouldClose
     enddef
 
     def OnDialogKey(key: string, message: string)
@@ -175,12 +148,6 @@ export class List
 
     def Call(queryType: qt.QueryType, query: dict<any>)
         this._buffer.Clear()
-
-        if this._originalBuffer <= 0
-            this._originalBuffer = bufnr('%')
-            this._originalBufferWasEmpty = (bufname('%') == '')
-        endif
-        this._accepted = v:false
 
         this.currentQuery = query->copy()
         this.currentQueryType = queryType
@@ -196,6 +163,10 @@ export class List
         currentQuery.title = currentQueryType.GetTitle(query.keyword)
 
         this._menu.Open(this._MenuPosition())
+        if currentQueryType.cursorLine > 0
+            win_execute(this._menu.menuArea.Get(), 'cursor(' .. currentQueryType.cursorLine .. ', 1)')
+            currentQueryType.cursorLine = -1
+        endif
     enddef
 
     def Resume()
@@ -203,35 +174,6 @@ export class List
             this._menu.Show(this._MenuPosition())
         endif
     enddef
-
-    def _TriggerPreview(line: number)
-        if this.previewTimer != -1
-            timer_stop(this.previewTimer)
-        endif
-        this.previewTimer = timer_start(100, (_) => {
-            this.previewTimer = -1
-            var cleared = v:false
-            if line < len(this.currentQueryType.lookup)
-                var data = this.currentQueryType.lookup[line]
-                if !empty(data) && has_key(data, 'isdir') && data.isdir
-                    cleared = v:true
-                endif
-            else
-                cleared = v:true
-            endif
-
-            if cleared
-                if !this._originalBufferWasEmpty && this._originalBuffer > 0 && bufexists(this._originalBuffer)
-                    setbufvar(this._originalBuffer, '&buflisted', 1)
-                    execute('silent! buffer ' .. this._originalBuffer)
-                else
-                    execute('silent! enew')
-                endif
-                redraw
-                return
-            endif
-            this.currentQueryType.Preview(line)
-        })
-    enddef
 endclass
+
 

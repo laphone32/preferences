@@ -19,8 +19,12 @@ nmap <Plug>(auto-rename-call)           <Plug>(lsp-rename)
 nnoremap <Plug>(auto-format-call)       :LspDocumentFormat<CR>
 nnoremap <Plug>(auto-import-call)       :LspCodeAction source.organizeImports<CR>
 
-# 2. Diagnostics Styling (matching your Coc style)
+# 2. UI & Diagnostics Styling
+g:lsp_code_action_ui = 'float'
+g:lsp_preview_float = 1
 g:lsp_diagnostics_enabled = 1
+
+
 g:lsp_diagnostics_echo_cursor = 0
 g:lsp_diagnostics_float_cursor = 0
 g:lsp_diagnostics_virtual_text_enabled = 0
@@ -32,6 +36,7 @@ g:lsp_diagnostics_signs_hint = {text: '**'}
 
 # Highlight reference symbols under cursor on hover
 g:lsp_document_highlight_enabled = 1
+
 
 # 3. Floating window scrolling using C-f and C-b (matching Coc style)
 def g:LspHasFloatingWindow(): bool

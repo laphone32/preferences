@@ -48,7 +48,8 @@ export class QueryType
         return v:true
     enddef
 
-    def OnListKey(key: string, line: number)
+    def OnListKey(key: string, line: number): bool
+        return v:true
     enddef
 
     def NextMode(line: number)

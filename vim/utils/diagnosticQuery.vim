@@ -77,13 +77,15 @@ export class DiagnosticQuery extends qt.QueryType
         return v:true
     enddef
 
-    def OnListKey(key: string, line: number)
+    def OnListKey(key: string, line: number): bool
         if line < len(this.lookup)
             if key ==# "\<cr>"
                 var data = this.lookup[line]
                 this.OpenFile(data.path, data.line, data.col)
+                return v:true
             endif
         endif
+        return v:true
     enddef
 
     def Preview(line: number)

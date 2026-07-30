@@ -35,8 +35,83 @@ nnoremap <S-Right> <C-w>><CR>
 nnoremap <S-Up>    <C-w>-<CR>
 nnoremap <S-Down>  <C-w>+<CR>
 
-# Use enter to select suggestion
-inoremap <expr> <CR> pumvisible() ? "\<C-Y>" : "\<CR>"
+# Use enter to select suggestion and clean up trailing word suffix (backward autocomplete)
+def g:OnCompletionConfirm(): string
+    if !pumvisible()
+        return "\<CR>"
+    endif
+
+    var info = complete_info(['selected', 'items'])
+    var selected = info.selected
+
+    if selected == -1
+        return "\<C-e>\<CR>"
+    endif
+
+    var item = info.items[selected]
+    var word = get(item, 'word', '')
+
+    if empty(word)
+        return "\<C-y>"
+    endif
+
+    var col_idx = col('.') - 1
+    var line_text = getline('.')
+    var rest_after_cursor = line_text[col_idx :]
+
+    var trailing = matchstr(rest_after_cursor, '^\k\+')
+    if empty(trailing)
+        trailing = matchstr(rest_after_cursor, '^\w\+')
+    endif
+
+    if empty(trailing)
+        return "\<C-y>"
+    endif
+
+    var del_count = 0
+    var t_len = len(trailing)
+
+    # 1. Check if completed word ends with trailing (or a prefix of trailing)
+    for len_check in range(t_len, 1, -1)
+        var sub_t = trailing[0 : len_check - 1]
+        var sub_len = len(sub_t)
+        if len(word) >= sub_len && word[len(word) - sub_len :] ==# sub_t
+            del_count = sub_len
+            break
+        endif
+    endfor
+
+    # 2. Check if remaining part of completed word after typed prefix matches trailing (or a prefix of trailing)
+    if del_count == 0
+        var text_before = line_text[ : col_idx - 1]
+        var typed_prefix = matchstr(text_before, '\k\+$')
+        if empty(typed_prefix)
+            typed_prefix = matchstr(text_before, '\w\+$')
+        endif
+
+        var p_len = len(typed_prefix)
+        if p_len > 0 && len(word) >= p_len && word[0 : p_len - 1] ==# typed_prefix
+            var rest_word = word[p_len :]
+            for len_check in range(t_len, 1, -1)
+                var sub_t = trailing[0 : len_check - 1]
+                var sub_len = len(sub_t)
+                if len(rest_word) >= sub_len && rest_word[0 : sub_len - 1] ==# sub_t
+                    del_count = sub_len
+                    break
+                endif
+            endfor
+        endif
+    endif
+
+    if del_count > 0
+        return "\<C-y>" .. repeat("\<Del>", del_count)
+    else
+        return "\<C-y>"
+    endif
+enddef
+
+inoremap <expr> <CR> g:OnCompletionConfirm()
+
 
 # Do not pollute the register for the content operated by `dd' and `x'
 noremap dd "9dd
