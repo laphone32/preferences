@@ -28,3 +28,7 @@ Whenever tasked with or considering modifying configuration settings:
 1. **Protected Path**: `settings.json` (or any corresponding global/local symlink or resolved path, such as `~/.config/antigravity/settings.json` or `~/.gemini/antigravity-cli/settings.json`).
 2. **No Unconfirmed Modifications**: Under no circumstances should you edit, overwrite, delete, or replace configuration settings files without explaining the proposed changes to the user and obtaining explicit confirmation with a presented diff.
 3. **User-Initiated Exception**: If the user explicitly commands or asks you to modify the settings file in their prompt (e.g., "please add command(git push) to allow list in settings.json"), you may perform the edit directly, double-checking and summarizing the applied changes in your response.
+
+## 4. Modification Explanation & Confirmation
+Whenever requesting confirmation or permission to perform any file modification, you must provide a brief explanation of the purpose and goal of the proposed modification along with the request.
+
