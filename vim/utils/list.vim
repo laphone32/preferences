@@ -106,6 +106,9 @@ export class List
         if key ==# '/'
             this._dialog.Open(this._DialogPosition())
             return v:false
+        elseif key ==# 'p'
+            currentQueryType.Preview(line)
+            return v:false
         elseif key ==# "\<right>"
             if currentQueryType.HasCustomKey(key)
                 shouldClose = currentQueryType.OnListKey(key, line)

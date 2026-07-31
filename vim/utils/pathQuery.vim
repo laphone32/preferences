@@ -271,6 +271,15 @@ export class PathQuery extends qt.QueryType
         return v:false
     enddef
 
+    def Preview(line: number)
+        if line < len(this.lookup)
+            var data = this.lookup[line]
+            if !empty(data) && has_key(data, 'path') && !get(data, 'isdir', v:false)
+                this.PreviewFile(data.path)
+            endif
+        endif
+    enddef
+
     def CreateFileOrDir(line: number)
         var targetDir = this.currentPath
         if line < len(this.lookup) && !empty(this.lookup[line]) && has_key(this.lookup[line], 'path')

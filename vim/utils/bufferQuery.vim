@@ -62,5 +62,15 @@ export class BufferQuery extends qt.QueryType
         endif
         return v:true
     enddef
+
+    def Preview(line: number)
+        if line < len(this.lookup)
+            var data = this.lookup[line]
+            if !empty(data) && has_key(data, 'bufnr')
+                execute 'silent! buffer ' .. data.bufnr
+                redraw
+            endif
+        endif
+    enddef
 endclass
 
