@@ -3,6 +3,7 @@
 declare -g -A packageNameMap=(
     ["rg"]="ripgrep"
     ["7z"]="sevenzip unar"
+    ["gvim"]="vim"
 )
 
 function packageManagerInstall {

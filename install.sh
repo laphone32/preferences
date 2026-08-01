@@ -123,7 +123,7 @@ function installPackages {
 
 # Initialize arrays
 packages=()
-optional_packages=()
+gui_packages=()
 
 # Source global and module packages
 for req_file in "$PREFERENCES_DIR"/*/required.sh; do
@@ -132,18 +132,21 @@ for req_file in "$PREFERENCES_DIR"/*/required.sh; do
     fi
 done
 
+# Select target command list based on environment
+target_commands=()
+if isGuiEnvironment; then
+    echo "GUI environment detected. Processing GUI target packages..."
+    target_commands=("${gui_packages[@]}")
+else
+    echo "Headless environment detected. Processing CLI target packages..."
+    target_commands=("${packages[@]}")
+fi
+
 # Check which packages are missing
 missing_commands=()
-for commandName in "${packages[@]}"; do
+for commandName in "${target_commands[@]}"; do
     if ! command -v "$commandName" &> /dev/null; then
         missing_commands+=("$commandName")
-    fi
-done
-
-missing_optional=()
-for commandName in "${optional_packages[@]}"; do
-    if ! command -v "$commandName" &> /dev/null; then
-        missing_optional+=("$commandName")
     fi
 done
 
@@ -193,11 +196,6 @@ if [ ${#missing_commands[@]} -gt 0 ]; then
     installPackageList "packages" "true" "${missing_commands[@]}"
 fi
 
-# Install additional optional packages (GUI apps, etc.)
-if [ "$PREFERENCES_SKIP_ADDITIONAL" != "1" ] && [ ${#missing_optional[@]} -gt 0 ]; then
-    installPackageList "optional packages" "false" "${missing_optional[@]}"
-fi
-
 # Execute fallback scripts for still-missing packages
 for fallback_file in "$PREFERENCES_DIR"/*/required_fallback.sh; do
     if [ -f "$fallback_file" ]; then
@@ -209,7 +207,7 @@ done
 still_missing=()
 echo ""
 echo "Verifying installations..."
-for commandName in "${packages[@]}"; do
+for commandName in "${target_commands[@]}"; do
     if ! command -v "$commandName" &> /dev/null; then
         echo "⚠ Error: $commandName is still not available after fallbacks. You may need to restart your shell or add it to PATH manually."
         still_missing+=("$commandName")

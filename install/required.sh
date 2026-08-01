@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
-# Global required software (unified for all platforms)
-packages+=('curl' 'node' 'npm' '7z')
+# Global required software
+base_packages=('curl' 'node' 'npm' '7z')
+packages+=("${base_packages[@]}")
 
-# Additional optional software (GUI apps, etc.)
-optional_packages+=('surfshark' 'spotify')
+# Additional desktop GUI software
+gui_packages+=("${base_packages[@]}" 'surfshark' 'spotify')

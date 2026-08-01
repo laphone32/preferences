@@ -5,6 +5,7 @@ declare -g -A packageNameMap=(
     ["rg"]="ripgrep"
     ["node"]="nodejs"
     ["7z"]="7zip 7zip-rar"
+    ["gvim"]="vim-gtk3"
 )
 
 # Installation command execution for apt

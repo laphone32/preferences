@@ -95,5 +95,30 @@ function currentLinuxDesktopEnvironment {
 }
 PREFERENCES_DESKTOP_ENVIRONMENT=$(currentLinuxDesktopEnvironment)
 
+function isGuiEnvironment {
+    if [ "$PREFERENCES_OS" == "Darwin" ] || [ "$PREFERENCES_OS" == "Windows" ]; then
+        return 0
+    fi
+
+    if [ -n "$DISPLAY" ] || [ -n "$WAYLAND_DISPLAY" ]; then
+        return 0
+    fi
+
+    if [ -n "$PREFERENCES_DESKTOP_ENVIRONMENT" ] || [ -n "$XDG_CURRENT_DESKTOP" ] || [ -n "$DESKTOP_SESSION" ] || [ -n "$GDMSESSION" ]; then
+        return 0
+    fi
+
+    if command -v systemctl &>/dev/null; then
+        local default_target
+        default_target=$(systemctl get-default 2>/dev/null || true)
+        if [ "$default_target" == "graphical.target" ]; then
+            return 0
+        fi
+    fi
+
+    return 1
+}
+
 PREFERENCES_WORKSPACE="$PREFERENCES_DIR/.workspace"
+
 

@@ -1,1 +1,2 @@
-packages+=('kitty')
+gui_packages+=('kitty')
+
