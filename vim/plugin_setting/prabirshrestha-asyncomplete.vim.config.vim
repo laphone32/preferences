@@ -12,5 +12,15 @@ set completeopt=menuone,noinsert,noselect
 inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 
+def CheckAutoPopup()
+    if strpart(getline('.'), 0, col('.') - 1) =~ '^\s*$'
+        g:asyncomplete_auto_popup = 0
+    else
+        g:asyncomplete_auto_popup = 1
+    endif
+enddef
 
-
+augroup AsyncompletePopup
+    autocmd!
+    autocmd InsertEnter,TextChangedI * CheckAutoPopup()
+augroup END
