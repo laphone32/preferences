@@ -1,0 +1,12 @@
+[Unit]
+Description=Keyd Application Mapper
+After=graphical-session.target
+
+[Service]
+# We do not use -d because systemd expects it to stay in the foreground to monitor it
+ExecStart=/usr/bin/keyd-application-mapper
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=default.target

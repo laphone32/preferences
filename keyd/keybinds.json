@@ -1,0 +1,122 @@
+{
+  "Super + C": {
+    "description": "Copy",
+    "global": "Ctrl + Insert",
+    "apps": {
+      "*kitty*": "Ctrl + Shift + C",
+      "*chrome*": "Ctrl + C"
+    }
+  },
+  "Super + V": {
+    "description": "Paste",
+    "global": "Shift + Insert",
+    "apps": {
+      "*kitty*": "Ctrl + Shift + V",
+      "*chrome*": "Ctrl + V"
+    }
+  },
+  "Super + X": {
+    "description": "Cut",
+    "global": "Shift + Delete",
+    "apps": {
+      "*kitty*": "Ctrl + Shift + X",
+      "*chrome*": "Ctrl + X"
+    }
+  },
+  "Super + T": {
+    "description": "New Tab",
+    "apps": {
+      "*kitty*": "Ctrl + Shift + T",
+      "*chrome*": "Ctrl + T"
+    }
+  },
+  "Super + W": {
+    "description": "Close Tab / Window",
+    "apps": {
+      "*kitty*": "Ctrl + Shift + Q",
+      "*chrome*": "Ctrl + W"
+    }
+  },
+  "Super + F": {
+    "description": "Search / Find",
+    "apps": {
+      "*kitty*": "Ctrl + Shift + H",
+      "*chrome*": "Ctrl + F"
+    }
+  },
+  "Super + Z": {
+    "description": "Undo",
+    "apps": {
+      "*chrome*": "Ctrl + Z"
+    }
+  },
+  "Super + R": {
+    "description": "Reload / Refresh",
+    "apps": {
+      "*chrome*": "Ctrl + R"
+    }
+  },
+  "Super + 1": {
+    "description": "Switch to Tab 1",
+    "apps": {
+      "*kitty*": "Alt + 1",
+      "*chrome*": "Ctrl + 1"
+    }
+  },
+  "Super + 2": {
+    "description": "Switch to Tab 2",
+    "apps": {
+      "*kitty*": "Alt + 2",
+      "*chrome*": "Ctrl + 2"
+    }
+  },
+  "Super + 3": {
+    "description": "Switch to Tab 3",
+    "apps": {
+      "*kitty*": "Alt + 3",
+      "*chrome*": "Ctrl + 3"
+    }
+  },
+  "Super + 4": {
+    "description": "Switch to Tab 4",
+    "apps": {
+      "*kitty*": "Alt + 4",
+      "*chrome*": "Ctrl + 4"
+    }
+  },
+  "Super + 5": {
+    "description": "Switch to Tab 5",
+    "apps": {
+      "*kitty*": "Alt + 5",
+      "*chrome*": "Ctrl + 5"
+    }
+  },
+  "Super + 6": {
+    "description": "Switch to Tab 6",
+    "apps": {
+      "*kitty*": "Alt + 6",
+      "*chrome*": "Ctrl + 6"
+    }
+  },
+  "Super + 7": {
+    "description": "Switch to Tab 7",
+    "apps": {
+      "*kitty*": "Alt + 7",
+      "*chrome*": "Ctrl + 7"
+    }
+  },
+  "Super + 8": {
+    "description": "Switch to Tab 8",
+    "apps": {
+      "*kitty*": "Alt + 8",
+      "*chrome*": "Ctrl + 8"
+    }
+  },
+  "Super + 9": {
+    "description": "Switch to Tab 9",
+    "apps": {
+      "*kitty*": "Alt + 9",
+      "*chrome*": "Ctrl + 9"
+    }
+  }
+}
