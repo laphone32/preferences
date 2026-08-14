@@ -35,7 +35,7 @@ export class PathQuery extends qt.QueryType
     enddef
 
     def GetTitle(keyword: string): string
-        return ' path: ' .. this.currentPath .. ' [a:add/r:rename/d:delete/c:current] '
+        return ' path: ' .. this.currentPath .. ' [a:add/m:modify/d:delete/c:current/r:refresh] '
     enddef
 
     def HasCustomKey(key: string): bool
@@ -259,8 +259,8 @@ export class PathQuery extends qt.QueryType
                     this.OpenFile(data.path)
                     return v:true
                 endif
-            elseif key ==# 'r'
-                this.RenameFileOrDir(line)
+            elseif key ==# 'm'
+                this.ModifyFileOrDir(line)
                 return v:false
             elseif key ==# 'd'
                 this.DeleteFileOrDir(line)
@@ -314,15 +314,15 @@ export class PathQuery extends qt.QueryType
                 this._ExpandDir(line)
             endif
         else
-            this.Start({ keyword: '' })
+            this.Start({ keyword: '', keepPath: v:true })
         endif
     enddef
 
-    def RenameFileOrDir(line: number)
+    def ModifyFileOrDir(line: number)
         var data = this.lookup[line]
         if empty(data) || data.name == '..' | return | endif
 
-        var new_name = input('Rename to: ', data.name)
+        var new_name = input('Modify (rename) to: ', data.name)
         if empty(new_name) || new_name == data.name | return | endif
 
         var parent = fnamemodify(data.path, ':h')

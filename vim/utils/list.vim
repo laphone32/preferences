@@ -82,7 +82,9 @@ export class List
                 var end = line + properties[1]
 
                 while line < end
-                    this._buffer.RefreshLine(line, Render(line))
+                    if line < len(currentQueryType.lookup)
+                        this._buffer.RefreshLine(line, Render(line))
+                    endif
                     line += 1
                 endwhile
             endfor
@@ -109,6 +111,17 @@ export class List
         elseif key ==# 'p'
             currentQueryType.Preview(line)
             return v:false
+        elseif key ==# 'r'
+            if currentQueryType.HasCustomKey(key)
+                shouldClose = currentQueryType.OnListKey(key, line)
+                if currentQueryType.cursorLine > 0
+                    win_execute(this._menu.menuArea.Get(), 'cursor(' .. currentQueryType.cursorLine .. ', 1)')
+                    currentQueryType.cursorLine = -1
+                endif
+            else
+                this.Refresh()
+                shouldClose = v:false
+            endif
         elseif key ==# "\<right>"
             if currentQueryType.HasCustomKey(key)
                 shouldClose = currentQueryType.OnListKey(key, line)
@@ -158,6 +171,7 @@ export class List
         var currentQuery = this.currentQuery
         var currentQueryType = this.currentQueryType
 
+        currentQueryType.toRefresh = []
         if currentQueryType.Start(query)
         else
             this._dialog.Open(this._DialogPosition())
@@ -169,6 +183,31 @@ export class List
         if currentQueryType.cursorLine > 0
             win_execute(this._menu.menuArea.Get(), 'cursor(' .. currentQueryType.cursorLine .. ', 1)')
             currentQueryType.cursorLine = -1
+        endif
+    enddef
+
+    def Refresh()
+        this._buffer.Clear()
+
+        var currentQuery = this.currentQuery
+        var currentQueryType = this.currentQueryType
+
+        currentQueryType.toRefresh = []
+        var refreshQuery = currentQuery->copy()
+        refreshQuery.keepPath = v:true
+        currentQueryType.Start(refreshQuery)
+
+        var newTitle = currentQueryType.GetTitle(currentQuery.keyword)
+        if currentQuery.title != newTitle
+            currentQuery.title = newTitle
+            popup_setoptions(this._menu.menuArea.Get(), { title: newTitle })
+        endif
+
+        if currentQueryType.cursorLine > 0
+            win_execute(this._menu.menuArea.Get(), 'cursor(' .. currentQueryType.cursorLine .. ', 1)')
+            currentQueryType.cursorLine = -1
+        else
+            win_execute(this._menu.menuArea.Get(), 'cursor(1, 1)')
         endif
     enddef
 

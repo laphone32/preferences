@@ -7,7 +7,7 @@ export class QueryType
     var modes: list<func(number): dict<any>>
     var currentMode: number
 
-    var toRefresh: list<list<number>>
+    public var toRefresh: list<list<number>> = []
 
 
 
