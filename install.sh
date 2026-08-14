@@ -126,11 +126,7 @@ packages=()
 gui_packages=()
 
 # Source global and module packages
-for req_file in "$PREFERENCES_DIR"/*/required.sh; do
-    if [ -f "$req_file" ]; then
-        source "$req_file"
-    fi
-done
+eachValidSubFile 'source' 'required.sh'
 
 # Select target command list based on environment
 target_commands=()
@@ -197,11 +193,7 @@ if [ ${#missing_commands[@]} -gt 0 ]; then
 fi
 
 # Execute fallback scripts for still-missing packages
-for fallback_file in "$PREFERENCES_DIR"/*/required_fallback.sh; do
-    if [ -f "$fallback_file" ]; then
-        source "$fallback_file"
-    fi
-done
+eachValidSubFile 'source' 'required_fallback.sh'
 
 # Final verification
 still_missing=()
@@ -239,5 +231,5 @@ if [ "$#" -ge 1 ]; then
         echoAndSource "$PREFERENCES_DIR/$module/install.sh"
     done
 else
-    eachSubFile "$PREFERENCES_DIR" 'echoAndSource' 'install.sh'
+    eachValidSubFile 'echoAndSource' 'install.sh'
 fi

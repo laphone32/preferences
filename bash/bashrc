@@ -5,7 +5,7 @@ source $PREFERENCES_DIR/util/override.sh
 function addPath {
     export PATH=$1:$PATH
 }
-eachSubFile "$PREFERENCES_DIR" 'addPath' 'bin'
+eachValidSubFile 'addPath' 'bin'
 
 export PATH=$HOME/bin:$HOME/.local/bin:$PREFERENCES_DIR/bin:$PATH
 

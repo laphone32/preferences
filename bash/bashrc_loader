@@ -3,5 +3,5 @@
 source $PREFERENCES_DIR/util/utils.sh
 source $PREFERENCES_DIR/util/environment.sh
 
-eachSubFile "$PREFERENCES_DIR" 'source' 'bashrc'
+eachValidSubFile 'source' 'bashrc'
 

@@ -5,11 +5,6 @@ source "$(dirname "${BASH_SOURCE[0]}")/../util/bootstrap.sh"
 source "$PREFERENCES_DIR/keyd/common.sh"
 
 
-# keyd is Linux-only
-if [ "$PREFERENCES_OS" != "Linux" ]; then
-    return 0
-fi
-
 echo "Installing Centralized Keyd module..."
 
 # Compile keybinds.json to .workspace/keyd/
