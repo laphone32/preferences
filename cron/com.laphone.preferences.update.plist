@@ -7,7 +7,7 @@
     <key>ProgramArguments</key>
     <array>
         <string>/bin/bash</string>
-        <string>$PREFERENCES_DIR/bin/preferences-cron-runner</string>
+        <string>$PREFERENCES_DIR/cron/bin/preferences-cron-runner</string>
     </array>
     <key>EnvironmentVariables</key>
     <dict>

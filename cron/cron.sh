@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+source "$PREFERENCES_DIR/cron/common.sh"
+LOG_FILE="${LOG_FILE:-$PREFERENCES_CRON_LOG}"
+
 # 1. Self-updating preferences git repository
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "🔄 Checking for Preferences repository updates..."

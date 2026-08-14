@@ -1,18 +1,19 @@
 #!/usr/bin/env bash
 
 source "$(dirname "${BASH_SOURCE[0]}")/../util/bootstrap.sh"
+source "$PREFERENCES_DIR/cron/common.sh"
 
 
 function install_crontab {
     echo "⚙ Registering fallback task in user crontab..."
-    installPreferencesCron 'preferences-cron-runner' "0 10 * * * /bin/bash $PREFERENCES_DIR/bin/preferences-cron-runner"
+    installPreferencesCron 'preferences-cron-runner' "0 10 * * * /bin/bash $PREFERENCES_CRON_RUNNER"
     echo "✓ POSIX Crontab entry registered successfully."
     echo "ℹ View scheduled tasks with: crontab -l"
 }
 
 # Ensure log workspace directory exists
-installPreferencesDir "$PREFERENCES_DIR/.workspace/cron"
-installPreferencesSymlink "$PREFERENCES_DIR/cron/cron.sh" "$PREFERENCES_DIR/.workspace/cron/cron.sh"
+installPreferencesDir "$PREFERENCES_WORKSPACE_CRON"
+installPreferencesSymlink "$PREFERENCES_CRON/cron.sh" "$PREFERENCES_WORKSPACE_CRON/cron.sh"
 
 echo "=========================================="
 echo "🔧 Setting up Preferences Task Scheduler"
@@ -56,5 +57,5 @@ esac
 
 echo "=========================================="
 echo "🎉 Scheduler Installation Completed!"
-echo "📝 Execution Logs: $PREFERENCES_DIR/.workspace/cron/cron.log"
+echo "📝 Execution Logs: $PREFERENCES_CRON_LOG"
 echo "=========================================="
