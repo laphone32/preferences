@@ -34,9 +34,16 @@ case "$PREFERENCES_OS" in
         echo "🐧 Linux Detected. Checking Systemd availability..."
         
         # Check if systemd user services are running and accessible
-        if systemctl --user &>/dev/null; then
+        if isPreferencesSystemdUserAvailable; then
             echo "⚙ Systemd User Session detected. Configuring systemd timer..."
-            if installPreferencesSystemdUserTimer 'preferences-update' "$PREFERENCES_DIR/cron/preferences-update.service" "$PREFERENCES_DIR/cron/preferences-update.timer"; then
+            installPreferencesDir "$PREFERENCES_WORKSPACE_CRON/systemd"
+            PREFERENCES_DIR=$PREFERENCES_DIR envsubst '$PREFERENCES_DIR' \
+                < "$PREFERENCES_CRON/systemd/preferences-update.service.template" \
+                > "$PREFERENCES_WORKSPACE_CRON/systemd/preferences-update.service"
+
+            if installPreferencesSystemdUserService 'preferences-update' \
+                "$PREFERENCES_WORKSPACE_CRON/systemd/preferences-update.service" \
+                "$PREFERENCES_CRON/systemd/preferences-update.timer"; then
                 echo "✓ Systemd user service and timer successfully registered and started."
                 echo "ℹ Timer status: systemctl --user status preferences-update.timer"
             else

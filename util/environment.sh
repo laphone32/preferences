@@ -109,8 +109,7 @@ function isGuiEnvironment {
     fi
 
     if command -v systemctl &>/dev/null; then
-        local default_target
-        default_target=$(systemctl get-default 2>/dev/null || true)
+        local default_target=$(systemctl get-default 2>/dev/null || true)
         if [ "$default_target" == "graphical.target" ]; then
             return 0
         fi

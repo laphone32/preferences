@@ -4,36 +4,9 @@
 [[ "${_PREFERENCES_UTIL_INSTALL_SOURCED:-""}" == "yes" ]] && return 0
 _PREFERENCES_UTIL_INSTALL_SOURCED=yes
 
-# Global Manifest Path
-PREFERENCES_INSTALL_MANIFEST="$PREFERENCES_WORKSPACE/.install_manifest.log"
-
-# Action Constants
-PREFERENCES_INSTALL_ACTION_SYMLINK="Symlink"
-PREFERENCES_INSTALL_ACTION_SUDO_SYMLINK="SudoSymlink"
-PREFERENCES_INSTALL_ACTION_SECTION="Section"
-PREFERENCES_INSTALL_ACTION_DIR="Dir"
-PREFERENCES_INSTALL_ACTION_SYSTEMD_USER_TIMER="SystemdUserTimer"
-PREFERENCES_INSTALL_ACTION_LAUNCH_AGENT="LaunchAgent"
-PREFERENCES_INSTALL_ACTION_CRON="Cron"
-PREFERENCES_INSTALL_ACTION_FONT_DIR="FontDir"
-
-# Initialize manifest file if it doesn't exist
-function initManifest {
-    mkdir -p "$(dirname "$PREFERENCES_INSTALL_MANIFEST")"
-    touch "$PREFERENCES_INSTALL_MANIFEST"
-}
-
-# Append action to transaction manifest
-function appendManifest {
-    local actionType=$1
-    shift
-    local args=("$@")
-    
-    initManifest
-    # Join arguments with pipe symbol '|'
-    local IFS='|'
-    echo "$actionType|${args[*]}" >> "$PREFERENCES_INSTALL_MANIFEST"
-}
+# Load manifest transaction logging and systemd utilities
+source "${PREFERENCES_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}/util/manifest.sh" 2>/dev/null || true
+source "${PREFERENCES_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}/util/systemd.sh" 2>/dev/null || true
 
 # =====================================================================
 # Symmetric Installation and Uninstallation (Undo) Pairs
@@ -121,38 +94,64 @@ function undoPreferencesDir {
     fi
 }
 
-# --- 5. Systemd User Timer (Linux user schedules/updates) ---
-function installPreferencesSystemdUserTimer {
-    local timerName=$1
-    local serviceTemplate=$2
-    local timerTemplate=$3
-    
+# --- 5. Systemd User Service & Timer (Linux user background services/schedules) ---
+function installPreferencesSystemdUserService {
+    local unitName=$1          # e.g., "keyd-application-mapper" or "preferences-update"
+    local serviceFile=$2       # Path to already-prepared / substituted .service file
+    local timerFile=${3:-""}   # (Optional) Path to .timer file
+
+    # 1. OS & Systemd check
+    if ! isPreferencesSystemdUserAvailable; then
+        echo "ℹ Skipping systemd service '$unitName' (Systemd user session not available on $PREFERENCES_OS)."
+        return 0
+    fi
+
     local userSystemdDir="$HOME/.config/systemd/user"
     mkdir -p "$userSystemdDir"
-    
-    local targetService="$userSystemdDir/$timerName.service"
-    local targetTimer="$userSystemdDir/$timerName.timer"
-    
-    # Deploy files: replace placeholders inside service unit using envsubst
-    PREFERENCES_DIR=$PREFERENCES_DIR envsubst '$PREFERENCES_DIR' < "$serviceTemplate" > "$targetService"
-    cp "$timerTemplate" "$targetTimer"
-    
-    # Reload daemon, enable and activate timer
-    systemctl --user daemon-reload
-    systemctl --user enable --now "$timerName.timer"
-    
-    appendManifest "$PREFERENCES_INSTALL_ACTION_SYSTEMD_USER_TIMER" "$timerName" "$targetService" "$targetTimer"
+
+    # Normalize name with preferences- prefix for consistent administration
+    local baseName=$(getPreferencesSystemdUnitBaseName "$unitName")
+    local targetService="$userSystemdDir/$baseName.service"
+    local targetTimer=""
+
+    # 2. Symlink the prepared service file
+    installPreferencesSymlink "$serviceFile" "$targetService"
+
+    # 3. If timer is provided, symlink timer and activate timer only
+    if [ -n "$timerFile" ]; then
+        targetTimer="$userSystemdDir/$baseName.timer"
+        installPreferencesSymlink "$timerFile" "$targetTimer"
+        enablePreferencesSystemdTimer "$baseName"
+    else
+        # Standalone service: activate service directly
+        enablePreferencesSystemdService "$baseName"
+    fi
+
+    # 4. Append to transaction manifest for uninstall.sh
+    appendManifest "$PREFERENCES_INSTALL_ACTION_SYSTEMD_USER_SERVICE" "$baseName" "$targetService" "$targetTimer"
 }
 
-function undoPreferencesSystemdUserTimer {
-    local timerName=$1
+function undoPreferencesSystemdUserService {
+    local baseName=$1
     local targetService=$2
     local targetTimer=$3
-    
-    echo "Disabling and removing Systemd User Timer: $timerName"
-    systemctl --user disable --now "$timerName.timer" 2>/dev/null || true
-    rm -f "$targetService" "$targetTimer" 2>/dev/null || true
-    systemctl --user daemon-reload
+
+    if [ -n "$targetTimer" ]; then
+        echo "Disabling and removing Systemd User Timer: $baseName.timer"
+        disablePreferencesSystemdTimer "$baseName"
+        rm -f "$targetTimer" 2>/dev/null || true
+    else
+        echo "Disabling and stopping Systemd User Service: $baseName.service"
+        disablePreferencesSystemdService "$baseName"
+    fi
+
+    rm -f "$targetService" 2>/dev/null || true
+    reloadPreferencesSystemdUserDaemon
+}
+
+# Compatibility alias for undoing older manifest entries if present
+function undoPreferencesSystemdUserTimer {
+    undoPreferencesSystemdUserService "$@"
 }
 
 # --- 6. LaunchAgent (macOS user schedules/updates) ---
@@ -160,6 +159,12 @@ function installPreferencesLaunchAgent {
     local label=$1
     local plistTemplate=$2
     
+    # OS & Launchctl check
+    if [ "$PREFERENCES_OS" != "Darwin" ] || ! command -v launchctl &>/dev/null; then
+        echo "ℹ Skipping LaunchAgent '$label' (LaunchAgent not available on $PREFERENCES_OS)."
+        return 0
+    fi
+
     local targetDir="$HOME/Library/LaunchAgents"
     mkdir -p "$targetDir"
     local targetPlist="$targetDir/$label.plist"

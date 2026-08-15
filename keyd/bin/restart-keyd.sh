@@ -30,15 +30,15 @@ fi
 sudo "$KEYD_BIN" reload || { echo "ERROR: Failed to reload keyd"; exit 1; }
 echo "keyd configuration reloaded."
 
-# Source environment utilities for unified DE determination
-source "$DIR/../util/environment.sh" 2>/dev/null || true
+# Source environment and systemd utilities
+source "$DIR/../util/bootstrap.sh" 2>/dev/null || true
 
 if [ "$PREFERENCES_DESKTOP_ENVIRONMENT" == "gnome" ] && command -v gnome-extensions &> /dev/null; then
     echo "Restarting keyd GNOME extension..."
 
     # Ensure the systemd service doesn't conflict with GNOME extension
-    if systemctl --user is-active --quiet keyd-application-mapper.service 2>/dev/null; then
-        systemctl --user stop keyd-application-mapper.service 2>/dev/null || true
+    if isPreferencesSystemdServiceActive "keyd-application-mapper"; then
+        stopPreferencesSystemdService "keyd-application-mapper"
     fi
 
     gnome-extensions disable keyd 2>/dev/null
@@ -70,14 +70,13 @@ else
     killall keyd-application-mapper 2>/dev/null
 
     # Reload systemd and start the service
-    systemctl --user daemon-reload
-    systemctl --user enable --now keyd-application-mapper.service || {
+    enablePreferencesSystemdService "keyd-application-mapper" || {
         echo "ERROR: Failed to start keyd-application-mapper via systemd!"
         exit 1
     }
 
     # Verify mapper is running
-    if ! systemctl --user is-active --quiet keyd-application-mapper.service; then
+    if ! isPreferencesSystemdServiceActive "keyd-application-mapper"; then
         echo "ERROR: keyd-application-mapper systemd service is not active!"
         exit 1
     fi

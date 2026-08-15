@@ -21,7 +21,7 @@ if [ -d "$KEYD_ETC_DIR" ]; then
     installPreferencesSudoSymlink "$PREFERENCES_KEYBINDS_LOCAL/default.conf" "$KEYD_ETC_DIR/default.conf"
 
     if [ -n "$KEYD_BIN" ]; then
-        sudo systemctl enable --now "$KEYD_BIN" 2>/dev/null || true
+        enablePreferencesSystemdSystemService "$KEYD_BIN"
         sudo "$KEYD_BIN" reload 2>/dev/null || true
     else
         echo "Warning: keyd binary not found, unable to reload."
@@ -56,11 +56,7 @@ if [ -n "$KEYD_BIN" ] && command -v keyd-application-mapper &> /dev/null; then
     fi
 
     # Setup keyd-application-mapper systemd user service for non-GNOME environments
-    mkdir -p "$HOME/.config/systemd/user"
-    installPreferencesSymlink "$PREFERENCES_DIR/keyd/systemd/keyd-application-mapper.service" "$HOME/.config/systemd/user/keyd-application-mapper.service"
-
-    # Reload systemd user daemon so it picks up the new service file
-    systemctl --user daemon-reload
+    installPreferencesSystemdUserService "keyd-application-mapper" "$PREFERENCES_DIR/keyd/systemd/keyd-application-mapper.service"
 
     # Add user to keyd group so they can interact with the mapper without sudo
     echo "Adding $USER to the keyd group..."

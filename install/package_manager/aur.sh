@@ -11,7 +11,7 @@ declare -g -A packageNameMap=(
 function aurPostInstall {
     local packages=("$@")
     if [[ " ${packages[*]} " =~ " docker " ]]; then
-        sudo systemctl enable --now docker
+        enablePreferencesSystemdSystemService "docker"
     fi
 }
 
