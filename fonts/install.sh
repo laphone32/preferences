@@ -17,7 +17,7 @@ case $PREFERENCES_OS in
         ;;
 esac
 
-mkdir -p $font_install_folder
+installPreferencesDir "$font_install_folder"
 
 function deploy_font {
     local from=$1

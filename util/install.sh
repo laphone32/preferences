@@ -16,14 +16,18 @@ source "${PREFERENCES_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}/uti
 function installPreferencesSymlink {
     local source=$1
     local target=$2
-    
+
     # Strip trailing slash if present to avoid dereferencing directory symlinks
     target="${target%/}"
-    
-    if [ -L "$target" ] || [ -f "$target" ] || [ -d "$target" ]; then
+
+    if [ -L "$target" ]; then
+        unlink "$target" 2>/dev/null || rm -f "$target"
+    elif [ -d "$target" ]; then
         rm -rf "$target"
+    elif [ -f "$target" ]; then
+        rm -f "$target"
     fi
-    
+
     ln -sf "$source" "$target"
     appendManifest "$PREFERENCES_INSTALL_ACTION_SYMLINK" "$target"
 }
@@ -32,29 +36,33 @@ function undoPreferencesSymlink {
     local target=$1
     if [ -L "$target" ]; then
         echo "Removing symlink: $target"
-        rm "$target"
+        unlink "$target" 2>/dev/null || rm -f "$target"
     fi
 }
 
 # --- 2. Sudo Symlink (System-level settings like logind.conf) ---
 # NOTE: We use a dedicated function rather than running "sudo installPreferencesSymlink"
-# because bash functions exist only in the current shell process memory. The 'sudo' 
+# because bash functions exist only in the current shell process memory. The 'sudo'
 # binary cannot call bash functions directly without spawning verbose, complex subshells.
 # Prepending 'sudo' to the commands inside this helper keeps the script clean and native.
 function installPreferencesSudoSymlink {
     local source=$1
     local target=$2
-    
+    target="${target%/}"
+
     sudo mkdir -p "$(dirname "$target")"
+    if [ -L "$target" ]; then
+        sudo unlink "$target" 2>/dev/null || sudo rm -f "$target"
+    fi
     sudo ln -sf "$source" "$target"
     appendManifest "$PREFERENCES_INSTALL_ACTION_SUDO_SYMLINK" "$target"
 }
 
 function undoPreferencesSudoSymlink {
     local target=$1
-    if [ -L "$target" ] || [ -f "$target" ]; then
-        echo "Removing sudo-created symlink/file: $target"
-        sudo rm -f "$target"
+    if [ -L "$target" ]; then
+        echo "Removing sudo-created symlink: $target"
+        sudo unlink "$target" 2>/dev/null || sudo rm -f "$target"
     fi
 }
 
@@ -63,7 +71,7 @@ function installPreferencesSection {
     local filePath=$1
     local sectionName=$2
     local content=$3
-    
+
     updateOrInsertSection "$filePath" "$sectionName" "$content"
     appendManifest "$PREFERENCES_INSTALL_ACTION_SECTION" "$filePath" "$sectionName"
 }
@@ -73,22 +81,45 @@ function undoPreferencesSection {
     local sectionName=$2
     if [ -f "$filePath" ]; then
         echo "Removing configuration section [$sectionName] from $filePath"
-        sed -i "/### $sectionName ###/,/### end of $sectionName ###/d" "$filePath"
+        deleteSection "$filePath" "$sectionName"
     fi
 }
 
-# --- 4. Directory Creation ---
+# --- 4. Sudo Text File Section ---
+function installPreferencesSudoSection {
+    local filePath=$1
+    local sectionName=$2
+    local content=$3
+
+    updateOrInsertSection "$filePath" "$sectionName" "$content" true
+    appendManifest "$PREFERENCES_INSTALL_ACTION_SUDO_SECTION" "$filePath" "$sectionName"
+}
+
+function undoPreferencesSudoSection {
+    local filePath=$1
+    local sectionName=$2
+    if [ -f "$filePath" ]; then
+        echo "Removing sudo configuration section [$sectionName] from $filePath"
+        deleteSection "$filePath" "$sectionName" true
+    fi
+}
+
+# --- 5. Directory Creation ---
 function installPreferencesDir {
     local dirPath=$1
-    
-    mkdir -p "$dirPath"
-    appendManifest "$PREFERENCES_INSTALL_ACTION_DIR" "$dirPath"
+    dirPath="${dirPath%/}"
+
+    # Only create and record in manifest if the directory did not exist beforehand
+    if [ ! -d "$dirPath" ]; then
+        mkdir -p "$dirPath"
+        appendManifest "$PREFERENCES_INSTALL_ACTION_DIR" "$dirPath"
+    fi
 }
 
 function undoPreferencesDir {
     local dirPath=$1
     if [ -d "$dirPath" ]; then
-        # Safe check: only delete if it's empty, avoiding deleting general folders like ~/.config
+        # Safe check: only delete if it's empty, avoiding deleting general folders
         echo "Removing directory if empty: $dirPath"
         rmdir "$dirPath" 2>/dev/null || true
     fi
@@ -158,7 +189,7 @@ function undoPreferencesSystemdUserTimer {
 function installPreferencesLaunchAgent {
     local label=$1
     local plistTemplate=$2
-    
+
     # OS & Launchctl check
     if [ "$PREFERENCES_OS" != "Darwin" ] || ! command -v launchctl &>/dev/null; then
         echo "ℹ Skipping LaunchAgent '$label' (LaunchAgent not available on $PREFERENCES_OS)."
@@ -168,23 +199,23 @@ function installPreferencesLaunchAgent {
     local targetDir="$HOME/Library/LaunchAgents"
     mkdir -p "$targetDir"
     local targetPlist="$targetDir/$label.plist"
-    
+
     # Stop and unload existing plist if loaded
     launchctl unload "$targetPlist" &>/dev/null || true
-    
+
     # Deploy plist with absolute paths replaced using envsubst
     PREFERENCES_DIR=$PREFERENCES_DIR envsubst '$PREFERENCES_DIR' < "$plistTemplate" > "$targetPlist"
-    
+
     # Load launch agent
     launchctl load "$targetPlist"
-    
+
     appendManifest "$PREFERENCES_INSTALL_ACTION_LAUNCH_AGENT" "$label" "$targetPlist"
 }
 
 function undoPreferencesLaunchAgent {
     local label=$1
     local targetPlist=$2
-    
+
     echo "Unloading and removing macOS LaunchAgent: $label"
     launchctl unload "$targetPlist" 2>/dev/null || true
     rm -f "$targetPlist" 2>/dev/null || true
@@ -194,14 +225,14 @@ function undoPreferencesLaunchAgent {
 function installPreferencesCron {
     local identifier=$1
     local cronCmd=$2
-    
+
     # Get current crontab, excluding any existing matching entries
     local current_cron=""
     current_cron=$(crontab -l 2>/dev/null | grep -v "$identifier" || true)
-    
+
     # Update crontab
     (echo "$current_cron"; echo "$cronCmd") | crontab -
-    
+
     appendManifest "$PREFERENCES_INSTALL_ACTION_CRON" "$identifier"
 }
 
@@ -214,7 +245,7 @@ function undoPreferencesCron {
 # --- 8. Font Directory (Nerd Fonts target directory) ---
 function installPreferencesFontDir {
     local dirPath=$1
-    
+
     mkdir -p "$dirPath"
     appendManifest "$PREFERENCES_INSTALL_ACTION_FONT_DIR" "$dirPath"
 }
@@ -229,4 +260,65 @@ function undoPreferencesFontDir {
         fi
     fi
 }
+
+# --- 9. GNOME Shell Extension ---
+function installPreferencesGnomeExtension {
+    local sourceDir=$1
+    local extensionName=$2
+    local extensionsDir="${GNOME_EXTENSIONS_DIR:-$HOME/.local/share/gnome-shell/extensions}"
+    local targetDir="$extensionsDir/$extensionName"
+
+    installPreferencesDir "$extensionsDir"
+    installPreferencesSymlink "$sourceDir" "$targetDir"
+
+    if command -v gnome-extensions &> /dev/null; then
+        gnome-extensions enable "$extensionName" 2>/dev/null || true
+    fi
+
+    appendManifest "$PREFERENCES_INSTALL_ACTION_GNOME_EXTENSION" "$extensionName" "$targetDir"
+}
+
+function undoPreferencesGnomeExtension {
+    local extensionName=$1
+    local targetDir=$2
+
+    if command -v gnome-extensions &> /dev/null; then
+        echo "Disabling GNOME Extension: $extensionName"
+        gnome-extensions disable "$extensionName" 2>/dev/null || true
+    fi
+
+    if [ -L "$targetDir" ]; then
+        echo "Removing GNOME Extension symlink: $targetDir"
+        unlink "$targetDir" 2>/dev/null || rm -f "$targetDir"
+    fi
+}
+
+# =====================================================================
+# Manifest-Driven Uninstallation
+# =====================================================================
+
+function uninstallPreferencesManifest {
+    if [ ! -f "$PREFERENCES_INSTALL_MANIFEST" ]; then
+        echo "No installation manifest found at $PREFERENCES_INSTALL_MANIFEST."
+        echo "This project might not have been installed using the wrapper helpers."
+        return 1
+    fi
+
+    echo "=========================================="
+    echo "🧹 Starting Preferences Uninstallation"
+    echo "=========================================="
+
+    # Read lines in reverse order (LIFO) and dynamically invoke the corresponding namespaced undo function
+    tac "$PREFERENCES_INSTALL_MANIFEST" | while IFS='|' read -r action arg1 arg2 arg3 arg4; do
+        undoFunc="undoPreferences${action}"
+        if declare -f "$undoFunc" > /dev/null; then
+            # Dynamically call the undo function with the logged parameters
+            "$undoFunc" "$arg1" "$arg2" "$arg3" "$arg4"
+        else
+            echo "⚠ Warning: No undo handler found for action '$action' ($undoFunc)"
+        fi
+    done
+}
+
+
 

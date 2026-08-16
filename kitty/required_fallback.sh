@@ -19,8 +19,9 @@ if ! command -v kitty &> /dev/null; then
     curl -sSL https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin launch=n
 
     # Create symbolic links for PATH integration
-    mkdir -p "$HOME/.local/bin"
-    ln -sf "$HOME/.local/kitty.app/bin/kitty" "$HOME/.local/kitty.app/bin/kitten" "$HOME/.local/bin/"
+    installPreferencesDir "$HOME/.local/bin"
+    installPreferencesSymlink "$HOME/.local/kitty.app/bin/kitty" "$HOME/.local/bin/kitty"
+    installPreferencesSymlink "$HOME/.local/kitty.app/bin/kitten" "$HOME/.local/bin/kitten"
 
     # Install desktop entry
     mkdir -p "$HOME/.local/share/applications"

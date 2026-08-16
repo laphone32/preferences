@@ -6,6 +6,7 @@ PREFERENCES_WORKSPACE_KEYD="$PREFERENCES_WORKSPACE/keyd"
 PREFERENCES_KEYBINDS_LOCAL="$HOME/.config/keyd"
 KEYD_ETC_DIR="/etc/keyd"
 GNOME_EXTENSIONS_DIR="$HOME/.local/share/gnome-shell/extensions"
+LIBINPUT_QUIRKS_FILE="/etc/libinput/local-overrides.quirks"
 
 GetKeydBinary() {
     if command -v keyd &> /dev/null; then

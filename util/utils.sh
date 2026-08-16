@@ -106,9 +106,32 @@ function updateOrInsertSection {
     local fileName=$1
     local section=$2
     local content=$3
+    local isSudo=${4:-false}
     local scriptDir="${PREFERENCES_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}/util"
 
-    python3 "$scriptDir/update_section.py" "$fileName" "$section" "$content"
+    local sudoCmd=""
+    if [ "$isSudo" == "true" ] || [ "$isSudo" == "yes" ] || [ "$isSudo" == "1" ] || [ "$isSudo" == "sudo" ]; then
+        sudoCmd="sudo "
+    fi
+
+    $sudoCmd mkdir -p "$(dirname "$fileName")"
+    $sudoCmd python3 "$scriptDir/update_section.py" "$fileName" "$section" "$content"
+}
+
+function deleteSection {
+    local fileName=$1
+    local section=$2
+    local isSudo=${3:-false}
+    local scriptDir="${PREFERENCES_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}/util"
+
+    if [ -f "$fileName" ]; then
+        local sudoCmd=""
+        if [ "$isSudo" == "true" ] || [ "$isSudo" == "yes" ] || [ "$isSudo" == "1" ] || [ "$isSudo" == "sudo" ]; then
+            sudoCmd="sudo "
+        fi
+
+        $sudoCmd python3 "$scriptDir/update_section.py" --delete "$fileName" "$section"
+    fi
 }
 
 function workspace {

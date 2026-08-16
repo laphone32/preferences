@@ -28,6 +28,15 @@ if [ -d "$KEYD_ETC_DIR" ]; then
     fi
 fi
 
+# Configure libinput quirks so trackpad disable-while-typing recognizes keyd virtual keyboard
+LIBINPUT_QUIRKS_CONTENT="[Virtual Keyboard]
+MatchUdevType=keyboard
+MatchName=keyd virtual keyboard
+AttrKeyboardIntegration=internal"
+
+echo "Configuring libinput quirks in $LIBINPUT_QUIRKS_FILE..."
+installPreferencesSudoSection "$LIBINPUT_QUIRKS_FILE" "keyd" "$LIBINPUT_QUIRKS_CONTENT"
+
 # Install keyd-application-mapper GNOME extension and User Service
 if [ -n "$KEYD_BIN" ] && command -v keyd-application-mapper &> /dev/null; then
     echo "Setting up keyd-application-mapper..."
@@ -44,13 +53,8 @@ if [ -n "$KEYD_BIN" ] && command -v keyd-application-mapper &> /dev/null; then
             curl -sL "https://github.com/rvaiya/keyd/archive/refs/tags/${KEYD_VERSION}.tar.gz" | tar -xz -C "$GNOME_EXT_WORKSPACE" --strip-components=3 "keyd-${KEYD_VERSION#v}/data/gnome-extension-45"
         fi
 
-        # Symlink Extension
-        installPreferencesDir "$GNOME_EXTENSIONS_DIR"
-        installPreferencesSymlink "$GNOME_EXT_WORKSPACE" "$GNOME_EXTENSIONS_DIR/keyd"
-
-        if command -v gnome-extensions &> /dev/null; then
-            gnome-extensions enable keyd 2>/dev/null || true
-        fi
+        # Install and enable GNOME Extension
+        installPreferencesGnomeExtension "$GNOME_EXT_WORKSPACE" "keyd"
     else
         echo "Non-GNOME DE detected ($PREFERENCES_DESKTOP_ENVIRONMENT). Skipping GNOME extension installation."
     fi
