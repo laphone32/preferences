@@ -42,8 +42,8 @@ def _cmd_to_profile(cmd_str: str) -> str:
         match cmd[0]:
             case "vim" | "vimdiff":
                 return "vim"
-            case "sudo":
-                return "prod"
+            case "sudo" | "su":
+                return "sudo"
             case "ssh":
                 for arg in cmd[1:]:
                     if arg.startswith("prod."):

@@ -32,6 +32,8 @@ dump_theme 'Earthsong' 'container'
 dump_theme 'Solarized Darcula' 'uat'
 dump_theme 'Red Alert' 'prod'
 
+installPreferencesSymlink $PREFERENCES_KITTY/color-theme/pinkie.conf $PREFERENCES_WORKSPACE_KITTY/color-theme/sudo.conf
+
 installPreferencesSymlink $PREFERENCES_WORKSPACE_KITTY/color-theme/default.conf $PREFERENCES_KITTY_LOCAL/theme.conf
 
 
