@@ -27,19 +27,7 @@ export LS_COLORS='no=00:fi=00:di=01;36:ln=02;36:pi=40;33:so=01;35:do=01;35:bd=40
 wrapParameterBind 'ls' '--color=auto --time-style=long-iso'
 wrapParameterBind 'grep' '--color=auto'
 
-case $PREFERENCES_OS in
-    'Darwin')
-        source $PREFERENCES_DIR/bash/os/bashrc_macos
-        ;;
-    'Linux')
-        source $PREFERENCES_DIR/bash/os/bashrc_linux
-        ;;
-    *)
-        ;;
-esac
-
-# Compose PS1 afterall
-#PS1='\[\033[0;32m\]\u\[\e[0m\]:\w\[\033[0;33m\]$(PREFERENCES_GIT_PS1)\[\033[1;36m\]$(PREFERENCES_AWS_PS1)\[\e[0m\]# '
+[ -f "$PREFERENCES_WORKSPACE/bash/os.sh" ] && source "$PREFERENCES_WORKSPACE/bash/os.sh"
 
 PS1='\[\033[0;32m\]\u'
 PS1+='\[\e[0m\]:\w'

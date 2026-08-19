@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 source $PREFERENCES_DIR/util/override.sh
+PREFERENCES_TERM="${PREFERENCES_TERM:-$PREFERENCES_DIR/term}"
 
 function loadTermType {
     local colorSet=$1
@@ -43,25 +44,40 @@ function loadTerms {
             esac
             ;;
         *)
-            local terminal=$(ps -o comm= -p "$(($(ps -o ppid= -p "$(($(ps -o sid= -p "$$")))")))")
+            # Fast-path environment variable detection (0ms, 0 process forks)
+            if [ -n "$KITTY_PID" ] && [ "$KITTY_PID" -gt 0 ] 2>/dev/null; then
+                loadTermType '' '' 'xtermcontrol'
+            elif [[ "$TERM_PROGRAM" == "vscode"* ]]; then
+                loadTermType 'xtermcontrol' '' ''
+            elif [ -n "$GNOME_TERMINAL_SCREEN" ] || [ -n "$GNOME_TERMINAL_SERVICE" ]; then
+                loadTermType 'xtermcontrol' 'gnome_terminal' 'xtermcontrol'
+            elif [ "$TERM_PROGRAM" == "kgx" ] || [ -n "$KGX_PID" ]; then
+                loadTermType 'xtermcontrol' '' 'xtermcontrol'
+            else
+                # Slow-path fallback to process inspection if no env signature is found
+                local terminal=""
+                if command -v ps &>/dev/null; then
+                    terminal=$(ps -o comm= -p "$(($(ps -o ppid= -p "$(($(ps -o sid= -p "$$")))")))" 2>/dev/null)
+                fi
 
-            case $terminal in
-                'gnome-terminal'*)
-                    loadTermType 'xtermcontrol' 'gnome_terminal' 'xtermcontrol'
-                    ;;
-                'kgx') # gnome-console
-                    loadTermType 'xtermcontrol' '' 'xtermcontrol'
-                    ;;
-                'kitty')
-                    loadTermType '' '' 'xtermcontrol'
-                    ;;
-                'vscode'*)
-                    loadTermType 'xtermcontrol' '' ''
-                    ;;
-                *)
-                    loadTermType 'xtermcontrol' '' 'xtermcontrol'
-                    ;;
-            esac
+                case $terminal in
+                    'gnome-terminal'*)
+                        loadTermType 'xtermcontrol' 'gnome_terminal' 'xtermcontrol'
+                        ;;
+                    'kgx') # gnome-console
+                        loadTermType 'xtermcontrol' '' 'xtermcontrol'
+                        ;;
+                    'kitty')
+                        loadTermType '' '' 'xtermcontrol'
+                        ;;
+                    'vscode'*)
+                        loadTermType 'xtermcontrol' '' ''
+                        ;;
+                    *)
+                        loadTermType 'xtermcontrol' '' 'xtermcontrol'
+                        ;;
+                esac
+            fi
             ;;
     esac
 }

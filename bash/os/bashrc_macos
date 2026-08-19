@@ -1,17 +1,24 @@
 #!/usr/bin/env bash
 
-eval $(brew shellenv)
-if [[ -f "$HOMEBREW_PREFIX/share/bash-completion/bash_completion" ]]; then
-    source "$HOMEBREW_PREFIX/share/bash-completion/bash_completion"
+if [ -f "$PREFERENCES_WORKSPACE/bash/brew_env.sh" ]; then
+    source "$PREFERENCES_WORKSPACE/bash/brew_env.sh"
+elif command -v brew &>/dev/null; then
+    eval $(brew shellenv)
 fi
 
-if [[ -f "$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh" ]]; then
-    source "$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh"
+if [[ -n "$HOMEBREW_PREFIX" ]]; then
+    if [[ -f "$HOMEBREW_PREFIX/share/bash-completion/bash_completion" ]]; then
+        source "$HOMEBREW_PREFIX/share/bash-completion/bash_completion"
+    fi
+
+    if [[ -f "$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh" ]]; then
+        source "$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh"
+    fi
+
+    # core-utils
+    [ -d "$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin" ] && export PATH="$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin:$PATH"
+
+    # gnu-sed
+    [ -d "$HOMEBREW_PREFIX/opt/gnu-sed/libexec/gnubin" ] && export PATH="$HOMEBREW_PREFIX/opt/gnu-sed/libexec/gnubin:$PATH"
 fi
-
-# core-utils
-export PATH="$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin:$PATH"
-
-# gnu-sed
-export PATH="$HOMEBREW_PREFIX/opt/gnu-sed/libexec/gnubin:$PATH"
 

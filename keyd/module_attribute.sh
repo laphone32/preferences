@@ -14,16 +14,22 @@ function module_get_gui_packages() {
 }
 
 function module_required_fallback() {
-    source "$PREFERENCES_DIR/util/override.sh"
+    source "$PREFERENCES_DIR/keyd/common.sh"
 
-    if ! command -v keyd &> /dev/null && command -v keyd.rvaiya &> /dev/null; then
-        wrap '' 'keyd.rvaiya' 'keyd'
+    if [ -n "$KEYD_BIN" ] && ! command -v keyd &>/dev/null; then
+        installPreferencesDir "$HOME/.local/bin"
+        installPreferencesSymlink "$(command -v "$KEYD_BIN")" "$HOME/.local/bin/keyd"
     fi
 }
 
 function module_install() {
     local modDir="${1:-$PREFERENCES_DIR/keyd}"
     source "$PREFERENCES_DIR/keyd/common.sh"
+
+    if [ -n "$KEYD_BIN" ] && ! command -v keyd &>/dev/null; then
+        installPreferencesDir "$HOME/.local/bin"
+        installPreferencesSymlink "$(command -v "$KEYD_BIN")" "$HOME/.local/bin/keyd"
+    fi
 
     echo "Installing Centralized Keyd module..."
 

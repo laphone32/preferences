@@ -13,17 +13,8 @@ function awsLogined {
     ! [ -z ${AWS_PROFILE:+x} ]
 }
 
-function parse_date_to_epoch {
-    local date_str="$1"
-    if [ "$PREFERENCES_OS" == "Darwin" ]; then
-        date -j -f "%Y-%m-%dT%H:%M:%SZ" "$date_str" "+%s" 2>/dev/null || \
-        date -j -f "%Y-%m-%dT%H:%M:%S%z" "$date_str" "+%s" 2>/dev/null || \
-        date -j -f "%Y-%m-%d %H:%M:%S%z" "$date_str" "+%s" 2>/dev/null || \
-        date -j "$date_str" "+%s" 2>/dev/null
-    else
-        date -d "$date_str" "+%s" 2>/dev/null
-    fi
-}
+[ -f "$PREFERENCES_WORKSPACE/aws/os.sh" ] && source "$PREFERENCES_WORKSPACE/aws/os.sh"
+
 
 function PREFERENCES_AWS_PS1 {
     local ret=""
