@@ -1,7 +1,19 @@
 #!/usr/bin/env bash
 
-source $PREFERENCES_DIR/util/utils.sh
-source $PREFERENCES_DIR/util/environment.sh
+if [ -z "$PREFERENCES_DIR" ]; then
+    export PREFERENCES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
+fi
 
-eachValidSubFile 'source' 'bashrc'
+source "$PREFERENCES_DIR/util/environment.sh" 2>/dev/null || true
+source "$PREFERENCES_DIR/util/utils.sh" 2>/dev/null || true
+
+COMPILED_LOADER="$PREFERENCES_WORKSPACE/bash/compiled_bashrc.sh"
+if [ -f "$COMPILED_LOADER" ]; then
+    source "$COMPILED_LOADER"
+else
+    source "$PREFERENCES_DIR/util/module.sh"
+    forEachModuleFile 'bashrc' 'source'
+fi
+
+
 

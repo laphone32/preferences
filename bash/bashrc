@@ -2,10 +2,16 @@
 source $PREFERENCES_DIR/util/utils.sh
 source $PREFERENCES_DIR/util/override.sh
 
-function addPath {
-    export PATH=$1:$PATH
-}
-eachValidSubFile 'addPath' 'bin'
+if [ ! -f "$PREFERENCES_WORKSPACE/bash/compiled_bashrc.sh" ]; then
+    function addModuleBin {
+        local modDir=$1
+        if [ -d "$modDir/bin" ]; then
+            export PATH="$modDir/bin:$PATH"
+        fi
+    }
+    source "$PREFERENCES_DIR/util/module.sh"
+    forEachModule addModuleBin
+fi
 
 export PATH=$HOME/bin:$HOME/.local/bin:$PREFERENCES_DIR/bin:$PATH
 

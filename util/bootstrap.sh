@@ -19,6 +19,7 @@ export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/
 # 3. Source environment, utils, and installer wrappers
 source "$PREFERENCES_DIR/util/environment.sh"
 source "$PREFERENCES_DIR/util/utils.sh"
+source "$PREFERENCES_DIR/util/module.sh"
 source "$PREFERENCES_DIR/util/systemd.sh"
 source "$PREFERENCES_DIR/util/manifest.sh"
 source "$PREFERENCES_DIR/util/install.sh"

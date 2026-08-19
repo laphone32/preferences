@@ -4,13 +4,14 @@ source $PREFERENCES_DIR/util/override.sh
 source $PREFERENCES_DIR/util/utils.sh
 source $PREFERENCES_DIR/git/common.sh
 
-if ! complete -p git &> /dev/null; then
-    source $PREFERENCES_WORKSPACE_GIT_COMPLETION
+if ! complete -p git &> /dev/null && [ -f "$PREFERENCES_WORKSPACE_GIT_COMPLETION" ]; then
+    source "$PREFERENCES_WORKSPACE_GIT_COMPLETION"
 fi
 
-if ! type -t __git_ps1 | grep -q '^function$' 2>/dev/null; then
-    source $PREFERENCES_WORKSPACE_GIT_PROMPT
+if ! type -t __git_ps1 | grep -q '^function$' 2>/dev/null && [ -f "$PREFERENCES_WORKSPACE_GIT_PROMPT" ]; then
+    source "$PREFERENCES_WORKSPACE_GIT_PROMPT"
 fi
+
 
 GIT_PS1_SHOWDIRTYSTATE=true
 GIT_PS1_SHOWSTASHSTATE=true

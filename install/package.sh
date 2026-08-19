@@ -158,26 +158,43 @@ function installPackageList {
 
 # Entry function to install all necessary packages across all modules
 function installNecessaryPackages {
+    local target_modules=("$@")
+
     IFS=',' read -r PRIMARY_PKG_MANAGER SECONDARY_PKG_MANAGER <<< "$(detectPackageManager)"
 
     echo "Detected primary package manager: $PRIMARY_PKG_MANAGER"
     echo "Detected secondary package manager: $SECONDARY_PKG_MANAGER"
 
-    # Initialize arrays
-    packages=()
-    gui_packages=()
-
-    # Source global and module packages
-    eachValidSubFile 'source' 'required.sh'
-
     # Select target command list based on environment
     target_commands=()
-    if isGuiEnvironment; then
-        echo "GUI environment detected. Processing GUI target packages..."
-        target_commands=("${gui_packages[@]}")
+    local envType="cli"
+    isGuiEnvironment && envType="gui"
+
+    if [ ${#target_modules[@]} -gt 0 ]; then
+        echo "Targeted package check for modules: ${target_modules[*]}"
+        for mod in "${target_modules[@]}"; do
+            local modDir="$PREFERENCES_DIR/$mod"
+            if isModule "$modDir"; then
+                loadModuleAttributes "$modDir"
+                local pkgs=""
+                if [ "$envType" == "gui" ] && declare -f module_get_gui_packages &>/dev/null; then
+                    pkgs=$(module_get_gui_packages)
+                elif declare -f module_get_packages &>/dev/null; then
+                    pkgs=$(module_get_packages)
+                fi
+                for p in $pkgs; do
+                    [ -n "$p" ] && target_commands+=("$p")
+                done
+            fi
+        done
     else
-        echo "Headless environment detected. Processing CLI target packages..."
-        target_commands=("${packages[@]}")
+        if [ "$envType" == "gui" ]; then
+            echo "GUI environment detected. Processing GUI target packages..."
+            target_commands=($(collectAllModulePackages gui))
+        else
+            echo "Headless environment detected. Processing CLI target packages..."
+            target_commands=($(collectAllModulePackages cli))
+        fi
     fi
 
     # Check which packages are missing
@@ -194,7 +211,7 @@ function installNecessaryPackages {
     fi
 
     # Execute fallback scripts for still-missing packages
-    eachValidSubFile 'source' 'required_fallback.sh'
+    runAllModuleFallbacks
 
     # Final verification
     still_missing=()

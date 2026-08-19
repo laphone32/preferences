@@ -4,7 +4,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/util/bootstrap.sh"
 
 
 source "$PREFERENCES_DIR/install/package.sh"
-if ! installNecessaryPackages; then
+if ! installNecessaryPackages "$@"; then
     echo "❌ Error: Required package installation incomplete. Aborting installation."
     exit 1
 fi
@@ -14,16 +14,12 @@ installPreferencesDir "$(workspace '')"
 
 
 # module installation
-function echoAndSource {
-    local arg=$1
-    echo "source $arg"
-    source $arg
-}
-
 if [ "$#" -ge 1 ]; then
     for module in "$@"; do
-        echoAndSource "$PREFERENCES_DIR/$module/install.sh"
+        installModule "$PREFERENCES_DIR/$module"
     done
 else
-    eachValidSubFile 'echoAndSource' 'install.sh'
+    installAllModules
 fi
+
+
