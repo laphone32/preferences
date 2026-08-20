@@ -8,6 +8,9 @@
   "permissions": {
     "allow": [
       "read_file",
+      "read_file(~/.local/**)",
+      "read_file(~/.config/**)",
+      "read_file(~/.vim/**)",
       "command(ls)",
       "command(cat)",
       "command(which)",
@@ -15,6 +18,7 @@
       "command(rg)",
       "command(grep)",
       "command(head)",
+      "command(less)",
       "command(tail)",
       "command(sleep)",
       "command(docker logs)",

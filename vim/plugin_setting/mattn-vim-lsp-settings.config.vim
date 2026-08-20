@@ -6,7 +6,8 @@ if !exists('g:lsp_settings')
     g:lsp_settings = {}
 endif
 
-# Customize clangd server parameters
+# Customization
+# clangd
 g:lsp_settings['clangd'] = {
     'args': [
         '--background-index',
@@ -17,3 +18,28 @@ g:lsp_settings['clangd'] = {
         'fallbackFlags': ['-std=c++20', '-Wall']
     }
 }
+
+# bash
+g:lsp_settings['bash-language-server'] = {
+    'allowlist': ['sh', 'bash'],
+    'workspace_config': {
+        'bashIde': {
+            'includeAllWorkspaceSymbols': v:true,
+            'globPattern': '**/*@(.sh|.inc|.bash|.command|*bashrc*|*bash_profile*|common*)'
+        }
+    }
+}
+
+# python
+g:lsp_settings['pylsp-all'] = {
+    'workspace_config': {
+        'pylsp': {
+            'plugins': {
+                'pylint': {
+			        'enabled': v:true,
+                },
+            }
+        }
+    }
+}
+
