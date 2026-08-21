@@ -16,8 +16,6 @@ function module_install() {
         echo "ℹ View scheduled tasks with: crontab -l"
     }
 
-    # Ensure log workspace directory exists
-    installPreferencesDir "$PREFERENCES_WORKSPACE_CRON"
     installPreferencesSymlink "$PREFERENCES_CRON/cron.sh" "$PREFERENCES_WORKSPACE_CRON/cron.sh"
 
     echo "=========================================="

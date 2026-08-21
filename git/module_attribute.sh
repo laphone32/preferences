@@ -17,8 +17,6 @@ function module_install() {
     local modDir="${1:-$PREFERENCES_DIR/git}"
     source "$PREFERENCES_DIR/git/common.sh"
 
-    installPreferencesDir "$PREFERENCES_WORKSPACE_GIT"
-
     local gitVersion=$(git version 2>/dev/null | awk -F' ' '{print $3}')
     if [ -n "$gitVersion" ]; then
         local gitRepo="https://raw.githubusercontent.com/git/git/v${gitVersion}"

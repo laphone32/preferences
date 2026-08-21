@@ -45,7 +45,6 @@ function module_install() {
     fi
 
     installPreferencesDir "$PREFERENCES_KITTY_LOCAL"
-    installPreferencesDir "$PREFERENCES_WORKSPACE_KITTY"
 
     local PREFERENCES_KITTY_CONFIG="$PREFERENCES_KITTY/config"
 

@@ -52,8 +52,12 @@ function deleteSection {
 }
 
 function workspace {
-    local module=$1
-    echo "$PREFERENCES_WORKSPACE/$module"
+    local module=${1:-""}
+    if [ -n "$module" ]; then
+        echo "$PREFERENCES_WORKSPACE/$module"
+    else
+        echo "$PREFERENCES_WORKSPACE"
+    fi
 }
 
 function githubLatestRelease {

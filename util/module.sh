@@ -259,6 +259,8 @@ function installModule {
                 modName=$(basename "$dir")
             fi
             echo "📦 Installing module [$modName]..."
+            installPreferencesDir "$(workspace "$modName")"
+            installPreferencesDir "$(workspace "$modName")/cron"
             module_install "$dir"
         fi
     else
@@ -273,11 +275,7 @@ function installAllModules {
         local modDir="${1%/}"
         local modName=$2
 
-        loadModuleAttributes "$modDir"
-        if declare -f module_install &>/dev/null; then
-            echo "📦 Installing module [$modName]..."
-            module_install "$modDir"
-        fi
+        installModule "$modDir"
     }
 
     forEachModule _execModuleInstall "$rootDir"

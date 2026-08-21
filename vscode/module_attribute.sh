@@ -9,8 +9,6 @@ function module_install() {
     local modDir="${1:-$PREFERENCES_DIR/vscode}"
     local PREFERENCES_WORKSPACE_VSCODE="$(workspace vscode)"
 
-    installPreferencesDir "$PREFERENCES_WORKSPACE_VSCODE"
-
     case "$PREFERENCES_OS" in
         'Darwin')
             installPreferencesSymlink "$modDir/os/macos.env" "$PREFERENCES_WORKSPACE_VSCODE/os.env"

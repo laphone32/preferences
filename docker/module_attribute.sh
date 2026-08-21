@@ -17,8 +17,6 @@ function module_install() {
     local modDir="${1:-$PREFERENCES_DIR/docker}"
     source "$PREFERENCES_DIR/docker/common.sh"
 
-    installPreferencesDir "$PREFERENCES_WORKSPACE_DOCKER"
-
     if command -v docker &> /dev/null; then
         docker completion bash > "$PREFERENCES_WORKSPACE_DOCKER_COMPLETION" 2>/dev/null || true
         if getent group docker >/dev/null && ! id -nG "$USER" | grep -qw "docker"; then

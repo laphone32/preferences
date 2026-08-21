@@ -27,7 +27,6 @@ function module_install() {
     fi
 
 
-    installPreferencesDir "$PREFERENCES_WORKSPACE_BASH"
     # Ahead-of-Time (AOT) Bashrc compilation
     compilePreferencesBashrc
 

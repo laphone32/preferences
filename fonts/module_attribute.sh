@@ -9,8 +9,6 @@ function module_install() {
     local modDir="${1:-$PREFERENCES_DIR/fonts}"
     source "$PREFERENCES_DIR/fonts/common.sh"
 
-    installPreferencesDir "$PREFERENCES_WORKSPACE_FONTS"
-
     local font_install_folder=""
     case $PREFERENCES_OS in
         'Darwin')

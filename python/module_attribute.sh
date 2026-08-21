@@ -10,8 +10,6 @@ function module_install() {
     source "$PREFERENCES_DIR/python/common.sh"
     source "$PREFERENCES_DIR/python/pvenv.sh"
 
-    installPreferencesDir "$PREFERENCES_WORKSPACE_PYTHON"
-
     curl -L https://raw.githubusercontent.com/google/styleguide/gh-pages/pylintrc -o "$PREFERENCES_WORKSPACE_PYTHON_PYLINTRC" 2>/dev/null || true
 
     installPreferencesSudoSymlink "$PREFERENCES_WORKSPACE_PYTHON_PYLINTRC" $HOME/.config/pylintrc

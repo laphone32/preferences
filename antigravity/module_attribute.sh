@@ -21,7 +21,6 @@ function module_install() {
         echo "✓ agy CLI is already installed"
     fi
 
-    installPreferencesDir "$PREFERENCES_WORKSPACE_ANTIGRAVITY"
     installPreferencesDir "$PREFERENCES_ANTIGRAVITY_GLOBAL_CONFIG"
 
     # Link settings.json if present
