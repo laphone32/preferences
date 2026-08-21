@@ -16,7 +16,7 @@ function module_install() {
         echo "ℹ View scheduled tasks with: crontab -l"
     }
 
-    installPreferencesSymlink "$PREFERENCES_CRON/cron.sh" "$PREFERENCES_WORKSPACE_CRON/cron.sh"
+    installPreferencesCronDir "$PREFERENCES_CRON/cron" "cron"
 
     echo "=========================================="
     echo "🔧 Setting up Preferences Task Scheduler"

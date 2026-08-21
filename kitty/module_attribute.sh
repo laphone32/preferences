@@ -28,8 +28,7 @@ function module_required_fallback() {
         fi
 
         # Register auto-update cron task for fallback installation
-        installPreferencesDir "$PREFERENCES_DIR/.workspace/kitty"
-        installPreferencesSymlink "$PREFERENCES_DIR/kitty/cron.sh" "$PREFERENCES_DIR/.workspace/kitty/cron.sh"
+        installPreferencesCronDir "$PREFERENCES_DIR/kitty/cron" "kitty"
 
         echo "✓ Kitty terminal fallback installation complete."
     fi

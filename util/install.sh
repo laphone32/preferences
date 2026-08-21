@@ -242,7 +242,32 @@ function undoPreferencesCron {
     crontab -l 2>/dev/null | grep -v "$identifier" | crontab - 2>/dev/null || true
 }
 
-# --- 8. Font Directory (Nerd Fonts target directory) ---
+# --- 8. Workspace Cron Task Symlinks ---
+function installPreferencesCronTask {
+    local sourceScript=$1
+    local moduleName=$2
+    local taskName=${3:-$(basename "$sourceScript")}
+
+    local targetDir="$(workspace "$moduleName")/cron"
+    installPreferencesDir "$targetDir"
+    installPreferencesSymlink "$sourceScript" "$targetDir/$taskName"
+}
+
+function installPreferencesCronDir {
+    local sourceDir=$1
+    local moduleName=$2
+
+    if [ -d "$sourceDir" ]; then
+        for taskFile in "$sourceDir"/*.sh; do
+            if [ -f "$taskFile" ]; then
+                local taskName="$(basename "$taskFile")"
+                installPreferencesCronTask "$taskFile" "$moduleName" "$taskName"
+            fi
+        done
+    fi
+}
+
+# --- 9. Font Directory (Nerd Fonts target directory) ---
 function installPreferencesFontDir {
     local dirPath=$1
 
@@ -261,7 +286,7 @@ function undoPreferencesFontDir {
     fi
 }
 
-# --- 9. GNOME Shell Extension ---
+# --- 10. GNOME Shell Extension ---
 function installPreferencesGnomeExtension {
     local sourceDir=$1
     local extensionName=$2

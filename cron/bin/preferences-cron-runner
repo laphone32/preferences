@@ -8,38 +8,55 @@ LOG_DIR="$PREFERENCES_WORKSPACE_CRON"
 mkdir -p "$LOG_DIR"
 LOG_FILE="$PREFERENCES_CRON_LOG"
 
-# Run all submodule cron.sh files and append to log
+# Run all workspace cron tasks and append to log
 {
     echo "=========================================="
     echo "⏰ Preferences Cron Triggered: $(date)"
     echo "👤 User: $(whoami) | OS: $PREFERENCES_OS"
     echo "=========================================="
     
-    # Discovery and source all submodule cron.sh files in isolated subshells
     failures=0
-    for dir in "$PREFERENCES_DIR/.workspace"/*/; do
-        if [ -f "${dir}cron.sh" ]; then
-            rel_path="${dir#$PREFERENCES_DIR/.workspace/}"
-            echo "[$(date '+%Y-%m-%d %H:%M:%S')] ▶ Starting task: ${rel_path}cron.sh"
-            
+    total=0
+    
+    # Discover and execute all staged task scripts (.workspace/<module>/cron/*.sh)
+    for cron_dir in "$PREFERENCES_WORKSPACE"/*/cron; do
+        [ ! -d "$cron_dir" ] && continue
+        module_name="$(basename "$(dirname "$cron_dir")")"
+
+        for task_script in "$cron_dir"/*.sh; do
+            [ ! -e "$task_script" ] && continue
+
+            # Prune dangling symlink if target was removed
+            if [ -L "$task_script" ] && [ ! -e "$task_script" ]; then
+                echo "[$(date '+%Y-%m-%d %H:%M:%S')] 🧹 Cleaning up stale task symlink: $(basename "$task_script")"
+                rm -f "$task_script"
+                continue
+            fi
+
+            task_name="$(basename "$task_script" .sh)"
+            total=$((total + 1))
+
+            echo "[$(date '+%Y-%m-%d %H:%M:%S')] ▶ Starting task: [$module_name:$task_name]"
+
             # Run in subshell to isolate environment and prevent premature exit/termination
             (
-                cd "$dir"
-                source "cron.sh"
+                cd "$(dirname "$task_script")"
+                source "$task_script"
             )
             status=$?
-            
+
             if [ $status -eq 0 ]; then
-                echo "[$(date '+%Y-%m-%d %H:%M:%S')] 🟢 Completed task: ${rel_path}cron.sh (Exit: 0)"
+                echo "[$(date '+%Y-%m-%d %H:%M:%S')] 🟢 Completed task: [$module_name:$task_name] (Exit: 0)"
             else
-                echo "[$(date '+%Y-%m-%d %H:%M:%S')] 🔴 Failed task: ${rel_path}cron.sh (Exit: $status)"
+                echo "[$(date '+%Y-%m-%d %H:%M:%S')] 🔴 Failed task: [$module_name:$task_name] (Exit: $status)"
                 failures=$((failures + 1))
             fi
             echo ""
-        fi
+        done
     done
     
     echo "=========================================="
-    echo "✅ Preferences Cron Completed: $(date) (Failures: $failures)"
+    echo "✅ Preferences Cron Completed: $(date) (Total: $total | Failures: $failures)"
+    echo "=========================================="
     echo ""
 } >> "$LOG_FILE" 2>&1

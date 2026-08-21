@@ -63,8 +63,6 @@ function module_install() {
         done
     fi
 
-    # Link cron task if present
-    if [ -f "$PREFERENCES_ANTIGRAVITY/cron.sh" ]; then
-        installPreferencesSymlink "$PREFERENCES_ANTIGRAVITY/cron.sh" "$PREFERENCES_WORKSPACE_ANTIGRAVITY/cron.sh"
-    fi
+    # Link cron tasks if present
+    installPreferencesCronDir "$PREFERENCES_ANTIGRAVITY/cron" "antigravity"
 }
