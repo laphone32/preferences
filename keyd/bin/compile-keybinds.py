@@ -20,7 +20,12 @@ def translate_layer(trigger_str):
         A tuple of (layer_name, key).
     """
     parts = [p.strip().lower() for p in trigger_str.split("+")]
-    mod_map = {"ctrl": "control", "shift": "shift", "alt": "alt", "super": "meta"}
+    mod_map = {
+        "ctrl": "control",
+        "shift": "shift",
+        "alt": "alt",
+        "super": "meta",
+    }
 
     mods = [mod_map[p] for p in parts[:-1] if p in mod_map]
     key = parts[-1]

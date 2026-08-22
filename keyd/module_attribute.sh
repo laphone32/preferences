@@ -48,7 +48,7 @@ function module_install() {
 
         if [ -n "$KEYD_BIN" ]; then
             enablePreferencesSystemdSystemService "$KEYD_BIN"
-            sudo "$KEYD_BIN" reload 2>/dev/null || true
+            "$KEYD_BIN" reload 2>/dev/null || sudo "$KEYD_BIN" reload 2>/dev/null || true
         else
             echo "Warning: keyd binary not found, unable to reload."
         fi
@@ -88,10 +88,12 @@ AttrKeyboardIntegration=internal"
         # Setup keyd-application-mapper systemd user service for non-GNOME environments
         installPreferencesSystemdUserService "keyd-application-mapper" "$PREFERENCES_DIR/keyd/systemd/keyd-application-mapper.service"
 
-        # Add user to keyd group so they can interact with the mapper without sudo
-        echo "Adding $USER to the keyd group..."
-        sudo usermod -aG keyd "$USER" 2>/dev/null || true
-        echo "Note: You may need to log out and log back in for group changes to take effect."
+        # Add user to keyd group only if not already present
+        if ! id -nG "$USER" 2>/dev/null | grep -qw "keyd"; then
+            echo "Adding $USER to the keyd group..."
+            sudo usermod -aG keyd "$USER" 2>/dev/null || true
+            echo "Note: You may need to log out and log back in for group changes to take effect."
+        fi
     fi
 
     # Apply GNOME settings (unbinding GNOME Shell conflicts)

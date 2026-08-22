@@ -26,6 +26,16 @@ function updateOrInsertSection {
     local isSudo=${4:-false}
     local scriptDir="${PREFERENCES_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}/util"
 
+    local expectedBlock="### ${section} ###"$'\n'"${content}"$'\n'"### end of ${section} ###"
+
+    if [ -f "$fileName" ] && [ -r "$fileName" ]; then
+        local currentContent
+        currentContent=$(<"$fileName")
+        if [[ "$currentContent" == *"$expectedBlock"* ]]; then
+            return 0
+        fi
+    fi
+
     local sudoCmd=""
     if [ "$isSudo" == "true" ] || [ "$isSudo" == "yes" ] || [ "$isSudo" == "1" ] || [ "$isSudo" == "sudo" ]; then
         sudoCmd="sudo "

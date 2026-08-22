@@ -12,7 +12,7 @@ function module_install() {
 
     curl -L https://raw.githubusercontent.com/google/styleguide/gh-pages/pylintrc -o "$PREFERENCES_WORKSPACE_PYTHON_PYLINTRC" 2>/dev/null || true
 
-    installPreferencesSudoSymlink "$PREFERENCES_WORKSPACE_PYTHON_PYLINTRC" $HOME/.config/pylintrc
+    installPreferencesSymlink "$PREFERENCES_WORKSPACE_PYTHON_PYLINTRC" $HOME/.config/pylintrc
 
     pythonVenvCreateOnce '_preferences_default' "$PREFERENCES_WORKSPACE_PYTHON"
 }

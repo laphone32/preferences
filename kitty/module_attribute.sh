@@ -51,22 +51,10 @@ function module_install() {
     DEFAULT_SHELL=$(which bash) envsubst '$DEFAULT_SHELL' < "$PREFERENCES_KITTY_CONFIG/device.conf.template" > "$PREFERENCES_WORKSPACE_KITTY/device.conf"
     installPreferencesSymlink "$PREFERENCES_WORKSPACE_KITTY/device.conf" "$PREFERENCES_KITTY_LOCAL/device.conf"
 
-    # color scheme
-    installPreferencesDir "$PREFERENCES_WORKSPACE_KITTY/color-theme"
-    function dump_theme {
-        if command -v kitty &>/dev/null; then
-            kitty +kitten themes --dump-theme "$1" > "$PREFERENCES_WORKSPACE_KITTY/color-theme/$2.conf" 2>/dev/null || true
-        fi
-    }
-    dump_theme 'Chalk' 'default'
-    dump_theme 'Nord' 'vim'
-    dump_theme 'Vaughn' 'remote'
-    dump_theme 'Earthsong' 'container'
-    dump_theme 'Solarized Darcula' 'uat'
-    dump_theme 'Red Alert' 'prod'
+    # themes
+    python3 "$modDir/compile/compile_themes.py"
+    installPreferencesSymlink "$PREFERENCES_WORKSPACE_KITTY/theme/default.conf" "$PREFERENCES_KITTY_LOCAL/theme.conf"
 
-    installPreferencesSymlink "$PREFERENCES_KITTY/color-theme/pinkie.conf" "$PREFERENCES_WORKSPACE_KITTY/color-theme/sudo.conf"
-    installPreferencesSymlink "$PREFERENCES_WORKSPACE_KITTY/color-theme/default.conf" "$PREFERENCES_KITTY_LOCAL/theme.conf"
 
     # os specific
     case "$PREFERENCES_OS" in
@@ -79,9 +67,6 @@ function module_install() {
         *)
             ;;
     esac
-
-    # fonts
-    installPreferencesSymlink "$PREFERENCES_KITTY/fonts/default.conf" "$PREFERENCES_KITTY_LOCAL/fonts.conf"
 
     # watcher
     PREFERENCES_DIR=$PREFERENCES_DIR PREFERENCES_KITTY_LOCAL=$PREFERENCES_KITTY_LOCAL envsubst '$PREFERENCES_DIR,$PREFERENCES_KITTY_LOCAL' < "$PREFERENCES_KITTY_CONFIG/watcher.py.template" > "$PREFERENCES_WORKSPACE_KITTY/watcher.py"

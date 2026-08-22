@@ -1,41 +1,7 @@
 #!/usr/bin/env bash
 
-PREFERENCES_TERM=$PREFERENCES_DIR/term
+PREFERENCES_TERM="${PREFERENCES_TERM:-$PREFERENCES_DIR/term}"
 
-source $PREFERENCES_TERM/util.sh
+source "$PREFERENCES_TERM/util.sh"
 
 loadTerms
-
-vimTerm='
-    trap defaultTerm RETURN
-    setTerm profile_vim
-    '
-wrapPreHook "$vimTerm" vim
-wrapPreHook "$vimTerm" vimdiff
-
-wrapPreHook '
-    trap defaultTerm RETURN
-    local confirmed=false
-    function setTermAndBreak {
-        setTerm $1 $2
-        confirmed=true
-    }
-
-    for argu in $@
-    do
-        # For the usage xxx@bind_addr
-        arguhost=${argu#*@}
-        case $arguhost in
-            -*) ;;
-            prod.*) setTermAndBreak profile_prod $argu ;;
-            uat.*) setTermAndBreak profile_uat $argu ;;
-            docker.* | container.*) setTermAndBreak profile_container $argu ;;
-            *) setTermAndBreak profile_remote $argu ;;
-        esac
-
-        [ $confirmed = true ] && break;
-    done
-    ' ssh
-
-defaultTerm
-

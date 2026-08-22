@@ -1,16 +1,33 @@
 #!/usr/bin/env bash
 
-source $PREFERENCES_DIR/util/override.sh
-PREFERENCES_TERM="${PREFERENCES_TERM:-$PREFERENCES_DIR/term}"
+source "$PREFERENCES_DIR/util/override.sh" 2>/dev/null || true
+source "$PREFERENCES_DIR/term/common.sh" 2>/dev/null || true
 
-function loadTermType {
-    local colorSet=$1
-    local fontSet=$2
-    local titleSet=$3
+# Default no-op definitions
+function setTermFont { :; }
 
-    [ -z $colorSet ] && function setTermColor { :; } || source $PREFERENCES_TERM/color/$colorSet.sh
-    [ -z $fontSet ] && function setTermFont { :; } || source $PREFERENCES_TERM/font/$fontSet.sh
-    [ -z $titleSet ] && function setTermTitle { :; } || source $PREFERENCES_TERM/title/$titleSet.sh
+# Initialize compiled OSC themes
+ensureTermThemesCompiled
+[ -f "$PREFERENCES_WORKSPACE_TERM/theme/compiled_osc.sh" ] && source "$PREFERENCES_WORKSPACE_TERM/theme/compiled_osc.sh"
+
+function setTermColor {
+    local profile=$1
+    local varName="_PREFERENCES_TERM_${profile^^}"
+    export _PREFERENCES_TERM_CURRENT="${!varName:-$_PREFERENCES_TERM_DEFAULT}"
+    echo -ne "$_PREFERENCES_TERM_CURRENT"
+}
+
+function setTermTitle {
+    local profile=$1
+    local extra=$2
+    local title
+    title=$(python3 "$PREFERENCES_TERM/compile/title.py" "$profile" "$extra" "$PWD" 2>/dev/null)
+    [ -n "$title" ] && echo -ne "\033]0;${title}\007"
+}
+
+function loadTermFontType {
+    local fontSet=$1
+    [ -n "$fontSet" ] && [ -f "$PREFERENCES_WORKSPACE_TERM/font/$fontSet.sh" ] && source "$PREFERENCES_WORKSPACE_TERM/font/$fontSet.sh" || function setTermFont { :; }
 }
 
 function loadTerms {
@@ -20,66 +37,84 @@ function loadTerms {
     for key in "${ignoring_key[@]}"; do
         if [[ ! -z ${!key:+x} ]]; then
             echo "Skip loading term utils because environment variable $key is not null"
-            loadTermType '' '' ''
             return
         fi
     done
 
+    # Kitty self-manages fonts, colors, and titles natively via watcher.py
+    if [ -n "$KITTY_PID" ] && [ "$KITTY_PID" -gt 0 ] 2>/dev/null; then
+        return
+    fi
+
     case $PREFERENCES_OS in
         'Darwin')
             case $TERM_PROGRAM in
-                'iTerm'*)
-                    loadTermType 'iterm2' '' 'iterm2'
-                    ;;
-                'vscode'*)
-                    loadTermType 'xtermcontrol' '' ''
+                'iTerm'*|'vscode'*)
+                    loadTermFontType ''
                     ;;
                 *)
-                    if [ -n "$KITTY_PID" ] && [ "$KITTY_PID" -gt 0 ]; then
-                        loadTermType '' '' 'xtermcontrol'
-                    else
-                        loadTermType 'xtermcontrol' 'apple_terminal' 'xtermcontrol'
-                    fi
+                    # Apple Terminal
+                    loadTermFontType 'apple_terminal'
                     ;;
             esac
             ;;
-        *)
-            # Fast-path environment variable detection (0ms, 0 process forks)
-            if [ -n "$KITTY_PID" ] && [ "$KITTY_PID" -gt 0 ] 2>/dev/null; then
-                loadTermType '' '' 'xtermcontrol'
-            elif [[ "$TERM_PROGRAM" == "vscode"* ]]; then
-                loadTermType 'xtermcontrol' '' ''
-            elif [ -n "$GNOME_TERMINAL_SCREEN" ] || [ -n "$GNOME_TERMINAL_SERVICE" ]; then
-                loadTermType 'xtermcontrol' 'gnome_terminal' 'xtermcontrol'
-            elif [ "$TERM_PROGRAM" == "kgx" ] || [ -n "$KGX_PID" ]; then
-                loadTermType 'xtermcontrol' '' 'xtermcontrol'
+        'Linux')
+            if [ -n "$GNOME_TERMINAL_SCREEN" ] || [ -n "$GNOME_TERMINAL_SERVICE" ]; then
+                loadTermFontType 'gnome_terminal'
             else
-                # Slow-path fallback to process inspection if no env signature is found
-                local terminal=""
-                if command -v ps &>/dev/null; then
-                    terminal=$(ps -o comm= -p "$(($(ps -o ppid= -p "$(($(ps -o sid= -p "$$")))")))" 2>/dev/null)
-                fi
-
-                case $terminal in
-                    'gnome-terminal'*)
-                        loadTermType 'xtermcontrol' 'gnome_terminal' 'xtermcontrol'
-                        ;;
-                    'kgx') # gnome-console
-                        loadTermType 'xtermcontrol' '' 'xtermcontrol'
-                        ;;
-                    'kitty')
-                        loadTermType '' '' 'xtermcontrol'
-                        ;;
-                    'vscode'*)
-                        loadTermType 'xtermcontrol' '' ''
-                        ;;
-                    *)
-                        loadTermType 'xtermcontrol' '' 'xtermcontrol'
-                        ;;
-                esac
+                loadTermFontType ''
             fi
             ;;
+        *)
+            loadTermFontType ''
+            ;;
     esac
+
+    # Command wrappers for osc managed terminals
+    local resetTermHook='local _ret=$?; defaultTerm; return $_ret'
+
+    function wrapTermCommand {
+        local preAction=$1
+        local cmdName=$2
+        local preHook="trap defaultTerm RETURN"$'\n'"$preAction"
+        wrap "$preHook" '' "$cmdName" '' "$resetTermHook"
+    }
+
+    wrapTermCommand 'setTerm profile_vim "$*"' vim
+    wrapTermCommand 'setTerm profile_vim "$*"' vimdiff
+
+    wrapTermCommand 'setTerm profile_sudo "$*"' sudo
+    wrapTermCommand 'setTerm profile_sudo "$*"' su
+
+    local sshAction='
+        local confirmed=false
+        function setTermAndBreak {
+            setTerm $1 $2
+            confirmed=true
+        }
+
+        for argu in $@
+        do
+            # For the usage xxx@bind_addr
+            arguhost=${argu#*@}
+            case $arguhost in
+                -*) ;;
+                prod.*) setTermAndBreak profile_prod $argu ;;
+                uat.*) setTermAndBreak profile_uat $argu ;;
+                docker.* | container.*) setTermAndBreak profile_container $argu ;;
+                *) setTermAndBreak profile_remote $argu ;;
+            esac
+
+            [ $confirmed = true ] && break;
+        done'
+    wrapTermCommand "$sshAction" ssh
+
+    # Ensure PS1 always emits the default term OSC sequence and directory title on prompt render
+    if [[ "$PS1" != *"_PREFERENCES_TERM_DEFAULT"* ]]; then
+        PS1="\[\033]0;\w\007\]\[\${_PREFERENCES_TERM_DEFAULT}\]$PS1"
+    fi
+
+    defaultTerm
 }
 
 function setTerm {
@@ -94,4 +129,3 @@ function setTerm {
 function defaultTerm {
     setTerm profile_default
 }
-

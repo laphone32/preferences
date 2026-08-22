@@ -21,6 +21,12 @@ function installPreferencesSymlink {
     target="${target%/}"
 
     if [ -L "$target" ]; then
+        local current_target
+        current_target=$(readlink "$target" 2>/dev/null || true)
+        if [ "$current_target" == "$source" ]; then
+            appendManifest "$PREFERENCES_INSTALL_ACTION_SYMLINK" "$target"
+            return 0
+        fi
         unlink "$target" 2>/dev/null || rm -f "$target"
     elif [ -d "$target" ]; then
         rm -rf "$target"
@@ -50,9 +56,23 @@ function installPreferencesSudoSymlink {
     local target=$2
     target="${target%/}"
 
+    # If the symlink already exists and points to the exact same source, skip sudo
+    if [ -L "$target" ]; then
+        local current_target
+        current_target=$(readlink "$target" 2>/dev/null || true)
+        if [ "$current_target" == "$source" ]; then
+            appendManifest "$PREFERENCES_INSTALL_ACTION_SUDO_SYMLINK" "$target"
+            return 0
+        fi
+    fi
+
     sudo mkdir -p "$(dirname "$target")"
     if [ -L "$target" ]; then
         sudo unlink "$target" 2>/dev/null || sudo rm -f "$target"
+    elif [ -d "$target" ]; then
+        sudo rm -rf "$target"
+    elif [ -f "$target" ]; then
+        sudo rm -f "$target"
     fi
     sudo ln -sf "$source" "$target"
     appendManifest "$PREFERENCES_INSTALL_ACTION_SUDO_SYMLINK" "$target"

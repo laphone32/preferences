@@ -1,4 +1,10 @@
+"""
+Kitty dynamic watcher script for font, color theme, and title management.
+Auto-configured by preferences installer.
+"""
+
 import os
+import sys
 from typing import Any, Dict
 
 from kitty.boss import Boss
@@ -10,11 +16,26 @@ preferences_dir = "$PREFERENCES_DIR"
 kitty_config = "$PREFERENCES_KITTY_LOCAL"
 ### end of Preferences variables ###
 
+if preferences_dir not in sys.path:
+    sys.path.insert(0, preferences_dir)
+
+# Import centralized title and command parsing
+from term.compile.title import (  # pylint: disable=wrong-import-position
+    format_title,
+    parse_cmd,
+)
+
 
 def _force_symlink(src: str, dst: str) -> bool:
-    current_dst = os.readlink(dst)
-    if src != current_dst:
-        os.remove(dst)
+    try:
+        current_dst = os.readlink(dst)
+        if src != current_dst:
+            os.remove(dst)
+            os.symlink(src, dst)
+            return True
+    except OSError:
+        if os.path.exists(dst):
+            os.remove(dst)
         os.symlink(src, dst)
         return True
 
@@ -32,66 +53,51 @@ def _valid_path(prefix: str, profile: str) -> str:
 
 class Default:
     profile = "default"
-    font_path = _valid_path(f"{preferences_dir}/kitty/fonts", profile)
-    theme_path = _valid_path(f"{preferences_dir}/.workspace/kitty/color-theme", profile)
 
 
-def _cmd_to_profile(cmd_str: str) -> str:
-    if len(cmd_str) > 0:
-        cmd = cmd_str.split()
-        match cmd[0]:
-            case "vim" | "vimdiff":
-                return "vim"
-            case "sudo" | "su":
-                return "sudo"
-            case "ssh":
-                for arg in cmd[1:]:
-                    if arg.startswith("prod."):
-                        return "prod"
-                    elif arg.startswith("uat."):
-                        return "uat"
-                    elif arg.startswith("docker.") or arg.startswith("container."):
-                        return "container"
-                else:
-                    return "remote"
+def _update_title(window: Window, profile: str, extra: str = "") -> None:
+    if not window or not hasattr(window, "set_title"):
+        return
 
-    return Default.profile
+    cwd = getattr(window, "cwd_of_child", None)
+    title = format_title(profile, extra=extra, cwd=cwd)
+    try:
+        window.set_title(title)
+    except (AttributeError, RuntimeError):
+        pass
 
 
-def _set_term(boss: Boss, profiles: dict[str, str]) -> None:
-    reload = _force_symlink(
-        profiles.get("font", Default.font_path),
-        f"{kitty_config}/fonts.conf",
+def _update_profile(boss: Boss, profile: str) -> None:
+    theme_path = _valid_path(
+        f"{preferences_dir}/.workspace/kitty/theme", profile
     )
-    reload |= _force_symlink(
-        profiles.get("theme", Default.theme_path),
-        f"{kitty_config}/theme.conf",
-    )
-
-    if reload:
+    if _force_symlink(theme_path, f"{kitty_config}/theme.conf"):
         boss.load_config_file(f"{kitty_config}/kitty.conf")
 
 
-window_profile: dict[int, dict[str, str]] = {}
+window_profile: dict[int, tuple[str, str]] = {}
 
 
 def on_focus_change(boss: Boss, window: Window, data: Dict[str, Any]) -> None:
-    # Here data will contain focused
-    if data["focused"]:
-        profiles = window_profile.get(window.id, {})
-        _set_term(boss, profiles)
+    if not window or not data or not data.get("focused"):
+        return
+
+    profile, extra = window_profile.get(window.id, (Default.profile, ""))
+    _update_profile(boss, profile)
+    _update_title(window, profile, extra)
 
 
-def on_cmd_startstop(boss: Boss, window: Window, data: Dict[str, Any]) -> None:
-    # called when the shell starts/stops executing a command. Here
-    # data will contain is_start, cmdline and time.
-    profile = _cmd_to_profile(data["cmdline"]) if data["is_start"] else Default.profile
+def on_cmd_startstop(
+    boss: Boss, window: Window, data: Dict[str, Any]
+) -> None:
+    if not window or not data:
+        return
 
-    profiles = {
-        "theme": _valid_path(
-            f"{preferences_dir}/.workspace/kitty/color-theme", profile
-        ),
-        "font": _valid_path(f"{preferences_dir}/kitty/fonts", profile),
-    }
-    window_profile[window.id] = profiles
-    _set_term(boss, profiles)
+    cmdline = data.get("cmdline", "")
+    if data.get("is_start"):
+        profile, extra = parse_cmd(cmdline)
+    else:
+        profile, extra = (Default.profile, "")
+    window_profile[window.id] = (profile, extra)
+    _update_profile(boss, profile)
+    _update_title(window, profile, extra)

@@ -138,8 +138,11 @@ function disablePreferencesSystemdTimer {
 function enablePreferencesSystemdSystemService {
     local serviceName=$1
     [ "$PREFERENCES_OS" == "Linux" ] && command -v systemctl &>/dev/null || return 1
-    sudo systemctl daemon-reload 2>/dev/null || true
-    sudo systemctl enable --now "$serviceName" 2>/dev/null || true
+
+    if ! systemctl is-active --quiet "$serviceName" 2>/dev/null || ! systemctl is-enabled --quiet "$serviceName" 2>/dev/null; then
+        sudo systemctl daemon-reload 2>/dev/null || true
+        sudo systemctl enable --now "$serviceName" 2>/dev/null || true
+    fi
 }
 
 function restartPreferencesSystemdSystemService {
