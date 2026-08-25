@@ -49,11 +49,7 @@ def parse_cmd(cmd_str: str) -> Tuple[str, str]:
 
     # 1. Vim
     if cmd in ("vim", "vimdiff", "nvim", "gvim", "vi"):
-        files = [
-            a for a in args if not a.startswith("-") and not a.startswith("+")
-        ]
-        file_target = " ".join(files) if files else " ".join(args)
-        return "vim", file_target
+        return "vim", ""
 
     # 2. Sudo
     if cmd in ("sudo", "su"):
@@ -85,21 +81,24 @@ def parse_cmd(cmd_str: str) -> Tuple[str, str]:
 def format_title(
     profile: str,
     extra: str = "",
-    cwd: Optional[str] = None,
     titles_map: Optional[Dict[str, str]] = None,
 ) -> str:
     """
-    Format the window title based on profile, extra info, and CWD.
+    Format the window title based on profile and extra info.
+    If extra is a path, it will be formatted relative to home (~).
     """
     titles = DEFAULT_PROFILE_TITLES if titles_map is None else titles_map
     base = titles.get(profile, f"[{profile.upper()}]" if profile else "")
 
     if extra:
+        if extra.startswith("/") or extra.startswith("~"):
+            extra = format_cwd(extra)
         return f"{base} {extra}".strip() if base else extra
+
     if profile == "vim":
         return base
 
-    cwd_str = format_cwd(cwd)
+    cwd_str = format_cwd(os.getcwd())
     if base and cwd_str:
         return f"{base} {cwd_str}"
     return cwd_str or base
@@ -109,9 +108,8 @@ def main():
     """CLI entrypoint for shell callers like term/util.sh."""
     profile = sys.argv[1] if len(sys.argv) > 1 else "default"
     extra = sys.argv[2] if len(sys.argv) > 2 else ""
-    cwd = sys.argv[3] if len(sys.argv) > 3 else os.getcwd()
 
-    title = format_title(profile=profile, extra=extra, cwd=cwd)
+    title = format_title(profile=profile, extra=extra)
     if title:
         print(title)
 

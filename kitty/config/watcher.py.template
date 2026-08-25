@@ -1,5 +1,5 @@
 """
-Kitty dynamic watcher script for font, color theme, and title management.
+Kitty dynamic watcher script for font and color theme management.
 Auto-configured by preferences installer.
 """
 
@@ -19,11 +19,8 @@ kitty_config = "$PREFERENCES_KITTY_LOCAL"
 if preferences_dir not in sys.path:
     sys.path.insert(0, preferences_dir)
 
-# Import centralized title and command parsing
-from term.compile.title import (  # pylint: disable=wrong-import-position
-    format_title,
-    parse_cmd,
-)
+# Import centralized command parsing
+from term.compile.title import parse_cmd  # pylint: disable=wrong-import-position
 
 
 def _force_symlink(src: str, dst: str) -> bool:
@@ -55,18 +52,6 @@ class Default:
     profile = "default"
 
 
-def _update_title(window: Window, profile: str, extra: str = "") -> None:
-    if not window or not hasattr(window, "set_title"):
-        return
-
-    cwd = getattr(window, "cwd_of_child", None)
-    title = format_title(profile, extra=extra, cwd=cwd)
-    try:
-        window.set_title(title)
-    except (AttributeError, RuntimeError):
-        pass
-
-
 def _update_profile(boss: Boss, profile: str) -> None:
     theme_path = _valid_path(
         f"{preferences_dir}/.workspace/kitty/theme", profile
@@ -75,16 +60,15 @@ def _update_profile(boss: Boss, profile: str) -> None:
         boss.load_config_file(f"{kitty_config}/kitty.conf")
 
 
-window_profile: dict[int, tuple[str, str]] = {}
+window_profile: dict[int, str] = {}
 
 
 def on_focus_change(boss: Boss, window: Window, data: Dict[str, Any]) -> None:
     if not window or not data or not data.get("focused"):
         return
 
-    profile, extra = window_profile.get(window.id, (Default.profile, ""))
+    profile = window_profile.get(window.id, Default.profile)
     _update_profile(boss, profile)
-    _update_title(window, profile, extra)
 
 
 def on_cmd_startstop(
@@ -95,9 +79,8 @@ def on_cmd_startstop(
 
     cmdline = data.get("cmdline", "")
     if data.get("is_start"):
-        profile, extra = parse_cmd(cmdline)
+        profile, _ = parse_cmd(cmdline)
     else:
-        profile, extra = (Default.profile, "")
-    window_profile[window.id] = (profile, extra)
+        profile = Default.profile
+    window_profile[window.id] = profile
     _update_profile(boss, profile)
-    _update_title(window, profile, extra)

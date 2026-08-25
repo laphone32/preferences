@@ -20,9 +20,7 @@ function setTermColor {
 function setTermTitle {
     local profile=$1
     local extra=$2
-    local title
-    title=$(python3 "$PREFERENCES_TERM/compile/title.py" "$profile" "$extra" "$PWD" 2>/dev/null)
-    [ -n "$title" ] && echo -ne "\033]0;${title}\007"
+    preferencesSetTitle.py "$profile" "$extra" 2>/dev/null
 }
 
 function loadTermFontType {
@@ -41,8 +39,11 @@ function loadTerms {
         fi
     done
 
-    # Kitty self-manages fonts, colors, and titles natively via watcher.py
+    # Kitty self-manages fonts and colors natively via watcher.py
     if [ -n "$KITTY_PID" ] && [ "$KITTY_PID" -gt 0 ] 2>/dev/null; then
+        if [[ "$PS1" != *"\033]0;"* ]]; then
+            PS1="\[\033]0;\w\007\]$PS1"
+        fi
         return
     fi
 

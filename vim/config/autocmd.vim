@@ -45,3 +45,18 @@ augroup diffGroup
     autocmd!
     autocmd VimEnter * if &diff | windo set wrap | endif
 augroup END
+
+# Dynamic terminal title bridge
+def UpdateTerminalTitle()
+    var fName = expand('%')
+    if fName =~ '^!' || &buftype == 'nofile' || &buftype == 'prompt' || &buftype == 'quickfix'
+        return
+    endif
+    var file = expand('%:~:.')
+    system('preferencesSetTitle.py vim ' .. shellescape(file))
+enddef
+
+augroup terminalTitleGroup
+    autocmd!
+    autocmd VimEnter,BufEnter,BufFilePost,BufWritePost,DirChanged * UpdateTerminalTitle()
+augroup END
