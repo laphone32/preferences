@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# File: fcitx5/common.sh
+
+PREFERENCES_WORKSPACE_FCITX5="$(workspace fcitx5)"
+PREFERENCES_WORKSPACE_FCITX5_KIMPANEL="$PREFERENCES_WORKSPACE_FCITX5/kimpanel"
