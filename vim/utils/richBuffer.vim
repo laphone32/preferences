@@ -8,6 +8,7 @@ export class RichBuffer
         var ret = bufnr(name, 1)
 
         if ret > 0
+            bufload(ret)
             setbufvar(ret, '&swapfile', 0)
             setbufvar(ret, '&buflisted', 0)
             setbufvar(ret, '&bufhidden', 'hide')
@@ -31,12 +32,14 @@ export class RichBuffer
     enddef
 
     def LineCount(): number
-        return getbufinfo(this.buffer)[0].linecount
+        var info = getbufinfo(this.buffer)
+        return empty(info) ? 0 : info[0].linecount
     enddef
 
-    def Clear(from: number = 1, to: number = this.LineCount())
+    def Clear(from: number = 1, to: number = 0)
         this._BufferClear(this.buffer)
-        prop_clear(from, to, this.prop)
+        var end_line = to > 0 ? to : this.LineCount()
+        prop_clear(from, end_line, this.prop)
     enddef
 
     def Truncate(from: number)
@@ -46,32 +49,31 @@ export class RichBuffer
         endif
     enddef
 
-    def Refresh(properties: dict<string>)
-        if && properties.to >= properties.from
-            var line = properties.from
+    def SetLines(start_line: number, texts: list<string>)
+        if empty(texts) | return | endif
+        var count = this.LineCount()
+        if start_line > count + 1
+            var gap = repeat([''], start_line - count - 1)
+            appendbufline(this.buffer, count, gap)
+            count = start_line - 1
+        endif
+        if start_line <= count || count == 0
+            setbufline(this.buffer, start_line, texts)
+        else
+            appendbufline(this.buffer, count, texts)
+        endif
+    enddef
 
-            while line <= properties.to
-                RefreshLine(id, line, properties.f)
-                line += 1
-            endwhile
+    def AddProps(type: string, locations: list<any>)
+        if !empty(locations)
+            prop_add_list({ bufnr: this.buffer, type: type }, locations)
         endif
     enddef
 
     def RefreshLine(line: number, result: dict<any>)
-        var count = this.LineCount()
-        if line > count + 1
-            for l in range(count + 1, line - 1)
-                appendbufline(this.buffer, l - 1, '')
-            endfor
-            appendbufline(this.buffer, line - 1, result.text)
-        elseif line == count + 1
-            appendbufline(this.buffer, count, result.text)
-        else
-            setbufline(this.buffer, line, result.text)
-        endif
-
+        this.SetLines(line, [result.text])
         for textprop in result->get('props', [])
-            prop_add_list({bufnr: this.buffer, type: textprop.type}, textprop.location)
+            this.AddProps(textprop.type, textprop.location)
         endfor
     enddef
 

@@ -1,11 +1,11 @@
 vim9script
 
 export class QueryType
-    var name: string = ' Query > '
-    var lookup: list<any> = [{}]
+    public var name: string = ' Query > '
+    public var lookup: list<any> = [{}]
 
-    var modes: list<func(number): dict<any>>
-    var currentMode: number
+    public var modes: list<func(number): dict<any>>
+    public var currentMode: number
 
     public var toRefresh: list<list<number>> = []
 
@@ -67,7 +67,20 @@ export class QueryType
     enddef
 
     def Refresh(start: number = 1)
-        this.toRefresh->add([start, len(this.lookup) - start])
+        var count = len(this.lookup) - start
+        if count <= 0
+            return
+        endif
+        if !empty(this.toRefresh)
+            var last = this.toRefresh[-1]
+            var last_end = last[0] + last[1]
+            if start <= last_end
+                var new_end = max([last_end, start + count])
+                last[1] = new_end - last[0]
+                return
+            endif
+        endif
+        this.toRefresh->add([start, count])
     enddef
 
     def OnRefresh(): list<list<number>>

@@ -48,12 +48,30 @@ augroup END
 
 # Dynamic terminal title bridge
 def UpdateTerminalTitle()
-    var fName = expand('%')
-    if fName =~ '^!' || &buftype == 'nofile' || &buftype == 'prompt' || &buftype == 'quickfix'
+    # 1. Ignore popups, floating windows, preview, and non-normal/unlisted buffers
+    if win_gettype() != '' || !&buflisted || &buftype != ''
         return
     endif
-    var file = expand('%:~:.')
-    system('preferencesSetTitle.py vim ' .. shellescape(file))
+
+    var fullpath = expand('%:p')
+    var fName = expand('%')
+
+    # 2. Empty buffer on startup (e.g. starting Vim without arguments)
+    if empty(fName)
+        system('preferencesSetTitle.py vim')
+        return
+    endif
+
+    # 3. Any real file existing on disk is unconditionally accepted
+    if filereadable(fullpath)
+        system('preferencesSetTitle.py vim ' .. shellescape(expand('%:~:.')))
+        return
+    endif
+
+    # 4. New unsaved files (accepts standard paths, rejects pseudo-schemes & scratch buffers containing ':' or '!')
+    if fName !~ '[:!]'
+        system('preferencesSetTitle.py vim ' .. shellescape(expand('%:~:.')))
+    endif
 enddef
 
 augroup terminalTitleGroup

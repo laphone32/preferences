@@ -50,7 +50,7 @@ export class PathQuery extends qt.QueryType
         if !keep_path || empty(this.currentPath)
             this.currentPath = getcwd()
         endif
-        var entries = readdir(this.currentPath)
+        var raw_entries = readdirex(this.currentPath)
 
         this.lookup = [{}] # 1-based index dummy
 
@@ -61,12 +61,15 @@ export class PathQuery extends qt.QueryType
             parentPath ..= '/'
         endif
 
-        for entry in entries
-            var fullpath = parentPath .. entry
-            var isdir = isdirectory(fullpath)
-            if len(keyword) == 0 || entry =~? keyword
+        for entry in raw_entries
+            var isdir = (entry.type ==# 'dir')
+            if entry.type ==# 'link'
+                isdir = isdirectory(parentPath .. entry.name)
+            endif
+            if len(keyword) == 0 || entry.name =~? keyword
+                var fullpath = parentPath .. entry.name
                 var item = {
-                    name: entry,
+                    name: entry.name,
                     isdir: isdir,
                     path: fullpath,
                     depth: 0,
@@ -126,7 +129,7 @@ export class PathQuery extends qt.QueryType
 
         data.expanded = v:true
 
-        var entries = readdir(data.path)
+        var raw_entries = readdirex(data.path)
         var dirs = []
         var files = []
         var parentPath = data.path
@@ -134,11 +137,14 @@ export class PathQuery extends qt.QueryType
             parentPath ..= '/'
         endif
 
-        for entry in entries
-            var fullpath = parentPath .. entry
-            var isdir = isdirectory(fullpath)
+        for entry in raw_entries
+            var isdir = (entry.type ==# 'dir')
+            if entry.type ==# 'link'
+                isdir = isdirectory(parentPath .. entry.name)
+            endif
+            var fullpath = parentPath .. entry.name
             var item = {
-                name: entry,
+                name: entry.name,
                 isdir: isdir,
                 path: fullpath,
                 depth: data.depth + 1,
@@ -156,9 +162,7 @@ export class PathQuery extends qt.QueryType
         children->extend(files)
 
         if !empty(children)
-            var head = this.lookup[ : line]
-            var tail = this.lookup[line + 1 : ]
-            this.lookup = head + children + tail
+            this.lookup->extend(children, line + 1)
         endif
 
         if refresh

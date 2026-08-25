@@ -18,7 +18,7 @@ export class AsyncRgQuery extends aq.AsyncQuery
 
     def _FileNameMode(line: number): dict<any>
         var data = this.lookup[line]
-        var path = fnamemodify(data.path.text, ':t')
+        var path = get(data, 'filename', fnamemodify(data.path.text, ':t'))
         return ({
             text: path .. ' ' .. data.lines.text,
             props: [
@@ -44,8 +44,8 @@ export class AsyncRgQuery extends aq.AsyncQuery
         if len(keyword) > 0
             this.lookup = [{}]
             this.asyncJob.Start({
-                        \ cmd: ['/bin/sh', '-c', 'rg --follow --smart-case --fixed-strings --json -- ' .. shellescape(keyword)],
-            \ })
+                cmd: ['rg', '--follow', '--smart-case', '--fixed-strings', '--json', '--', keyword, '.'],
+            })
         endif
 
         return len(keyword) > 0

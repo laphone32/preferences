@@ -9,32 +9,28 @@ export class AsyncQuery extends qt.QueryType
     })
 
     def _OnAsyncRgData(message: string)
-        var count = len(this.lookup)
+        if empty(message) | return | endif
+        var json: dict<any> = {}
+        try
+            json = json_decode(message)
+        catch
+            return
+        endtry
 
-        var json = json_decode(message)
-    #    {
-    #    "type":"match",
-    #    "data":{
-    #        "path":{
-    #            "text":"path/to/the/file.type"
-    #        "},
-    #        "lines":{
-    #            "text":"      the matching text here\n"
-    #        "},
-    #        "line_number":152,
-    #        "absolute_offset":6108,
-    #        "submatches":[{"match":{"text":"matching"},"start":73,"end":79}]
-    #    }
-    #    }
-        if json.type == 'match'
-            json.data.lines.text = trim(json.data.lines.text, "\r\t\n", 2)
+        if json->get('type', '') ==# 'match'
+            var data = json.data
+            data.lines.text = trim(data.lines.text, "\r\t\n", 2)
+            if has_key(data, 'path') && has_key(data.path, 'text')
+                data.filename = fnamemodify(data.path.text, ':t')
+            elseif has_key(data, 'lines') && has_key(data.lines, 'text')
+                data.filename = fnamemodify(data.lines.text, ':t')
+            endif
 
-            this.lookup->add(json.data)
-        elseif json.type == 'summary'
+            this.lookup->add(data)
+            this.Refresh(len(this.lookup) - 1)
+        elseif json->get('type', '') ==# 'summary'
             this.asyncJob.Stop()
         endif
-
-        this.Refresh(count)
     enddef
 endclass
 

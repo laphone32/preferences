@@ -15,7 +15,17 @@ export class AsyncJob
     def Start(properties: dict<any>)
         this.Stop()
         this._OnData = properties->get('onData', this._OnData)
-        this._id = job_start(properties->get('cmd', ['/bin/sh', '-c', "echo \'No command for async job\'"]), { pty: 1, out_cb: this._OnOut })
+        var opts: dict<any> = {
+            in_io: 'null',
+            out_cb: this._OnOut,
+        }
+        if properties->has_key('pty')
+            opts.pty = properties.pty
+        endif
+        if properties->has_key('in_io')
+            opts.in_io = properties.in_io
+        endif
+        this._id = job_start(properties->get('cmd', ['/bin/sh', '-c', "echo \'No command for async job\'"]), opts)
     enddef
 
     def _OnOut(channel: channel, message: string)

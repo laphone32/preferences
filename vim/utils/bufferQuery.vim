@@ -16,7 +16,7 @@ export class BufferQuery extends qt.QueryType
 
     def _FileNameMode(line: number): dict<any>
         var data = this.lookup[line]
-        var path = fnamemodify((len(data.name) > 0 ? data.name : ' [NO NAME] '), ':t')
+        var path = get(data, 'filename', fnamemodify(len(data.name) > 0 ? data.name : ' [NO NAME] ', ':t'))
         return ({
             text: (data.changed ? '+' : ' ') .. ' ' .. path,
         })
@@ -42,7 +42,8 @@ export class BufferQuery extends qt.QueryType
             var path = len(data.name) > 0 ? data.name : ' [NO NAME] '
             var match = len(keyword) > 0 ? path->matchstrpos(keyword) : [0, -2, -2]
             if len(keyword) == 0 || match[1] >= 0
-                data->extend({ match: match })
+                data.match = match
+                data.filename = fnamemodify(path, ':t')
                 x->add(data)
             endif
             return x

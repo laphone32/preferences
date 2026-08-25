@@ -65,7 +65,7 @@ export class List
               this._timer.Restart(100)
             },
             onHide: () => {
-              this._timer.Restart(1000)
+              this._timer.Stop()
             },
         })
 
@@ -75,18 +75,41 @@ export class List
 
         this._timer = ut.Timer.new(() => {
             var currentQueryType = this.currentQueryType
+            if currentQueryType == null_object
+                return
+            endif
             var Render = currentQueryType.modes[currentQueryType.currentMode]
 
             for properties in currentQueryType.OnRefresh()
                 var line = properties[0]
-                var end = line + properties[1]
+                var count = properties[1]
+                if count <= 0 | continue | endif
+                var end = line + count
 
-                while line < end
-                    if line < len(currentQueryType.lookup)
-                        this._buffer.RefreshLine(line, Render(line))
+                var texts = []
+                var props_by_type: dict<list<any>> = {}
+                var curr = line
+                while curr < end
+                    if curr < len(currentQueryType.lookup)
+                        var res = Render(curr)
+                        texts->add(res.text)
+                        for textprop in res->get('props', [])
+                            var ptype = textprop.type
+                            if !has_key(props_by_type, ptype)
+                                props_by_type[ptype] = []
+                            endif
+                            props_by_type[ptype]->extend(textprop.location)
+                        endfor
                     endif
-                    line += 1
+                    curr += 1
                 endwhile
+
+                if !empty(texts)
+                    this._buffer.SetLines(line, texts)
+                    for [ptype, locs] in items(props_by_type)
+                        this._buffer.AddProps(ptype, locs)
+                    endfor
+                endif
             endfor
 
             this._buffer.Truncate(len(currentQueryType.lookup))
@@ -213,6 +236,7 @@ export class List
 
     def Resume()
         if this.currentQueryType != null_object
+            this.Refresh()
             this._menu.Show(this._MenuPosition())
         endif
     enddef

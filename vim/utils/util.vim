@@ -40,9 +40,12 @@ export class SeriesTimer
     enddef
 
     def Stop()
-        this.id->timer_stop()
+        if this.id > 0
+            this.id->timer_stop()
+        endif
+        this.id = -1
         this.stage = 0
-        this.stages = null_list
+        this.stages = []
     enddef
 endclass
 

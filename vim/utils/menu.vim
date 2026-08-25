@@ -3,6 +3,15 @@ vim9script
 import "./consistentPopup.vim" as cp
 import "./util.vim" as ut
 
+const NAV_KEYS = {
+    "\<up>": 1, 'k': 1, "\<c-n>": 1,
+    "\<down>": 1, 'j': 1, "\<c-p>": 1,
+    "\<pageup>": 1, "\<c-b>": 1,
+    "\<pagedown>": 1, "\<c-f>": 1,
+    "\<home>": 1,
+    "\<end>": 1, 'G': 1,
+}
+
 class MenuArea extends cp.ConsistentPopup
     var buffer: number
     var OnKey: func(string, number): bool
@@ -43,14 +52,7 @@ class MenuArea extends cp.ConsistentPopup
     enddef
 
     def KeyFilter(key: string): bool
-        if [
-            \ "\<up>", 'k', "\<c-n>",
-            \ "\<down>", 'j', "\<c-p>",
-            \ "\<pageup>", "\<c-b>",
-            \ "\<pagedown>", "\<c-f>",
-            \ "\<home>",
-            \ "\<end>", 'G',
-        \ ]->index(key) >= 0
+        if has_key(NAV_KEYS, key)
             win_execute(this.id, 'normal! ' .. key)
         endif
 

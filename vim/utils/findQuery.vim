@@ -15,8 +15,9 @@ export class AsyncFindQuery extends aq.AsyncQuery
     enddef
 
     def _FileNameMode(line: number): dict<any>
+        var data = this.lookup[line]
         return ({
-            text: fnamemodify(this.lookup[line].lines.text, ':t')
+            text: get(data, 'filename', fnamemodify(data.lines.text, ':t'))
         })
     enddef
 

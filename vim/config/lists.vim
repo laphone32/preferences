@@ -3,9 +3,9 @@ vim9script
 import "../utils/rgQuery.vim" as rq
 import "../utils/bufferQuery.vim" as sq
 import "../utils/findQuery.vim" as fq
-import "../utils/diagnosticQuery.vim" as dq
 import "../utils/list.vim" as li
 import "../utils/term.vim" as te
+import "../utils/nativeListQuery.vim" as nq
 import "../utils/pathQuery.vim" as pq
 import "../utils/assistant.vim"
 
@@ -18,8 +18,9 @@ var list = li.List.new(0.55)
 var _rg = rq.AsyncRgQuery.new()
 var _find = fq.AsyncFindQuery.new()
 var _buffer = sq.BufferQuery.new()
-var _diagnostics = dq.DiagnosticQuery.new()
 var _path = pq.PathQuery.new()
+var _qf = nq.NativeListQuery.new(' quickfix > ', (q) => getqflist())
+var _loc = nq.NativeListQuery.new(' loclist > ', (q) => getloclist(get(q, 'winnr', 0)))
 
 command! -nargs=0 ListResume list.Resume()
 command! -nargs=? ListGrep list.Call(_rg, {
@@ -31,10 +32,13 @@ command! -nargs=? ListFind list.Call(_find, {
 command! -nargs=? ListBuffer list.Call(_buffer, {
     \ keyword: <q-args>,
 \ })
-command! -nargs=? ListDiagnostics list.Call(_diagnostics, {
+command! -nargs=? ListPath list.Call(_path, {
     \ keyword: <q-args>,
 \ })
-command! -nargs=? ListPath list.Call(_path, {
+command! -nargs=? ListQuickfix list.Call(_qf, {
+    \ keyword: <q-args>,
+\ })
+command! -nargs=? ListLoclist list.Call(_loc, {
     \ keyword: <q-args>,
 \ })
 
@@ -53,7 +57,6 @@ command! -nargs=? ListPath list.Call(_path, {
 call AddListKeyMappings('find-file-call', 'ListFind', "ListFind %s")
 call AddListKeyMappings('grep-file-call', 'ListGrep', 'ListGrep %s')
 call AddListKeyMappings('find-buffer-call', 'ListBuffer', 'ListBuffer %s')
-call AddListKeyMappings('find-diagnostic-call', 'ListDiagnostics', 'ListDiagnostics %s')
 nnoremap <Plug>(resume-list-call) :ListResume<cr>
 nnoremap <Plug>(file-manager-call) :ListPath<cr>
 
@@ -66,15 +69,28 @@ nnoremap <Plug>(show-terminal-call) <c-w>:ShowTerm<cr>
 tnoremap <Plug>(hide-terminal-call) <c-w>:HideTerm<cr>
 autocmd QuitPre * term.Kill()
 
-def g:RefreshDiagnostics()
-    if list.currentQueryType == _diagnostics
-        _diagnostics.Start(list.currentQuery)
+def g:InterceptQuickfixWindow()
+    var wtype = win_gettype()
+    if wtype ==# 'autocmd' || wtype ==# 'popup'
+        return
     endif
+
+    var is_loc = wtype ==# 'loclist' || get(get(getwininfo(win_getid()), 0, {}), 'loclist', 0) == 1
+
+    timer_start(0, (timer_id) => {
+        if is_loc
+            lclose
+            execute 'ListLoclist'
+        else
+            cclose
+            execute 'ListQuickfix'
+        endif
+    })
 enddef
 
-augroup DiagnosticPopupAutoRefresh
+augroup NativeQuickfixIntercept
     autocmd!
-    autocmd User lsp_diagnostics_updated g:RefreshDiagnostics()
+    autocmd BufWinEnter * if &buftype == 'quickfix' | g:InterceptQuickfixWindow() | endif
 augroup END
 
 
