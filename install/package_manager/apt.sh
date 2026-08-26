@@ -7,6 +7,7 @@ declare -g -A packageNameMap=(
     ["7z"]="7zip 7zip-rar"
     ["gvim"]="vim-gtk3"
     ["fcitx5"]="fcitx5 fcitx5-config-qt fcitx5-frontend-gtk3 fcitx5-frontend-qt5 fcitx5-chewing fcitx5-mozc"
+    ["sbx"]="docker-sbx"
 )
 
 # Installation command execution for apt

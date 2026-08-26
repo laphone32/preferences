@@ -118,5 +118,26 @@
       "*kitty*": "Alt + 9",
       "*chrome*": "Ctrl + 9"
     }
+  },
+  "Super + =": {
+    "description": "Zoom in",
+    "apps": {
+      "*kitty*": "Ctrl + Shift + =",
+      "*chrome*": "Ctrl + ="
+    }
+  },
+  "Super + -": {
+    "description": "Zoom out",
+    "apps": {
+      "*kitty*": "Ctrl + Shift + -",
+      "*chrome*": "Ctrl + -"
+    }
+  },
+  "Super + 0": {
+    "description": "Reset zoom ",
+    "apps": {
+      "*kitty*": "Ctrl + Shift + Backspace",
+      "*chrome*": "Ctrl + 0"
+    }
   }
 }

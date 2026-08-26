@@ -6,11 +6,11 @@ function module_get_name() {
 }
 
 function module_get_packages() {
-    echo "docker"
+    echo "docker sbx"
 }
 
 function module_get_gui_packages() {
-    echo "docker"
+    echo "docker sbx"
 }
 
 function module_install() {
@@ -26,5 +26,8 @@ function module_install() {
     fi
     if command -v kubectl &> /dev/null; then
         kubectl completion bash > "$PREFERENCES_WORKSPACE_DOCKER_KUBECTL_COMPLETION" 2>/dev/null || true
+    fi
+    if command -v sbx &> /dev/null; then
+        sbx completion bash > "$PREFERENCES_WORKSPACE_DOCKER_SBX_COMPLETION" 2>/dev/null || true
     fi
 }

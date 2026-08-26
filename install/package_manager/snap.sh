@@ -4,6 +4,7 @@ declare -g -A packageNameMap=(
     ["rg"]="ripgrep"
     ["npm"]=""
     ["7z"]="7zip"
+    ["sbx"]=""
 )
 
 function packageManagerInstall {

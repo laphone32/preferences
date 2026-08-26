@@ -22,7 +22,7 @@ function setupDockerAptRepo {
 
 function packageManagerInstall {
     local packages=("$@")
-    if [[ " ${packages[*]} " =~ " docker-ce " ]]; then
+    if [[ " ${packages[*]} " =~ " docker-ce " || " ${packages[*]} " =~ " docker-sbx " ]]; then
         setupDockerAptRepo
     fi
     sudo apt-get update

@@ -10,4 +10,8 @@ if ! complete -p kubectl &> /dev/null && [ -f "$PREFERENCES_WORKSPACE_DOCKER_KUB
     source "$PREFERENCES_WORKSPACE_DOCKER_KUBECTL_COMPLETION"
 fi
 
+if ! complete -p sbx &> /dev/null && [ -f "$PREFERENCES_WORKSPACE_DOCKER_SBX_COMPLETION" ]; then
+    source "$PREFERENCES_WORKSPACE_DOCKER_SBX_COMPLETION"
+fi
+
 export KUBE_EDITOR=vim

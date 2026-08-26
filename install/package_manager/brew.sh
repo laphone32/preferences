@@ -4,10 +4,14 @@ declare -g -A packageNameMap=(
     ["rg"]="ripgrep"
     ["7z"]="sevenzip unar"
     ["gvim"]="vim"
+    ["sbx"]="docker/tap/sbx"
 )
 
 function packageManagerInstall {
     local packages=("$@")
+    if [[ " ${packages[*]} " =~ " docker/tap/sbx " ]]; then
+        brew trust docker/tap 2>/dev/null || true
+    fi
     local failed=0
     for pkg in "${packages[@]}"; do
         echo "Installing $pkg..."

@@ -30,5 +30,5 @@ Whenever tasked with or considering modifying configuration settings:
 3. **User-Initiated Exception**: If the user explicitly commands or asks you to modify the settings file in their prompt (e.g., "please add command(git push) to allow list in settings.json"), you may perform the edit directly, double-checking and summarizing the applied changes in your response.
 
 ## 4. Modification Explanation & Confirmation
-Whenever requesting confirmation or permission to perform any file modification, you must provide a brief explanation of the purpose and goal of the proposed modification along with the request.
+Whenever tending or requesting confirmation to perform any file or system modification, you must provide a brief explanation of the purpose and goal of the proposed modification along with the request.
 

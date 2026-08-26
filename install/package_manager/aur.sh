@@ -7,6 +7,7 @@ declare -g -A packageNameMap=(
     ["surfshark"]="surfshark-client"
     ["docker"]="docker docker-compose containerd"
     ["fcitx5"]="fcitx5-im fcitx5-chewing fcitx5-mozc"
+    ["sbx"]="docker-sbx-bin"
 )
 
 function aurPostInstall {
