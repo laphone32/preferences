@@ -1,0 +1,104 @@
+schemaVersion: "2"
+kind: sandbox
+name: agy
+displayName: Antigravity CLI (agy)
+description: Run Google's Antigravity CLI (agy) in YOLO mode inside a Docker Sandbox. First run prints a Google OAuth URL you complete in your local browser; credentials persist across sandbox restarts.
+
+sandbox:
+  image: "docker/sandbox-templates:shell-docker"
+  entrypoint: [agy]
+  # The microVM is the security boundary. The permission flag auto-approves
+  # tool requests; accept-edits separately disables file diff review prompts.
+  command:
+    default: ["--dangerously-skip-permissions", "--mode=accept-edits"]
+
+permissions:
+  network:
+    allow:
+    # CLI installer + self-update manifests and binaries
+    - "antigravity.google:443"
+    - "antigravity-unleash.goog:443"
+    - "antigravity-cli-auto-updater-974169037036.us-central1.run.app:443"
+    # Google OAuth (sign-in + token exchange)
+    - "accounts.google.com:443"
+    - "oauth2.googleapis.com:443"
+    - "www.googleapis.com:443"
+    # Antigravity / Gemini Code Assist model + agent APIs
+    - "cloudaicompanion.googleapis.com:443"
+    - "cloudcode-pa.googleapis.com:443"
+    - "generativelanguage.googleapis.com:443"
+
+credentials:
+  - service: antigravity
+    description: Google OAuth session used by Antigravity CLI
+    oauth:
+      tokenEndpoint:
+        host: oauth2.googleapis.com
+        path: /token
+      resourceHosts:
+        - cloudaicompanion.googleapis.com
+        - cloudcode-pa.googleapis.com
+        - generativelanguage.googleapis.com
+        - www.googleapis.com
+      sentinels:
+        accessToken: agy-oauth-access-proxy-managed
+        refreshToken: agy-oauth-refresh-proxy-managed
+      credentialFile:
+        path: "~/.gemini/antigravity-cli/antigravity-oauth-token"
+        # Use the engine-supported template form (as the built-in Claude kit
+        # does), rather than the newer declarative structure form. The host
+        # proxy refreshes the real token; keeping the sentinel locally valid
+        # prevents agy from needlessly refreshing it itself.
+        template: '{"token":{"access_token":"{{.AccessToken}}","token_type":"Bearer","refresh_token":"{{.RefreshToken}}","expiry":"9999-12-31T23:59:59Z"},"auth_method":"consumer"}'
+
+environment:
+  variables:
+    # agy detects SSH/remote environments and switches to a copy/paste OAuth flow
+    # (prints a URL, you paste the callback URL back). Force that path so the
+    # CLI never tries to spawn a local browser inside the sandbox.
+    SSH_CONNECTION: "sandbox 0 sandbox 0"
+
+setup:
+  install:
+    - command: "curl -fsSL https://antigravity.google/cli/install.sh | bash"
+      user: "1000"
+      description: Install the Antigravity CLI (agy) into ~/.local/bin
+  files:
+    - path: /home/agent/.gemini/antigravity-cli/settings.json
+      content: |
+        {
+          "agentMode": "accept-edits",
+          "artifactReviewMode": "always-proceed",
+          "colorScheme": "tokyo night",
+          "theme": "tokyo night",
+          "fileAccessPolicy": "allow",
+          "internetAccessPolicy": "allow",
+          "nonWorkspaceFileAccess": "allow",
+          "permissions": {
+            "allow": [
+              "command(*)",
+              "execute_url(*)",
+              "mcp(*)",
+              "read_file(*)",
+              "read_url(*)",
+              "unsandboxed(*)",
+              "write_file(*)"
+            ]
+          },
+          "toolExecutionPolicy": "always-proceed",
+          "trustedWorkspaces": ["${WORKDIR}"]
+        }
+      mode: "0600"
+      onlyIfMissing: true
+      description: Seed permissive Antigravity settings for sandboxed operation
+    - path: /home/agent/.gemini/antigravity-cli/jetski_state.pbtxt
+      content: |
+        post_onboarding: {
+          completed_steps: POST_ONBOARDING_STEP_TYPE_MANAGER_WELCOME
+          completed_steps: POST_ONBOARDING_STEP_TYPE_USAGE_MODE
+          completed_steps: POST_ONBOARDING_STEP_TYPE_AGENT_CONFIGURATION
+          completed_steps: POST_ONBOARDING_STEP_TYPE_ADD_WORKSPACE
+        }
+      mode: "0600"
+      onlyIfMissing: true
+      description: Mark onboarding steps as completed to bypass first-run interactive prompts

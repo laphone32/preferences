@@ -6,5 +6,5 @@ source "$PREFERENCES_DIR/util/override.sh"
 # In Debian/Ubuntu, keyd is installed as keyd.rvaiya to avoid naming conflicts.
 # This wraps it back to `keyd` using the custom framework override function.
 if ! command -v keyd &> /dev/null && command -v keyd.rvaiya &> /dev/null; then
-    wrap '' 'keyd.rvaiya' 'keyd'
+    replace 'keyd' '' 'keyd.rvaiya'
 fi

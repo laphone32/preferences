@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+PREFERENCES_AGY=$PREFERENCES_DIR/agy
+
+PREFERENCES_AGY_SBX_KIT="$PREFERENCES_AGY/sbx-kit"
+
+PREFERENCES_WORKSPACE_AGY="$(workspace agy)"

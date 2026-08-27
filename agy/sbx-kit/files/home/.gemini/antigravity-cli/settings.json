@@ -1,0 +1,22 @@
+{
+  "agentMode": "accept-edits",
+  "artifactReviewMode": "always-proceed",
+  "colorScheme": "tokyo night",
+  "theme": "tokyo night",
+  "fileAccessPolicy": "allow",
+  "internetAccessPolicy": "allow",
+  "nonWorkspaceFileAccess": "allow",
+  "permissions": {
+    "allow": [
+      "command(*)",
+      "execute_url(*)",
+      "mcp(*)",
+      "read_file(*)",
+      "read_url(*)",
+      "unsandboxed(*)",
+      "write_file(*)"
+    ]
+  },
+  "toolExecutionPolicy": "always-proceed",
+  "trustedWorkspaces": ["${WORKDIR}"]
+}

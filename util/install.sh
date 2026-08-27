@@ -34,6 +34,7 @@ function installPreferencesSymlink {
         rm -f "$target"
     fi
 
+    mkdir -p "$(dirname "$target")"
     ln -sf "$source" "$target"
     appendManifest "$PREFERENCES_INSTALL_ACTION_SYMLINK" "$target"
 }
