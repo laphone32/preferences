@@ -7,15 +7,18 @@ import os
 import sys
 from pathlib import Path
 
-# Ensure preferences/python is in sys.path when running inside Kitty process
+# Ensure preferences root and preferences/python are in sys.path when running inside Kitty process
 _pref_env = os.environ.get("PREFERENCES_DIR")
-_pref_python = (
-    Path(_pref_env).resolve() / "python"
+_pref_dir = (
+    Path(_pref_env).resolve()
     if _pref_env
-    else Path(__file__).resolve().parents[2] / "python"
+    else Path(__file__).resolve().parents[2]
 )
-if str(_pref_python) not in sys.path:
-    sys.path.insert(0, str(_pref_python))
+_pref_python = _pref_dir / "python"
+
+for _p in (_pref_dir, _pref_python):
+    if str(_p) not in sys.path:
+        sys.path.insert(0, str(_p))
 
 from util.path import (
     preferences_get_config_dir,

@@ -9,5 +9,5 @@ source $PREFERENCES_DIR/python/pvenv.sh
 replace 'python' '' 'python3'
 
 wrapParameterBind 'pylint' "--rcfile $PREFERENCES_WORKSPACE_PYTHON_PYLINTRC"
-export PYTHONPATH="$PREFERENCES_DIR/python${PYTHONPATH:+:$PYTHONPATH}"
+export PYTHONPATH="$PREFERENCES_DIR:$PREFERENCES_DIR/python${PYTHONPATH:+:$PYTHONPATH}"
 
