@@ -1,26 +1,27 @@
 """
 Kitty dynamic watcher script for font and color theme management.
-Auto-configured by preferences installer.
+Uses real-time dynamic path resolution via kitty_path.
 """
 
 import os
 import sys
+from pathlib import Path
 from typing import Any, Dict
 
+# Ensure config dir is in sys.path
+_kitty_config = os.path.expanduser("~/.config/kitty")
+if _kitty_config not in sys.path:
+    sys.path.insert(0, _kitty_config)
+
+from kitty_path import (  # pylint: disable=wrong-import-position
+    preferences_get_active_theme_conf_path,
+    preferences_get_kitty_conf_path,
+    preferences_get_kitty_theme_dir,
+)
+from font_size import get_profile_font_offset  # pylint: disable=wrong-import-position
+from term.compile.title import parse_cmd  # pylint: disable=wrong-import-position
 from kitty.boss import Boss
 from kitty.window import Window
-
-
-### Preferences variables ###
-preferences_dir = "$PREFERENCES_DIR"
-kitty_config = "$PREFERENCES_KITTY_LOCAL"
-### end of Preferences variables ###
-
-if preferences_dir not in sys.path:
-    sys.path.insert(0, preferences_dir)
-
-# Import centralized command parsing
-from term.compile.title import parse_cmd  # pylint: disable=wrong-import-position
 
 
 def _force_symlink(src: str, dst: str) -> bool:
@@ -54,10 +55,16 @@ class Default:
 
 def _update_profile(boss: Boss, profile: str) -> None:
     theme_path = _valid_path(
-        f"{preferences_dir}/.workspace/kitty/theme", profile
+        str(preferences_get_kitty_theme_dir()), profile
     )
-    if _force_symlink(theme_path, f"{kitty_config}/theme.conf"):
-        boss.load_config_file(f"{kitty_config}/kitty.conf")
+    if _force_symlink(theme_path, str(preferences_get_active_theme_conf_path())):
+        boss._current_profile = profile
+        boss.load_config_file(str(preferences_get_kitty_conf_path()))
+        offset = get_profile_font_offset(profile)
+        if offset > 0:
+            boss.change_font_size(False, "+", offset)
+        elif offset < 0:
+            boss.change_font_size(False, "-", abs(offset))
 
 
 window_profile: dict[int, str] = {}

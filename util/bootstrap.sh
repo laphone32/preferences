@@ -13,8 +13,9 @@ _PREFERENCES_UTIL_BOOTSTRAP_SOURCED=yes
 # 1. Calculate PREFERENCES_DIR dynamically relative to this script's location (always <root>/util/bootstrap.sh)
 export PREFERENCES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 
-# 2. Configure standard robust PATH (essential for cron/non-interactive shell sessions)
+# 2. Configure standard robust PATH and PYTHONPATH
 export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$HOME/.local/bin:$PATH"
+export PYTHONPATH="$PREFERENCES_DIR/python${PYTHONPATH:+:$PYTHONPATH}"
 
 # 3. Source environment, utils, and installer wrappers
 source "$PREFERENCES_DIR/util/environment.sh"

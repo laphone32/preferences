@@ -68,12 +68,17 @@ function module_install() {
             ;;
     esac
 
-    # watcher
-    PREFERENCES_DIR=$PREFERENCES_DIR PREFERENCES_KITTY_LOCAL=$PREFERENCES_KITTY_LOCAL envsubst '$PREFERENCES_DIR,$PREFERENCES_KITTY_LOCAL' < "$PREFERENCES_KITTY_CONFIG/watcher.py.template" > "$PREFERENCES_WORKSPACE_KITTY/watcher.py"
-    installPreferencesSymlink "$PREFERENCES_WORKSPACE_KITTY/watcher.py" "$PREFERENCES_KITTY_LOCAL/watcher.py"
+    # watcher & path helpers
+    installPreferencesSymlink "$PREFERENCES_KITTY_CONFIG/kitty_path.py" "$PREFERENCES_KITTY_LOCAL/kitty_path.py"
+    installPreferencesSymlink "$PREFERENCES_KITTY_CONFIG/watcher.py" "$PREFERENCES_KITTY_LOCAL/watcher.py"
 
     # configs
     installPreferencesSymlink "$PREFERENCES_KITTY_CONFIG/kitty.conf" "$PREFERENCES_KITTY_LOCAL/kitty.conf"
+    installPreferencesSymlink "$PREFERENCES_WORKSPACE_KITTY/device_font.conf" "$PREFERENCES_KITTY_LOCAL/device_font.conf"
+
+    # font size management
+    installPreferencesSymlink "$PREFERENCES_KITTY_CONFIG/font_size.py" "$PREFERENCES_KITTY_LOCAL/font_size.py"
+    installPreferencesSymlink "$PREFERENCES_KITTY_CONFIG/adjust_font_size.py" "$PREFERENCES_KITTY_LOCAL/adjust_font_size.py"
 
     # quick access terminal
     installPreferencesSymlink "$PREFERENCES_KITTY_CONFIG/quick-access-terminal.conf" "$PREFERENCES_KITTY_LOCAL/quick-access-terminal.conf"

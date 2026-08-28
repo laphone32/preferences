@@ -6,28 +6,16 @@ in .workspace/term/theme/compiled_osc.sh.
 """
 
 import json
-import os
-import sys
 from pathlib import Path
+
+from util.path import preferences_get_dir, preferences_get_workspace_dir
 
 
 def get_paths():
-    script_dir = Path(__file__).resolve().parent
-    term_dir = script_dir.parent
-    preferences_dir = term_dir.parent
-
-    env_pref_dir = os.environ.get("PREFERENCES_DIR")
-    if env_pref_dir:
-        preferences_dir = Path(env_pref_dir)
-        term_dir = preferences_dir / "term"
-
-    themes_dir = term_dir / "theme"
-    ws_env = os.environ.get(
-        "PREFERENCES_WORKSPACE", str(preferences_dir / ".workspace")
+    themes_dir = preferences_get_dir() / "term" / "theme"
+    output_osc_file = (
+        preferences_get_workspace_dir("term") / "theme" / "compiled_osc.sh"
     )
-    workspace_dir = Path(ws_env)
-    output_osc_file = workspace_dir / "term" / "theme" / "compiled_osc.sh"
-
     return themes_dir, output_osc_file
 
 

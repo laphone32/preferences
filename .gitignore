@@ -4,3 +4,5 @@ coc-settings.json
 .bsp/
 target/
 .DS_Store
+__pycache__/
+*.pyc
