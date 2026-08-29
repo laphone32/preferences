@@ -1,17 +1,33 @@
 #!/usr/bin/env python3
-"""
-Compile canonical JSON themes in term/theme/*.json into
-pre-rendered Ahead-Of-Time (AOT) ANSI OSC escape sequences and titles
-in .workspace/term/theme/compiled_osc.sh.
+"""Compile canonical JSON themes into AOT ANSI OSC escape sequences.
+
+Output file: .workspace/term/theme/compiled_osc.sh
 """
 
 import json
+import os
 from pathlib import Path
+import sys
 
-from util.path import preferences_get_dir, preferences_get_workspace_dir
+# Ensure .workspace/share/python is in sys.path for direct script execution
+_pref_ws = Path(
+    os.environ.get(
+        "PREFERENCES_WORKSPACE",
+        Path(__file__).resolve().parents[2] / ".workspace",
+    )
+)
+_ws_python = _pref_ws / "share" / "python"
+if str(_ws_python) not in sys.path:
+    sys.path.insert(0, str(_ws_python))
+
+from util.path import (  # pylint: disable=wrong-import-position
+    preferences_get_dir,
+    preferences_get_workspace_dir,
+)
 
 
 def get_paths():
+    """Get source themes directory and target output file path."""
     themes_dir = preferences_get_dir() / "term" / "theme"
     output_osc_file = (
         preferences_get_workspace_dir("term") / "theme" / "compiled_osc.sh"
@@ -63,6 +79,7 @@ def format_osc_sequence(theme_data: dict) -> str:
 
 
 def compile_themes():
+    """Compile all theme JSON files into shell export definitions."""
     themes_dir, output_osc_file = get_paths()
 
     if not themes_dir.exists():

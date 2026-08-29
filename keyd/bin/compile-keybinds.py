@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-"""
-Compiles keybinds.json into keyd configuration files.
+# pylint: disable=invalid-name
+"""Compiles keybinds.json into keyd configuration files.
+
 Parses human-readable keybindings and generates default.conf and app.conf.
 """
 

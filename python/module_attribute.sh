@@ -8,7 +8,7 @@ function module_get_name() {
 function module_install() {
     local modDir="${1:-$PREFERENCES_DIR/python}"
     source "$PREFERENCES_DIR/python/common.sh"
-    source "$PREFERENCES_DIR/python/pvenv.sh"
+    sourceShare python pvenv.sh
 
     curl -L https://raw.githubusercontent.com/google/styleguide/gh-pages/pylintrc -o "$PREFERENCES_WORKSPACE_PYTHON_PYLINTRC" 2>/dev/null || true
 

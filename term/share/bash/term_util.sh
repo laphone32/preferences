@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
+# File: term/share/bash/term_util.sh
 
-source "$PREFERENCES_DIR/util/override.sh" 2>/dev/null || true
+if declare -f sourceShare &>/dev/null; then
+    sourceShare bash override.sh 2>/dev/null || true
+else
+    source "${PREFERENCES_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)}/bash/share/bash/override.sh" 2>/dev/null || true
+fi
 source "$PREFERENCES_DIR/term/common.sh" 2>/dev/null || true
 
 # Default no-op definitions
@@ -72,13 +77,11 @@ function loadTerms {
     esac
 
     # Command wrappers for osc managed terminals
-    local resetTermHook='local _ret=$?; defaultTerm; return $_ret'
-
     function wrapTermCommand {
         local preAction=$1
         local cmdName=$2
         local preHook="trap defaultTerm RETURN"$'\n'"$preAction"
-        wrap "$preHook" '' "$cmdName" '' "$resetTermHook"
+        wrap "$preHook" '' "$cmdName" '' 'local _ret=$?; defaultTerm; return $_ret'
     }
 
     wrapTermCommand 'setTerm profile_vim "$*"' vim

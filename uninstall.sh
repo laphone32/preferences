@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # File: uninstall.sh
 
-source "$(dirname "${BASH_SOURCE[0]}")/util/bootstrap.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/bootstrap.sh"
 # Source the install.sh helper to load Action Constants and undo functions
-source "$PREFERENCES_DIR/util/install.sh"
+sourceShare install install.sh 2>/dev/null || source "$PREFERENCES_DIR/install/share/bash/install.sh"
 
 if ! uninstallPreferencesManifest; then
     exit 1

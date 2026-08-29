@@ -1,5 +1,5 @@
 
-source $PREFERENCES_DIR/util/override.sh
+sourceShare bash override.sh 2>/dev/null || source "$PREFERENCES_DIR/bash/share/bash/override.sh"
 
 wrapParameterBind vim "--cmd 'lang en_US.UTF-8' -u $PREFERENCES_DIR/vim/vimrc"
 wrapParameterBind vimdiff "--cmd 'lang en_US.UTF-8' -u $PREFERENCES_DIR/vim/vimrc"

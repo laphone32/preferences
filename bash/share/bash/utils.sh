@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-[[ "${_PREFERENCES_UTIL_UTILS_SOURCED:-""}" == "yes" ]] && return 0
-_PREFERENCES_UTIL_UTILS_SOURCED=yes
+# File: bash/share/bash/utils.sh
 
-
+[[ "${_PREFERENCES_BASH_UTILS_SOURCED:-""}" == "yes" ]] && return 0
+_PREFERENCES_BASH_UTILS_SOURCED=yes
 
 function findNearestParent {
     local path=$1
@@ -19,12 +19,57 @@ function findNearestParent {
     done
 }
 
+function workspace {
+    local module=${1:-""}
+    local base_ws="${PREFERENCES_WORKSPACE:-$PREFERENCES_DIR/.workspace}"
+    if [ -n "$module" ]; then
+        echo "$base_ws/$module"
+    else
+        echo "$base_ws"
+    fi
+}
+
+function share {
+    local module=$1
+    local type=${2:-""}    # "bash" or "python"
+    local file=${3:-""}
+
+    local target="$PREFERENCES_DIR/$module/share"
+    [ -n "$type" ] && target="$target/$type"
+    [ -n "$file" ] && target="$target/$file"
+    echo "$target"
+}
+
+function shareBash {
+    local module=$1
+    local file=${2:-""}
+    share "$module" "bash" "$file"
+}
+
+function sharePython {
+    local module=$1
+    local file=${2:-""}
+    share "$module" "python" "$file"
+}
+
+function sourceShare {
+    local module=$1
+    local file=$2
+    local target="$(shareBash "$module" "$file")"
+    if [ -f "$target" ]; then
+        source "$target"
+    else
+        echo "❌ Error: Cannot source shared bash library '$target' (not found)." >&2
+        return 1
+    fi
+}
+
 function updateOrInsertSection {
     local fileName=$1
     local section=$2
     local content=$3
     local isSudo=${4:-false}
-    local scriptDir="${PREFERENCES_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}/util"
+    local scriptPath="$(sharePython install update_section.py)"
 
     local expectedBlock="### ${section} ###"$'\n'"${content}"$'\n'"### end of ${section} ###"
 
@@ -42,14 +87,14 @@ function updateOrInsertSection {
     fi
 
     $sudoCmd mkdir -p "$(dirname "$fileName")"
-    $sudoCmd python3 "$scriptDir/update_section.py" "$fileName" "$section" "$content"
+    $sudoCmd python3 "$scriptPath" "$fileName" "$section" "$content"
 }
 
 function deleteSection {
     local fileName=$1
     local section=$2
     local isSudo=${3:-false}
-    local scriptDir="${PREFERENCES_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}/util"
+    local scriptPath="$(sharePython install update_section.py)"
 
     if [ -f "$fileName" ]; then
         local sudoCmd=""
@@ -57,16 +102,7 @@ function deleteSection {
             sudoCmd="sudo "
         fi
 
-        $sudoCmd python3 "$scriptDir/update_section.py" --delete "$fileName" "$section"
-    fi
-}
-
-function workspace {
-    local module=${1:-""}
-    if [ -n "$module" ]; then
-        echo "$PREFERENCES_WORKSPACE/$module"
-    else
-        echo "$PREFERENCES_WORKSPACE"
+        $sudoCmd python3 "$scriptPath" --delete "$fileName" "$section"
     fi
 }
 
@@ -79,4 +115,3 @@ function githubLatestRelease {
         echo "$tag"
     fi
 }
-

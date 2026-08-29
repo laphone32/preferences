@@ -1,94 +1,106 @@
+"""YouCompleteMe (YCM) compilation flags configuration script."""
+
+import logging
 import os
 import os.path
-import fnmatch
-import logging
-import ycm_core
-import re
+
+try:
+    import ycm_core
+except ImportError:
+    ycm_core = None  # type: ignore
 
 BASE_FLAGS = [
-        '-Wall',
-        '-Wextra',
-        '-Wno-long-long',
-        '-Wno-variadic-macros',
-        '-fexceptions',
-        '-ferror-limit=10000',
-        '-DNDEBUG',
-        '-std=c++17',
-        '-xc++',
-        '-I/usr/lib/',
-        '-I/usr/include/'
-        ]
+    '-Wall',
+    '-Wextra',
+    '-Wno-long-long',
+    '-Wno-variadic-macros',
+    '-fexceptions',
+    '-ferror-limit=10000',
+    '-DNDEBUG',
+    '-std=c++17',
+    '-xc++',
+    '-I/usr/lib/',
+    '-I/usr/include/',
+]
 
 SOURCE_EXTENSIONS = [
-        '.cpp',
-        '.cc',
-        '.c',
-        ]
+    '.cpp',
+    '.cc',
+    '.c',
+]
 
 SOURCE_DIRECTORIES = [
-        'src',
-        ]
+    'src',
+]
 
 HEADER_EXTENSIONS = [
-        '.h',
-        '.hpp',
-        ]
+    '.h',
+    '.hpp',
+]
 
 HEADER_DIRECTORIES = [
-        'include'
-        ]
+    'include',
+]
 
-BUILD_DIRECTORY = 'build';
+BUILD_DIRECTORY = 'build'
 
-def IsHeaderFile(filename):
+
+def is_header_file(filename):
+    """Check if a filename has a C/C++ header extension."""
     extension = os.path.splitext(filename)[1]
     return extension in HEADER_EXTENSIONS
 
-def GetCompilationInfoForFile(database, filename):
-    if IsHeaderFile(filename):
+
+def get_compilation_info_for_file(database, filename):
+    """Retrieve compilation information from compilation database."""
+    if is_header_file(filename):
         basename = os.path.splitext(filename)[0]
         for extension in SOURCE_EXTENSIONS:
-            # Get info from the source files by replacing the extension.
             replacement_file = basename + extension
             if os.path.exists(replacement_file):
-                compilation_info = database.GetCompilationInfoForFile(replacement_file)
-                if compilation_info.compiler_flags_:
-                    return compilation_info
-            # If that wasn't successful, try replacing possible header directory with possible source directories.
+                info = database.GetCompilationInfoForFile(replacement_file)
+                if info.compiler_flags_:
+                    return info
             for header_dir in HEADER_DIRECTORIES:
                 for source_dir in SOURCE_DIRECTORIES:
                     src_file = replacement_file.replace(header_dir, source_dir)
                     if os.path.exists(src_file):
-                        compilation_info = database.GetCompilationInfoForFile(src_file)
-                        if compilation_info.compiler_flags_:
-                            return compilation_info
+                        info = database.GetCompilationInfoForFile(src_file)
+                        if info.compiler_flags_:
+                            return info
         return None
     return database.GetCompilationInfoForFile(filename)
 
-def FindNearest(path, target, build_folder=None):
+
+def find_nearest(path, target, build_folder=None):
+    """Find the nearest parent path containing target file or directory."""
     candidate = os.path.join(path, target)
-    if(os.path.isfile(candidate) or os.path.isdir(candidate)):
-        logging.info("Found nearest " + target + " at " + candidate)
-        return candidate;
+    if os.path.isfile(candidate) or os.path.isdir(candidate):
+        logging.info('Found nearest %s at %s', target, candidate)
+        return candidate
 
-    parent = os.path.dirname(os.path.abspath(path));
-    if(parent == path):
-        raise RuntimeError("Could not find " + target);
+    parent = os.path.dirname(os.path.abspath(path))
+    if parent == path:
+        raise RuntimeError('Could not find ' + target)
 
-    if(build_folder):
+    if build_folder:
         candidate = os.path.join(parent, build_folder, target)
-        if(os.path.isfile(candidate) or os.path.isdir(candidate)):
-            logging.info("Found nearest " + target + " in build folder at " + candidate)
-            return candidate;
+        if os.path.isfile(candidate) or os.path.isdir(candidate):
+            logging.info(
+                'Found nearest %s in build folder at %s', target, candidate
+            )
+            return candidate
 
-    return FindNearest(parent, target, build_folder)
+    return find_nearest(parent, target, build_folder)
 
-def MakeRelativePathsInFlagsAbsolute(flags, working_directory):
+
+def make_relative_paths_in_flags_absolute(flags, working_directory):
+    """Convert relative include paths in flags to absolute paths."""
     if not working_directory:
         return list(flags)
     new_flags = []
     make_next_absolute = False
-    path_flags = [ '-isystem', '-I', '-iquote', '--sysroot=' ]
+    path_flags = ['-isystem', '-I', '-iquote', '--sysroot=']
     for flag in flags:
         new_flag = flag
 
@@ -103,7 +115,7 @@ def MakeRelativePathsInFlagsAbsolute(flags, working_directory):
                 break
 
             if flag.startswith(path_flag):
-                path = flag[ len(path_flag): ]
+                path = flag[len(path_flag):]
                 new_flag = path_flag + os.path.join(working_directory, path)
                 break
 
@@ -112,71 +124,88 @@ def MakeRelativePathsInFlagsAbsolute(flags, working_directory):
     return new_flags
 
 
-def FlagsForClangComplete(root):
+def flags_for_clang_complete(root):
+    """Load flags from .clang_complete file if present."""
     try:
-        clang_complete_path = FindNearest(root, '.clang_complete')
-        clang_complete_flags = open(clang_complete_path, 'r').read().splitlines()
-        return clang_complete_flags
-    except:
+        clang_complete_path = find_nearest(root, '.clang_complete')
+        with open(clang_complete_path, 'r', encoding='utf-8') as f:
+            return f.read().splitlines()
+    except (OSError, RuntimeError):
         return None
 
-def FlagsForInclude(root):
+
+def flags_for_include(root):
+    """Discover all include directories in git root."""
     try:
         try:
-            include_path = os.path.abspath(os.path.join(FindNearest(root, '.git'), os.pardir))
+            include_path = os.path.abspath(
+                os.path.join(find_nearest(root, '.git'), os.pardir)
+            )
             while True:
                 parent = os.path.abspath(os.path.join(include_path, os.pardir))
                 if not os.path.isfile(os.path.join(parent, '.gitmodules')):
-                    break;
-
+                    break
                 include_path = parent
-        except:
-            include_path = FindNearest(root, 'include')
+        except (OSError, RuntimeError):
+            include_path = find_nearest(root, 'include')
 
         flags = []
-        for dirroot, dirnames, filenames in os.walk(include_path):
+        for dirroot, dirnames, _ in os.walk(include_path):
             for dir_path in dirnames:
                 real_path = os.path.join(dirroot, dir_path)
-                flags = flags + ["-I" + real_path]
+                flags.append('-I' + real_path)
         return flags
-    except:
+    except (OSError, RuntimeError):
         return None
 
-def FlagsForCompilationDatabase(root, filename):
+
+def flags_for_compilation_database(root, filename):
+    """Extract flags from compile_commands.json if available."""
     try:
-        # Last argument of next function is the name of the build folder for
-        # out of source projects
-        compilation_db_path = FindNearest(root, 'compile_commands.json', BUILD_DIRECTORY)
+        compilation_db_path = find_nearest(
+            root, 'compile_commands.json', BUILD_DIRECTORY
+        )
         compilation_db_dir = os.path.dirname(compilation_db_path)
-        logging.info("Set compilation database directory to " + compilation_db_dir)
-        compilation_db =  ycm_core.CompilationDatabase(compilation_db_dir)
+        logging.info(
+            'Set compilation database directory to %s', compilation_db_dir
+        )
+        if not ycm_core:
+            return None
+        compilation_db = ycm_core.CompilationDatabase(compilation_db_dir)
         if not compilation_db:
-            logging.info("Compilation database file found but unable to load")
+            logging.info('Compilation database file found but unable to load')
             return None
-        compilation_info = GetCompilationInfoForFile(compilation_db, filename)
+        compilation_info = get_compilation_info_for_file(
+            compilation_db, filename
+        )
         if not compilation_info:
-            logging.info("No compilation info for " + filename + " in compilation database")
+            logging.info(
+                'No compilation info for %s in compilation database', filename
+            )
             return None
-        return MakeRelativePathsInFlagsAbsolute(
-                compilation_info.compiler_flags_,
-                compilation_info.compiler_working_dir_)
-    except:
+        return make_relative_paths_in_flags_absolute(
+            compilation_info.compiler_flags_,
+            compilation_info.compiler_working_dir_,
+        )
+    except (OSError, RuntimeError):
         return None
 
-def FlagsForFile(filename):
-    root = os.path.realpath(filename);
-    compilation_db_flags = FlagsForCompilationDatabase(root, filename)
+
+def FlagsForFile(filename):  # pylint: disable=invalid-name
+    """YCM hook: return compilation flags dictionary for file."""
+    root = os.path.realpath(filename)
+    compilation_db_flags = flags_for_compilation_database(root, filename)
     if compilation_db_flags:
         final_flags = compilation_db_flags
     else:
-        final_flags = BASE_FLAGS
-        clang_flags = FlagsForClangComplete(root)
+        final_flags = list(BASE_FLAGS)
+        clang_flags = flags_for_clang_complete(root)
         if clang_flags:
-            final_flags = final_flags + clang_flags
-        include_flags = FlagsForInclude(root)
+            final_flags.extend(clang_flags)
+        include_flags = flags_for_include(root)
         if include_flags:
-            final_flags = final_flags + include_flags
+            final_flags.extend(include_flags)
     return {
-            'flags': final_flags,
-            'do_cache': True
-            }
+        'flags': final_flags,
+        'do_cache': True,
+    }

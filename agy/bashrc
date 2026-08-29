@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # File: agy/bashrc
 
-source "$PREFERENCES_DIR/util/override.sh"
+sourceShare bash override.sh 2>/dev/null || source "$PREFERENCES_DIR/bash/share/bash/override.sh"
 source "$PREFERENCES_DIR/agy/common.sh"
 
 replace 'agy' "

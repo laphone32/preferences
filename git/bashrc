@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-source $PREFERENCES_DIR/util/override.sh
-source $PREFERENCES_DIR/util/utils.sh
+sourceShare bash override.sh 2>/dev/null || source "$PREFERENCES_DIR/bash/share/bash/override.sh"
+sourceShare bash utils.sh 2>/dev/null || source "$PREFERENCES_DIR/bash/share/bash/utils.sh"
 source $PREFERENCES_DIR/git/common.sh
 
 if ! complete -p git &> /dev/null && [ -f "$PREFERENCES_WORKSPACE_GIT_COMPLETION" ]; then

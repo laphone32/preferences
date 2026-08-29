@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# File: util/manifest.sh
+# File: install/share/bash/manifest.sh
 
-[[ "${_PREFERENCES_UTIL_MANIFEST_SOURCED:-""}" == "yes" ]] && return 0
-_PREFERENCES_UTIL_MANIFEST_SOURCED=yes
+[[ "${_PREFERENCES_INSTALL_MANIFEST_SOURCED:-""}" == "yes" ]] && return 0
+_PREFERENCES_INSTALL_MANIFEST_SOURCED=yes
 
 # Global Manifest Path
-PREFERENCES_INSTALL_MANIFEST="$PREFERENCES_WORKSPACE/.install_manifest.log"
+PREFERENCES_INSTALL_MANIFEST="${PREFERENCES_WORKSPACE:-$PREFERENCES_DIR/.workspace}/.install_manifest.log"
 
 # Action Constants
 PREFERENCES_INSTALL_ACTION_SYMLINK="Symlink"
@@ -32,7 +32,7 @@ function appendManifest {
     local actionType=$1
     shift
     local args=("$@")
-    
+
     initManifest
     # Join arguments with pipe symbol '|'
     local IFS='|'

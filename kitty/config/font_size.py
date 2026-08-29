@@ -1,10 +1,9 @@
-"""
-Centralized font size utilities for Kitty.
+"""Centralized font size utilities for Kitty.
+
 Shared between watcher.py, adjust_font_size.py, and theme compilers.
 """
 
 import json
-from pathlib import Path
 from typing import Optional
 
 from kitty_path import (
@@ -12,22 +11,22 @@ from kitty_path import (
     preferences_get_font_offsets_path,
 )
 
-_cached_offsets: Optional[dict] = None
+_CACHED_OFFSETS: Optional[dict] = None
 
 
 def load_font_offsets() -> dict:
     """Load relative delta offsets from workspace. Fallback to 0.0 delta."""
-    global _cached_offsets
-    if _cached_offsets is not None:
-        return _cached_offsets
+    global _CACHED_OFFSETS  # pylint: disable=global-statement
+    if _CACHED_OFFSETS is not None:
+        return _CACHED_OFFSETS
 
     offsets_file = preferences_get_font_offsets_path()
     if offsets_file.exists():
         try:
             with open(offsets_file, "r", encoding="utf-8") as f:
-                _cached_offsets = json.load(f)
-                return _cached_offsets
-        except Exception:
+                _CACHED_OFFSETS = json.load(f)
+                return _CACHED_OFFSETS
+        except (OSError, json.JSONDecodeError):
             pass
 
     return {"default": 0.0}
@@ -50,16 +49,13 @@ def read_device_font_size(default: float = 20.0) -> float:
                         parts = line.split()
                         if len(parts) >= 2:
                             return float(parts[1])
-        except Exception:
+        except (OSError, ValueError):
             pass
     return default
 
 
 def save_device_font_size(base_size: float) -> None:
-    """
-    Ultra-fast (<0.003ms) non-blocking page-cache write.
-    Saves the base font size to device_font.conf.
-    """
+    """Saves the base font size to device_font.conf."""
     conf_path = preferences_get_device_font_conf_path()
     conf_path.parent.mkdir(parents=True, exist_ok=True)
 

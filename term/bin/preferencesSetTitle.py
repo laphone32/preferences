@@ -5,18 +5,23 @@ Emit ANSI OSC 0 window title sequence to the terminal.
 Shared across shell wrappers, Vim autocommands, and terminal managers.
 """
 
+import os
 import sys
 from pathlib import Path
 
-# Ensure repository root is on sys.path
+# Ensure repository root and workspace share/python are on sys.path
 script_dir = Path(__file__).resolve().parent
 repo_root = script_dir.parent.parent
-if str(repo_root) not in sys.path:
-    sys.path.insert(0, str(repo_root))
-
-from term.compile.title import (  # pylint: disable=wrong-import-position
-    format_title,
+pref_ws = Path(
+    os.environ.get("PREFERENCES_WORKSPACE", repo_root / ".workspace")
 )
+ws_python = pref_ws / "share" / "python"
+
+for p in (ws_python, repo_root):
+    if str(p) not in sys.path:
+        sys.path.insert(0, str(p))
+
+from term.title import format_title  # pylint: disable=wrong-import-position
 
 
 def set_title(profile: str, extra: str = "") -> None:

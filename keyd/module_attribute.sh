@@ -69,7 +69,7 @@ AttrKeyboardIntegration=internal"
 
         local KEYD_VERSION=$("$KEYD_BIN" -v 2>/dev/null | grep -o 'v[0-9]\+\.[0-9]\+\.[0-9]\+')
 
-        source "$PREFERENCES_DIR/util/environment.sh" 2>/dev/null || true
+        sourceShare bash environment.sh 2>/dev/null || source "$PREFERENCES_DIR/bash/share/bash/environment.sh" 2>/dev/null || true
         if [ "$PREFERENCES_DESKTOP_ENVIRONMENT" == "gnome" ]; then
             # Download GNOME Extension matching keyd version
             local GNOME_EXT_WORKSPACE="$PREFERENCES_WORKSPACE_KEYD/gnome-extension"

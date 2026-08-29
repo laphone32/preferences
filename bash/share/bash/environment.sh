@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-[[ "${_PREFERENCES_UTIL_ENVIRONMENT_SOURCED:-""}" == "yes" ]] && return 0
-_PREFERENCES_UTIL_ENVIRONMENT_SOURCED=yes
+# File: bash/share/bash/environment.sh
 
+[[ "${_PREFERENCES_BASH_ENVIRONMENT_SOURCED:-""}" == "yes" ]] && return 0
+_PREFERENCES_BASH_ENVIRONMENT_SOURCED=yes
 
 # Linux | Windows | Darwin
 function currentOs {
@@ -118,6 +119,4 @@ function isGuiEnvironment {
     return 1
 }
 
-PREFERENCES_WORKSPACE="$PREFERENCES_DIR/.workspace"
-
-
+PREFERENCES_WORKSPACE="${PREFERENCES_WORKSPACE:-$PREFERENCES_DIR/.workspace}"

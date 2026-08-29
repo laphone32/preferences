@@ -5,8 +5,8 @@ if [ -z "$PREFERENCES_DIR" ]; then
     export PREFERENCES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 fi
 
-source "$PREFERENCES_DIR/util/environment.sh" 2>/dev/null || true
-source "$PREFERENCES_DIR/util/utils.sh" 2>/dev/null || true
+sourceShare bash environment.sh 2>/dev/null || source "$PREFERENCES_DIR/bash/share/bash/environment.sh" 2>/dev/null || true
+sourceShare bash utils.sh 2>/dev/null || source "$PREFERENCES_DIR/bash/share/bash/utils.sh" 2>/dev/null || true
 
 PREFERENCES_TERM="${PREFERENCES_TERM:-$PREFERENCES_DIR/term}"
 PREFERENCES_TERM_COMPILE="${PREFERENCES_TERM_COMPILE:-$PREFERENCES_TERM/compile}"

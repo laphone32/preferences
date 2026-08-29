@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# File: install/package.sh
+# File: install/share/bash/package.sh
 
-source "$(dirname "${BASH_SOURCE[0]}")/../util/bootstrap.sh" 2>/dev/null || true
+source "${PREFERENCES_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)}/bootstrap.sh" 2>/dev/null || true
 
 # Detect package manager (priority: apt > paru > yay > pacman > brew > snap)
 # Returns: PRIMARY,SECONDARY
@@ -52,12 +52,14 @@ function loadPackageManager {
     unset -f packageManagerInstall 2>/dev/null || true
     declare -g -A packageNameMap=()
 
-    local base_script="$PREFERENCES_DIR/install/package_manager/${pkgManager}.sh"
+    local pkg_manager_dir="$PREFERENCES_DIR/install/package_manager"
+
+    local base_script="$pkg_manager_dir/${pkgManager}.sh"
     if [ -f "$base_script" ]; then
         source "$base_script"
     fi
 
-    local distro_script="$PREFERENCES_DIR/install/package_manager/${pkgManager}_${PREFERENCES_DISTRO}.sh"
+    local distro_script="$pkg_manager_dir/${pkgManager}_${PREFERENCES_DISTRO}.sh"
     if [ -f "$distro_script" ]; then
         source "$distro_script"
     fi

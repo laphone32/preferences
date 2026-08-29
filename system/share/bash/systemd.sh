@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# File: util/systemd.sh
+# File: system/share/bash/systemd.sh
 
-[[ "${_PREFERENCES_UTIL_SYSTEMD_SOURCED:-""}" == "yes" ]] && return 0
-_PREFERENCES_UTIL_SYSTEMD_SOURCED=yes
+[[ "${_PREFERENCES_SYSTEM_SYSTEMD_SOURCED:-""}" == "yes" ]] && return 0
+_PREFERENCES_SYSTEM_SYSTEMD_SOURCED=yes
 
 # Standard service prefix for all preferences-managed systemd units
 PREFERENCES_INSTALL_SYSTEMD_SERVICE_PREFIX="preferences-"

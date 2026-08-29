@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# File: util/module.sh
+# File: install/share/bash/module.sh
 
-[[ "${_PREFERENCES_UTIL_MODULE_SOURCED:-""}" == "yes" ]] && return 0
-_PREFERENCES_UTIL_MODULE_SOURCED=yes
+[[ "${_PREFERENCES_INSTALL_MODULE_SOURCED:-""}" == "yes" ]] && return 0
+_PREFERENCES_INSTALL_MODULE_SOURCED=yes
 
 # =====================================================================
 # Configuration & Constants
@@ -280,5 +280,3 @@ function installAllModules {
 
     forEachModule _execModuleInstall "$rootDir"
 }
-
-

@@ -1,17 +1,33 @@
 #!/usr/bin/env python3
-"""
-Compile canonical font settings in term/theme/*.json into
-an Ahead-Of-Time (AOT) setTermFont() function for Apple Terminal
-in .workspace/term/font/apple_terminal.sh.
+"""Compile canonical font settings into setTermFont() for Apple Terminal.
+
+Output file: .workspace/term/font/apple_terminal.sh
 """
 
 import json
+import os
 from pathlib import Path
+import sys
 
-from util.path import preferences_get_dir, preferences_get_workspace_dir
+# Ensure .workspace/share/python is in sys.path for direct script execution
+_pref_ws = Path(
+    os.environ.get(
+        "PREFERENCES_WORKSPACE",
+        Path(__file__).resolve().parents[2] / ".workspace",
+    )
+)
+_ws_python = _pref_ws / "share" / "python"
+if str(_ws_python) not in sys.path:
+    sys.path.insert(0, str(_ws_python))
+
+from util.path import (  # pylint: disable=wrong-import-position
+    preferences_get_dir,
+    preferences_get_workspace_dir,
+)
 
 
 def get_paths():
+    """Get source themes directory and target output file path."""
     themes_dir = preferences_get_dir() / "term" / "theme"
     output_file = (
         preferences_get_workspace_dir("term") / "font" / "apple_terminal.sh"
@@ -20,6 +36,7 @@ def get_paths():
 
 
 def compile_apple_terminal():
+    """Compile Apple Terminal font definitions from theme JSON files."""
     themes_dir, output_file = get_paths()
 
     if not themes_dir.exists():

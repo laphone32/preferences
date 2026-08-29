@@ -1,19 +1,22 @@
 #!/usr/bin/env bash
 
-source "$(dirname "${BASH_SOURCE[0]}")/util/bootstrap.sh"
+# 1. Deterministic Bootstrap from any directory
+source "$(dirname "${BASH_SOURCE[0]}")/bootstrap.sh"
 
-
-source "$PREFERENCES_DIR/install/package.sh"
+# 2. Package Management verification
+sourceShare install package.sh
 if ! installNecessaryPackages "$@"; then
     echo "❌ Error: Required package installation incomplete. Aborting installation."
     exit 1
 fi
 
-# workspace
+# 3. Initialize workspace and setup Python symlinks & PATH aggregation
 installPreferencesDir "$(workspace '')"
 
+# 4. Ahead-of-Time (AOT) Bashrc Compilation
+compilePreferencesBashrc
 
-# module installation
+# 5. Module Installation Execution
 if [ "$#" -ge 1 ]; then
     for module in "$@"; do
         installModule "$PREFERENCES_DIR/$module"
@@ -21,5 +24,3 @@ if [ "$#" -ge 1 ]; then
 else
     installAllModules
 fi
-
-

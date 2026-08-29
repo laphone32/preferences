@@ -1,12 +1,17 @@
 #!/usr/bin/env bash
-# File: util/install.sh
+# File: install/share/bash/install.sh
 
-[[ "${_PREFERENCES_UTIL_INSTALL_SOURCED:-""}" == "yes" ]] && return 0
-_PREFERENCES_UTIL_INSTALL_SOURCED=yes
+[[ "${_PREFERENCES_INSTALL_INSTALL_SOURCED:-""}" == "yes" ]] && return 0
+_PREFERENCES_INSTALL_INSTALL_SOURCED=yes
 
 # Load manifest transaction logging and systemd utilities
-source "${PREFERENCES_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}/util/manifest.sh" 2>/dev/null || true
-source "${PREFERENCES_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}/util/systemd.sh" 2>/dev/null || true
+if declare -f sourceShare &>/dev/null; then
+    sourceShare install manifest.sh 2>/dev/null || true
+    sourceShare system systemd.sh 2>/dev/null || true
+else
+    source "${PREFERENCES_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)}/install/share/bash/manifest.sh" 2>/dev/null || true
+    source "${PREFERENCES_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)}/system/share/bash/systemd.sh" 2>/dev/null || true
+fi
 
 # =====================================================================
 # Symmetric Installation and Uninstallation (Undo) Pairs
@@ -48,10 +53,6 @@ function undoPreferencesSymlink {
 }
 
 # --- 2. Sudo Symlink (System-level settings like logind.conf) ---
-# NOTE: We use a dedicated function rather than running "sudo installPreferencesSymlink"
-# because bash functions exist only in the current shell process memory. The 'sudo'
-# binary cannot call bash functions directly without spawning verbose, complex subshells.
-# Prepending 'sudo' to the commands inside this helper keeps the script clean and native.
 function installPreferencesSudoSymlink {
     local source=$1
     local target=$2
@@ -365,6 +366,3 @@ function uninstallPreferencesManifest {
         fi
     done
 }
-
-
-

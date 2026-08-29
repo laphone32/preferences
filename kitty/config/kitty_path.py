@@ -1,28 +1,29 @@
-"""
-Kitty-specific path resolution utilities.
-Builds on centralized python.util.path library.
+"""Kitty-specific path resolution utilities.
+
+Builds on centralized python util.path library.
 """
 
 import os
-import sys
 from pathlib import Path
+import sys
 
-# Ensure preferences root and preferences/python are in sys.path when running inside Kitty process
+# Ensure preferences root and workspace share/python are in sys.path
 _pref_env = os.environ.get("PREFERENCES_DIR")
 _pref_dir = (
     Path(_pref_env).resolve()
     if _pref_env
     else Path(__file__).resolve().parents[2]
 )
-_pref_python = _pref_dir / "python"
+_pref_ws = Path(
+    os.environ.get("PREFERENCES_WORKSPACE", _pref_dir / ".workspace")
+)
+_pref_python_share = _pref_ws / "share" / "python"
 
-for _p in (_pref_dir, _pref_python):
+for _p in (_pref_python_share, _pref_dir):
     if str(_p) not in sys.path:
         sys.path.insert(0, str(_p))
 
-from util.path import (
-    preferences_get_config_dir,
-    preferences_get_dir,
+from util.path import (  # pylint: disable=wrong-import-position
     preferences_get_user_config_dir,
     preferences_get_workspace_dir,
 )

@@ -12,12 +12,12 @@ def preferences_get_dir() -> Path:
     env_dir = os.environ.get("PREFERENCES_DIR")
     if env_dir:
         return Path(env_dir).resolve()
-    # Fallback: traverse up from this file (preferences/python/util/path.py -> preferences)
-    return Path(__file__).resolve().parent.parent.parent
+    # Fallback: traverse up from this file to preferences repo root
+    return Path(__file__).resolve().parents[3]
 
 
 def preferences_get_workspace_dir(module: Optional[str] = None) -> Path:
-    """Get the .workspace directory (or a module-specific workspace subdirectory)."""
+    """Get the .workspace directory (or a module workspace subdirectory)."""
     pref_dir = preferences_get_dir()
     ws_env = os.environ.get("PREFERENCES_WORKSPACE")
     base_ws = Path(ws_env) if ws_env else (pref_dir / ".workspace")

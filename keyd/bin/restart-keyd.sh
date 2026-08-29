@@ -31,7 +31,7 @@ sudo "$KEYD_BIN" reload || { echo "ERROR: Failed to reload keyd"; exit 1; }
 echo "keyd configuration reloaded."
 
 # Source environment and systemd utilities
-source "$DIR/../util/bootstrap.sh" 2>/dev/null || true
+source "$DIR/../../bootstrap.sh" 2>/dev/null || true
 
 if [ "$PREFERENCES_DESKTOP_ENVIRONMENT" == "gnome" ] && command -v gnome-extensions &> /dev/null; then
     echo "Restarting keyd GNOME extension..."

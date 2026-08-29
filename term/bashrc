@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-PREFERENCES_TERM="${PREFERENCES_TERM:-$PREFERENCES_DIR/term}"
-
-source "$PREFERENCES_TERM/util.sh"
+sourceShare term term_util.sh 2>/dev/null || source "$PREFERENCES_DIR/term/share/bash/term_util.sh"
 
 loadTerms

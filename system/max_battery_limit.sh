@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source "$(dirname "${BASH_SOURCE[0]}")/../util/bootstrap.sh" 2>/dev/null || true
+source "$(dirname "${BASH_SOURCE[0]}")/../bootstrap.sh" 2>/dev/null || true
 
 DRIVER1='/sys/class/power_supply/CMB0/charge_control_end_threshold'
 DRIVER2='/sys/devices/platform/lg-laptop/battery_care_limit'

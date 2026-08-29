@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
-[[ "${_PREFERENCES_UTIL_OVERRIDE_SOURCED:-""}" == "yes" ]] && return 0
-_PREFERENCES_UTIL_OVERRIDE_SOURCED=yes
+# File: bash/share/bash/override.sh
+
+[[ "${_PREFERENCES_BASH_OVERRIDE_SOURCED:-""}" == "yes" ]] && return 0
+_PREFERENCES_BASH_OVERRIDE_SOURCED=yes
 
 function bindCommand {
     local expression=$1
@@ -115,4 +117,3 @@ function wrapParameterBind {
 function wrapPostHook {
     wrap '' '' "$1" '' "$2"
 }
-

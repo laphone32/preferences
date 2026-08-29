@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source $PREFERENCES_DIR/util/override.sh
+sourceShare bash override.sh 2>/dev/null || source "$PREFERENCES_DIR/bash/share/bash/override.sh"
 
 #localstack
 replace 'awslocal' '' 'AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test AWS_DEFAULT_REGION=${DEFAULT_REGION:-$AWS_DEFAULT_REGION} aws --endpoint-url=http://${LOCALSTACK_HOST:-localhost}:4566'

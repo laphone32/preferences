@@ -1,19 +1,35 @@
 #!/usr/bin/env python3
-"""
-Compile canonical JSON themes from term/theme/*.json
-into combined Kitty configuration format (.workspace/kitty/theme/*.conf)
-containing font and color definitions (excluding font_size to prevent collisions),
-and compute canonical relative font offsets in .workspace/kitty/font_offsets.json.
+"""Compile canonical JSON themes into unified Kitty profile configurations.
+
+Generates:
+- .workspace/kitty/theme/*.conf
+- .workspace/kitty/font_offsets.json
 """
 
 import json
+import os
 from pathlib import Path
+import sys
 
-from util.path import preferences_get_dir, preferences_get_workspace_dir
+# Ensure .workspace/share/python is in sys.path for direct script execution
+_pref_ws = Path(
+    os.environ.get(
+        "PREFERENCES_WORKSPACE",
+        Path(__file__).resolve().parents[2] / ".workspace",
+    )
+)
+_ws_python = _pref_ws / "share" / "python"
+if str(_ws_python) not in sys.path:
+    sys.path.insert(0, str(_ws_python))
+
+from util.path import (  # pylint: disable=wrong-import-position
+    preferences_get_dir,
+    preferences_get_workspace_dir,
+)
 
 
 def format_kitty_font(font_data: dict) -> list[str]:
-    """Format font directives for kitty configuration (omits font_size to prevent config collisions)."""
+    """Format font directives for kitty configuration."""
     if not font_data:
         return []
 
@@ -77,18 +93,19 @@ def format_kitty_conf(theme_data: dict) -> str:
     return "\n".join(lines) + "\n"
 
 
-def generate_font_offsets_and_init_device_conf(themes_json_dir: Path, workspace_kitty_dir: Path) -> dict:
-    """Extract relative font size offsets and initialize device_font.conf with default_size."""
+def generate_font_offsets_and_init_device_conf(
+    themes_json_dir: Path, workspace_kitty_dir: Path
+) -> dict:
+    """Extract font offsets and init device_font.conf with default_size."""
     default_json = themes_json_dir / "default.json"
     default_size = 20.0
     if default_json.exists():
         try:
             with open(default_json, "r", encoding="utf-8") as f:
                 default_data = json.load(f)
-                default_size = float(
-                    default_data.get("font", {}).get("size", default_size)
-                )
-        except Exception:
+                font_info = default_data.get("font", {})
+                default_size = float(font_info.get("size", default_size))
+        except (OSError, json.JSONDecodeError, ValueError):
             pass
 
     # 1. Initialize device_font.conf if missing
@@ -107,7 +124,7 @@ def generate_font_offsets_and_init_device_conf(themes_json_dir: Path, workspace_
             name = data.get("name", json_file.stem)
             font_size = float(data.get("font", {}).get("size", default_size))
             offsets[name] = round(font_size - default_size, 1)
-        except Exception:
+        except (OSError, json.JSONDecodeError, ValueError):
             pass
 
     offsets_file = workspace_kitty_dir / "font_offsets.json"
@@ -119,6 +136,7 @@ def generate_font_offsets_and_init_device_conf(themes_json_dir: Path, workspace_
 
 
 def compile_themes():
+    """Compile all themes and generate Kitty configuration files."""
     themes_json_dir = preferences_get_dir() / "term" / "theme"
     workspace_kitty_dir = preferences_get_workspace_dir("kitty")
     output_kitty_theme_dir = workspace_kitty_dir / "theme"
@@ -141,7 +159,9 @@ def compile_themes():
     output_kitty_theme_dir.mkdir(parents=True, exist_ok=True)
 
     # Generate font offsets and initialize device_font.conf
-    offsets = generate_font_offsets_and_init_device_conf(themes_json_dir, workspace_kitty_dir)
+    offsets = generate_font_offsets_and_init_device_conf(
+        themes_json_dir, workspace_kitty_dir
+    )
 
     count = 0
     for json_file in json_files:
@@ -160,10 +180,11 @@ def compile_themes():
         except (json.JSONDecodeError, OSError) as e:
             print(f"Error processing {json_file}: {e}", file=sys.stderr)
 
+    offsets_json_path = workspace_kitty_dir / "font_offsets.json"
     print(
-        f"✓ Compiled {count} unified Kitty profiles to {output_kitty_theme_dir}"
+        f"✓ Generated font offsets for {len(offsets)} profiles to "
+        f"{offsets_json_path}"
     )
-    print(f"✓ Generated font offsets for {len(offsets)} profiles to {workspace_kitty_dir / 'font_offsets.json'}")
 
 
 if __name__ == "__main__":

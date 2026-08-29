@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Utility script for updating or deleting marked sections in text files.
-"""
+"""Utility script for updating or deleting marked sections in text files."""
 
 import os
 import sys
@@ -10,6 +8,7 @@ import sys
 def update_or_insert_section(
     file_path: str, section: str, content: str
 ) -> None:
+    """Update existing marked section or insert a new one at EOF."""
     head_note = f"### {section} ###"
     foot_note = f"### end of {section} ###"
     block = f"{head_note}\n{content}\n{foot_note}\n"
@@ -46,6 +45,7 @@ def update_or_insert_section(
 
 
 def delete_section(file_path: str, section: str) -> None:
+    """Delete a marked configuration section from a file."""
     head_note = f"### {section} ###"
     foot_note = f"### end of {section} ###"
 
@@ -71,6 +71,7 @@ def delete_section(file_path: str, section: str) -> None:
 
 
 def main():
+    """CLI entrypoint for update_section."""
     if len(sys.argv) >= 4 and sys.argv[1] == "--delete":
         delete_section(sys.argv[2], sys.argv[3])
     elif len(sys.argv) >= 4:

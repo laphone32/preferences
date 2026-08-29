@@ -1,11 +1,10 @@
-"""
-Kitty dynamic watcher script for font and color theme management.
+"""Kitty dynamic watcher script for font and color theme management.
+
 Uses real-time dynamic path resolution via kitty_path.
 """
 
 import os
 import sys
-from pathlib import Path
 from typing import Any, Dict
 
 # Ensure config dir is in sys.path
@@ -13,15 +12,21 @@ _kitty_config = os.path.expanduser("~/.config/kitty")
 if _kitty_config not in sys.path:
     sys.path.insert(0, _kitty_config)
 
-from kitty_path import (  # pylint: disable=wrong-import-position
+# pylint: disable=wrong-import-position
+from kitty_path import (
     preferences_get_active_theme_conf_path,
     preferences_get_kitty_conf_path,
     preferences_get_kitty_theme_dir,
 )
-from font_size import get_profile_font_offset  # pylint: disable=wrong-import-position
-from term.compile.title import parse_cmd  # pylint: disable=wrong-import-position
-from kitty.boss import Boss
-from kitty.window import Window
+from font_size import get_profile_font_offset
+from term.title import parse_cmd
+
+try:
+    from kitty.boss import Boss
+    from kitty.window import Window
+except ImportError:
+    Boss = object  # type: ignore
+    Window = object  # type: ignore
 
 
 def _force_symlink(src: str, dst: str) -> bool:
@@ -49,7 +54,8 @@ def _valid_path(prefix: str, profile: str) -> str:
     return ret if os.path.isfile(ret) else _path(prefix, "default")
 
 
-class Default:
+class Default:  # pylint: disable=too-few-public-methods
+    """Default fallback profile definition."""
     profile = "default"
 
 
@@ -57,8 +63,10 @@ def _update_profile(boss: Boss, profile: str) -> None:
     theme_path = _valid_path(
         str(preferences_get_kitty_theme_dir()), profile
     )
-    if _force_symlink(theme_path, str(preferences_get_active_theme_conf_path())):
-        boss._current_profile = profile
+    if _force_symlink(
+        theme_path, str(preferences_get_active_theme_conf_path())
+    ):
+        boss._current_profile = profile  # pylint: disable=protected-access
         boss.load_config_file(str(preferences_get_kitty_conf_path()))
         offset = get_profile_font_offset(profile)
         if offset > 0:
@@ -67,20 +75,24 @@ def _update_profile(boss: Boss, profile: str) -> None:
             boss.change_font_size(False, "-", abs(offset))
 
 
-window_profile: dict[int, str] = {}
+WINDOW_PROFILE: dict[int, str] = {}
 
 
-def on_focus_change(boss: Boss, window: Window, data: Dict[str, Any]) -> None:
+def on_focus_change(
+    boss: Boss, window: Window, data: Dict[str, Any]
+) -> None:
+    """Handle window focus change event."""
     if not window or not data or not data.get("focused"):
         return
 
-    profile = window_profile.get(window.id, Default.profile)
+    profile = WINDOW_PROFILE.get(getattr(window, "id", 0), Default.profile)
     _update_profile(boss, profile)
 
 
 def on_cmd_startstop(
     boss: Boss, window: Window, data: Dict[str, Any]
 ) -> None:
+    """Handle command start and stop events."""
     if not window or not data:
         return
 
@@ -89,5 +101,5 @@ def on_cmd_startstop(
         profile, _ = parse_cmd(cmdline)
     else:
         profile = Default.profile
-    window_profile[window.id] = profile
+    WINDOW_PROFILE[getattr(window, "id", 0)] = profile
     _update_profile(boss, profile)

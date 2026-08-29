@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # File: keyd/bashrc
 
-source "$PREFERENCES_DIR/util/override.sh"
+sourceShare bash override.sh 2>/dev/null || source "$PREFERENCES_DIR/bash/share/bash/override.sh"
 
 # In Debian/Ubuntu, keyd is installed as keyd.rvaiya to avoid naming conflicts.
 # This wraps it back to `keyd` using the custom framework override function.

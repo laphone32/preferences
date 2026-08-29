@@ -1,15 +1,13 @@
+sourceShare bash utils.sh 2>/dev/null || true
+sourceShare bash override.sh 2>/dev/null || true
 
-source $PREFERENCES_DIR/util/utils.sh
-source $PREFERENCES_DIR/util/override.sh
-
-if [ ! -f "$PREFERENCES_WORKSPACE/bash/compiled_bashrc.sh" ]; then
+if [ ! -f "${PREFERENCES_WORKSPACE:-$PREFERENCES_DIR/.workspace}/bash/compiled_bashrc.sh" ]; then
     function addModuleBin {
         local modDir=$1
         if [ -d "$modDir/bin" ]; then
             export PATH="$modDir/bin:$PATH"
         fi
     }
-    source "$PREFERENCES_DIR/util/module.sh"
     forEachModule addModuleBin
 fi
 
@@ -27,11 +25,13 @@ export LS_COLORS='no=00:fi=00:di=01;36:ln=02;36:pi=40;33:so=01;35:do=01;35:bd=40
 wrapParameterBind 'ls' '--color=auto --time-style=long-iso'
 wrapParameterBind 'grep' '--color=auto'
 
-[ -f "$PREFERENCES_WORKSPACE/bash/os.sh" ] && source "$PREFERENCES_WORKSPACE/bash/os.sh"
+replace 'preferencesDir' '' 'cd "$PREFERENCES_DIR"'
+replace 'preferencesWorkspace' '' 'cd "$(workspace)"'
+
+[ -f "${PREFERENCES_WORKSPACE:-$PREFERENCES_DIR/.workspace}/bash/os.sh" ] && source "${PREFERENCES_WORKSPACE:-$PREFERENCES_DIR/.workspace}/bash/os.sh"
 
 PS1='\[\033[0;32m\]\u'
 PS1+='\[\e[0m\]:\w'
 PS1+='\[\033[0;33m\]$(PREFERENCES_GIT_PS1)'
 PS1+='\[\033[1;36m\]$(PREFERENCES_AWS_PS1)'
 PS1+='\[\e[0m\]# '
-
