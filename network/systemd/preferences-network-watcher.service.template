@@ -1,0 +1,14 @@
+[Unit]
+Description=Preferences Netlink Network Change Watcher & Hook Dispatcher
+Documentation=https://github.com/laphone32/preferences
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 $PREFERENCES_DIR/network/bin/preferences-network-runner.py
+Environment=PREFERENCES_DIR=$PREFERENCES_DIR
+Restart=always
+RestartSec=5s
+
+[Install]
+WantedBy=default.target

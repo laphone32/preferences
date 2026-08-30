@@ -340,6 +340,31 @@ function undoPreferencesGnomeExtension {
     fi
 }
 
+# --- 11. Workspace Network Hook Task Symlinks ---
+function installPreferencesNetworkHookTask {
+    local sourceScript=$1
+    local moduleName=$2
+    local taskName=${3:-$(basename "$sourceScript")}
+
+    local targetDir="$(workspace "$moduleName")/network-hooks.d"
+    installPreferencesDir "$targetDir"
+    installPreferencesSymlink "$sourceScript" "$targetDir/$taskName"
+}
+
+function installPreferencesNetworkHookDir {
+    local sourceDir=$1
+    local moduleName=$2
+
+    if [ -d "$sourceDir" ]; then
+        for hookFile in "$sourceDir"/*.sh; do
+            if [ -f "$hookFile" ]; then
+                local hookName="$(basename "$hookFile")"
+                installPreferencesNetworkHookTask "$hookFile" "$moduleName" "$hookName"
+            fi
+        done
+    fi
+}
+
 # =====================================================================
 # Manifest-Driven Uninstallation
 # =====================================================================
