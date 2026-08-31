@@ -5,6 +5,8 @@ declare -g -A packageNameMap=(
     ["7z"]="sevenzip unar"
     ["gvim"]="vim"
     ["sbx"]="docker/tap/sbx"
+    ["gls"]="coreutils"
+    ["gsed"]="gnu-sed"
 )
 
 function packageManagerInstall {

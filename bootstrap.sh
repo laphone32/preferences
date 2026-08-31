@@ -14,7 +14,7 @@ export PREFERENCES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export PREFERENCES_WORKSPACE="${PREFERENCES_WORKSPACE:-$PREFERENCES_DIR/.workspace}"
 
 # 2. Standard robust fallback PATH and Python workspace PATH
-export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$HOME/.local/bin:$PATH"
+export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$HOME/.local/bin:$PATH"
 export PYTHONPATH="$PREFERENCES_WORKSPACE/share/python:$PREFERENCES_DIR${PYTHONPATH:+:$PYTHONPATH}"
 
 # 3. Source core foundation libraries

@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# File: homebrew/bashrc
+
+source "$PREFERENCES_DIR/homebrew/common.sh" 2>/dev/null || true
+
+# 1. Load cached shell environment (or fallback to dynamic eval)
+if [ -f "$PREFERENCES_HOMEBREW_ENV" ]; then
+    source "$PREFERENCES_HOMEBREW_ENV"
+else
+    ensureBrewPath
+    if command -v brew &>/dev/null; then
+        eval "$(brew shellenv)"
+    fi
+fi
+
+# 2. Bash completions & GNU utility gnubin path injection
+if [[ -n "$HOMEBREW_PREFIX" ]]; then
+    # Bash completions
+    if [[ -f "$HOMEBREW_PREFIX/share/bash-completion/bash_completion" ]]; then
+        source "$HOMEBREW_PREFIX/share/bash-completion/bash_completion"
+    fi
+    if [[ -f "$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh" ]]; then
+        source "$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh"
+    fi
+
+    # Native GNU coreutils gnubin (ls, cat, date, cp, realpath, etc.)
+    [ -d "$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin" ] && \
+        export PATH="$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin:$PATH"
+
+    # Native GNU sed gnubin
+    [ -d "$HOMEBREW_PREFIX/opt/gnu-sed/libexec/gnubin" ] && \
+        export PATH="$HOMEBREW_PREFIX/opt/gnu-sed/libexec/gnubin:$PATH"
+fi
