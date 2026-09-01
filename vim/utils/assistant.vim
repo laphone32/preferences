@@ -8,7 +8,8 @@ def GetAssistant(): te.Term
     if assistant == null_object
         # Get the project root synced by vim-rooter
         var project_root = getcwd()
-        assistant = te.Term.new(['agy', '--add-dir', project_root], 'Coding Assistant', 'HideAssistant', 100)
+        var cmd = ['bash', '-ic', 'agy --add-dir ' .. shellescape(project_root)]
+        assistant = te.Term.new(cmd, 'Coding Assistant', 'HideAssistant', 100)
     endif
     return assistant
 enddef

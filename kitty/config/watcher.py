@@ -76,17 +76,26 @@ def _update_profile(boss: Boss, profile: str) -> None:
 
 
 WINDOW_PROFILE: dict[int, str] = {}
+FOCUSED_WINDOW_ID: int = 0
 
 
 def on_focus_change(
     boss: Boss, window: Window, data: Dict[str, Any]
 ) -> None:
     """Handle window focus change event."""
-    if not window or not data or not data.get("focused"):
+    global FOCUSED_WINDOW_ID
+    if not window or not data:
         return
 
-    profile = WINDOW_PROFILE.get(getattr(window, "id", 0), Default.profile)
-    _update_profile(boss, profile)
+    window_id = getattr(window, "id", 0)
+
+    if data.get("focused"):
+        FOCUSED_WINDOW_ID = window_id
+        profile = WINDOW_PROFILE.get(window_id, Default.profile)
+        _update_profile(boss, profile)
+    else:
+        if FOCUSED_WINDOW_ID == window_id:
+            FOCUSED_WINDOW_ID = 0
 
 
 def on_cmd_startstop(
@@ -101,5 +110,9 @@ def on_cmd_startstop(
         profile, _ = parse_cmd(cmdline)
     else:
         profile = Default.profile
-    WINDOW_PROFILE[getattr(window, "id", 0)] = profile
-    _update_profile(boss, profile)
+
+    window_id = getattr(window, "id", 0)
+    WINDOW_PROFILE[window_id] = profile
+
+    if FOCUSED_WINDOW_ID == window_id:
+        _update_profile(boss, profile)
