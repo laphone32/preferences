@@ -15,10 +15,13 @@ sandbox:
 permissions:
   network:
     allow:
+    # Native Docker Sandboxes MCP Gateway
+    - "mcp-gateway.docker.internal"
     # CLI installer + self-update manifests and binaries
     - "antigravity.google:443"
     - "antigravity-unleash.goog:443"
     - "antigravity-cli-auto-updater-974169037036.us-central1.run.app:443"
+    - "storage.googleapis.com:443"
     # Google OAuth (sign-in + token exchange)
     - "accounts.google.com:443"
     - "oauth2.googleapis.com:443"
@@ -60,10 +63,23 @@ environment:
 
 setup:
   install:
-    - command: "curl -fsSL https://antigravity.google/cli/install.sh | bash"
+    - command: "curl -fsSL https://antigravity.google/cli/install.sh | bash && mkdir -p /home/agent/.gemini/antigravity/conversations"
       user: "1000"
       description: Install the Antigravity CLI (agy) into ~/.local/bin
   files:
+    - path: /home/agent/.gemini/config/mcp_config.json
+      content: |
+        {
+          "mcpServers": {
+            "mcp-gateway": {
+              "command": "python3",
+              "args": ["/home/agent/.local/bin/sbx-mcp-bridge"]
+            }
+          }
+        }
+      mode: "0600"
+      onlyIfMissing: true
+      description: Sandbox native MCP gateway registration via stdio bridge
     - path: /home/agent/.gemini/antigravity-cli/settings.json
       content: |
         {
@@ -99,6 +115,38 @@ setup:
           completed_steps: POST_ONBOARDING_STEP_TYPE_AGENT_CONFIGURATION
           completed_steps: POST_ONBOARDING_STEP_TYPE_ADD_WORKSPACE
         }
+        user_config_migrated: true
+        migrate_convos_into_projects: MIGRATION_STATUS_COMPLETED
+        migrate_internal_projects: MIGRATION_STATUS_COMPLETED
+        migrate_retroactive_projects: RETROACTIVE_MIGRATION_STATUS_COMPLETED_UNNECESSARY
+        migrations: {
+          key: 1
+          value: MIGRATION_STATUS_COMPLETED
+        }
+        migrations: {
+          key: 2
+          value: MIGRATION_STATUS_COMPLETED
+        }
+        migrations: {
+          key: 3
+          value: MIGRATION_STATUS_COMPLETED
+        }
+        migrations: {
+          key: 4
+          value: MIGRATION_STATUS_COMPLETED
+        }
+        migrations: {
+          key: 5
+          value: MIGRATION_STATUS_COMPLETED
+        }
+        migrations: {
+          key: 6
+          value: MIGRATION_STATUS_COMPLETED
+        }
+        migrations: {
+          key: 7
+          value: MIGRATION_STATUS_COMPLETED
+        }
       mode: "0600"
       onlyIfMissing: true
-      description: Mark onboarding steps as completed to bypass first-run interactive prompts
+      description: Mark onboarding steps and legacy migrations as completed to avoid background hangs on exit

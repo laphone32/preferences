@@ -1,0 +1,162 @@
+#!/usr/bin/env python3
+# pylint: disable=invalid-name
+"""Stdio to Streamable HTTP MCP bridge for Docker Sandboxes.
+
+Translates newer MCP client protocols (e.g. 2026-07-28 server/discover) to
+the legacy HTTP initialize handshake supported by sbx's MCP gateway.
+"""
+
+import json
+import os
+import sys
+import urllib.error
+import urllib.request
+
+
+class McpGatewayBridge:
+    """Bridges stdio JSON-RPC to sbx's HTTP MCP gateway."""
+
+    def __init__(self):
+        self.gateway_url = os.environ.get(
+            "MCP_GATEWAY_URL", "http://mcp-gateway.docker.internal/mcp"
+        )
+        token = os.environ.get("MCP_SENTINEL_TOKEN_NAME", "proxy-managed")
+        self.headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+            "Accept": "application/json, text/event-stream",
+        }
+        self.session_id = None
+
+    def send_to_gateway(self, data_dict):
+        """Sends a JSON-RPC dictionary to the gateway and yields SSE events."""
+        req_headers = dict(self.headers)
+        if self.session_id:
+            req_headers["Mcp-Session-Id"] = self.session_id
+
+        req_bytes = json.dumps(data_dict).encode("utf-8")
+        req = urllib.request.Request(
+            self.gateway_url,
+            data=req_bytes,
+            headers=req_headers,
+            method="POST",
+        )
+        with urllib.request.urlopen(req) as resp:
+            if not self.session_id:
+                self.session_id = resp.headers.get("Mcp-Session-Id")
+            events = []
+            for resp_line in resp:
+                resp_str = resp_line.decode("utf-8").strip()
+                if resp_str.startswith("data:"):
+                    events.append(json.loads(resp_str[5:].strip()))
+            return events
+
+    def handle_discover(self, msg_id):
+        """Translates server/discover to legacy initialize."""
+        init_req = {
+            "jsonrpc": "2.0",
+            "id": msg_id,
+            "method": "initialize",
+            "params": {
+                "protocolVersion": "2024-11-05",
+                "capabilities": {},
+                "clientInfo": {"name": "agy-client", "version": "1.0.0"},
+            },
+        }
+        try:
+            events = self.send_to_gateway(init_req)
+            for ev in events:
+                res = ev.get("result", {})
+                server_info = res.get("serverInfo") or {
+                    "name": "mcp-gateway",
+                    "version": "0.1.0",
+                }
+                discover_res = {
+                    "jsonrpc": "2.0",
+                    "id": msg_id,
+                    "result": {
+                        "cacheScope": "private",
+                        "capabilities": res.get("capabilities", {}),
+                        "resultType": "complete",
+                        "supportedVersions": ["2026-07-28", "2024-11-05"],
+                        "ttlMs": 0,
+                        "_meta": {
+                            "io.modelcontextprotocol/serverInfo": server_info
+                        },
+                    },
+                }
+                sys.stdout.write(json.dumps(discover_res) + "\n")
+                sys.stdout.flush()
+
+            try:
+                self.send_to_gateway(
+                    {"jsonrpc": "2.0", "method": "notifications/initialized"}
+                )
+            except (urllib.error.URLError, OSError):
+                pass
+        except (urllib.error.URLError, OSError):
+            pass
+
+    def handle_message(self, msg):
+        """Processes a single JSON-RPC message from stdin."""
+        method = msg.get("method")
+        msg_id = msg.get("id")
+
+        if method == "server/discover":
+            self.handle_discover(msg_id)
+            return
+
+        try:
+            events = self.send_to_gateway(msg)
+            for ev in events:
+                sys.stdout.write(json.dumps(ev) + "\n")
+                sys.stdout.flush()
+        except urllib.error.HTTPError as err:
+            err_body = err.read().decode("utf-8")
+            if msg_id is not None:
+                err_resp = {
+                    "jsonrpc": "2.0",
+                    "id": msg_id,
+                    "error": {
+                        "code": -32601,
+                        "message": err_body,
+                    },
+                }
+                sys.stdout.write(json.dumps(err_resp) + "\n")
+                sys.stdout.flush()
+        except (urllib.error.URLError, OSError) as err:
+            if msg_id is not None:
+                err_resp = {
+                    "jsonrpc": "2.0",
+                    "id": msg_id,
+                    "error": {
+                        "code": -32603,
+                        "message": str(err),
+                    },
+                }
+                sys.stdout.write(json.dumps(err_resp) + "\n")
+                sys.stdout.flush()
+
+    def run(self):
+        """Reads stdin line by line and dispatches JSON-RPC messages."""
+        for line in sys.stdin:
+            line = line.strip()
+            if not line:
+                continue
+
+            try:
+                msg = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+
+            self.handle_message(msg)
+
+
+def main():
+    """Main entrypoint for the bridge process."""
+    bridge = McpGatewayBridge()
+    bridge.run()
+
+
+if __name__ == "__main__":
+    main()

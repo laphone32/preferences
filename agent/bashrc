@@ -1,0 +1,136 @@
+#!/usr/bin/env bash
+# File: agent/bashrc
+
+sourceShare bash override.sh 2>/dev/null || source "$PREFERENCES_DIR/bash/share/bash/override.sh"
+source "$PREFERENCES_DIR/agent/common.sh"
+
+
+# =====================================================================
+# Universal Sandboxed Agent CLI Runner (launchAgent)
+# =====================================================================
+function launchAgent {
+    local sbx_prefix=()
+    local cli_args=()
+    local seen_double_dash=0
+
+    # Partition arguments: everything before '--' is for sbx run; after '--' is for the agent CLI
+    for arg in "$@"; do
+        if [ $seen_double_dash -eq 1 ]; then
+            cli_args+=("$arg")
+        elif [ "$arg" = "--" ]; then
+            seen_double_dash=1
+        else
+            sbx_prefix+=("$arg")
+        fi
+    done
+
+    # 1. sbx prerequisite check
+    if ! command -v sbx &>/dev/null; then
+        echo "❌ Error: 'sbx' command not found. Please install Docker Sandboxes (sbx)." >&2
+        return 1
+    fi
+
+    # 2. Workspace safety checks (prevent $HOME as workspace)
+    local cwd_real="$(pwd -P 2>/dev/null || pwd)"
+    local home_real="$(cd "$HOME" 2>/dev/null && pwd -P || echo "$HOME")"
+
+    if [ "$cwd_real" = "$home_real" ] || [ "$cwd_real" = "$HOME" ]; then
+        echo "❌ Error: Cannot run agent inside \$HOME directory (\$HOME). Please run it inside a project workspace." >&2
+        return 1
+    fi
+
+    local is_help_or_version=0
+    for arg in "${cli_args[@]}"; do
+        if [[ "$arg" =~ ^(--help|-h|--version|-v)$ ]]; then
+            is_help_or_version=1
+        fi
+        if [ "$arg" = "$HOME" ] || [ "$arg" = "~" ]; then
+            echo "❌ Error: Cannot mount \$HOME directory (\$HOME) as a workspace." >&2
+            return 1
+        fi
+        if [ -d "$arg" ]; then
+            local arg_real="$(cd "$arg" 2>/dev/null && pwd -P || true)"
+            if [ "$arg_real" = "$home_real" ] || [ "$arg_real" = "$HOME" ]; then
+                echo "❌ Error: Cannot mount \$HOME directory (\$HOME) as a workspace." >&2
+                return 1
+            fi
+        fi
+    done
+
+    # 3. Collect registered native MCP servers from workspace cache
+    local mcp_static_args=()
+    local mcp_load_servers=()
+    local mcp_cache="${PREFERENCES_WORKSPACE_AGENT:-${PREFERENCES_WORKSPACE:-$PREFERENCES_DIR/.workspace}/agent}/mcp_servers.list"
+    if [ $is_help_or_version -eq 0 ] && [ -f "$mcp_cache" ]; then
+        while IFS= read -r srv_id; do
+            [ -n "$srv_id" ] || continue
+            mcp_static_args+=(--static-mcp "$srv_id")
+            mcp_load_servers+=("$srv_id")
+        done < "$mcp_cache"
+    fi
+
+    # 4. Resolve sandbox name and check if it already exists
+    local sandbox_name=""
+    local agent_name=""
+    local workspace_arg=""
+    local i=0
+    while [ $i -lt ${#sbx_prefix[@]} ]; do
+        local curr="${sbx_prefix[$i]}"
+        if [ "$curr" = "--name" ] && [ $((i + 1)) -lt ${#sbx_prefix[@]} ]; then
+            sandbox_name="${sbx_prefix[$((i + 1))]}"
+            i=$((i + 2))
+            continue
+        elif [[ "$curr" =~ ^--name=(.*)$ ]]; then
+            sandbox_name="${BASH_REMATCH[1]}"
+            i=$((i + 1))
+            continue
+        elif [ "$curr" = "--kit" ]; then
+            i=$((i + 2))
+            continue
+        elif [[ "$curr" =~ ^- ]]; then
+            i=$((i + 1))
+            continue
+        else
+            if [ -z "$agent_name" ]; then
+                agent_name="$curr"
+            elif [ -z "$workspace_arg" ]; then
+                workspace_arg="$curr"
+            fi
+            i=$((i + 1))
+        fi
+    done
+
+    if [ -z "$sandbox_name" ] && [ -n "$agent_name" ]; then
+        local target_dir="${workspace_arg:-.}"
+        local target_base="$(basename "$(cd "$target_dir" 2>/dev/null && pwd -P || pwd)")"
+        sandbox_name="${agent_name}-${target_base}"
+    fi
+
+    local sandbox_exists=0
+    if [ -n "$sandbox_name" ]; then
+        if sbx ls -q 2>/dev/null | grep -Fxq "$sandbox_name"; then
+            sandbox_exists=1
+        fi
+    fi
+
+    # 5. Launch sandboxed CLI: re-attach to existing sandbox or create with kits
+    if [ $sandbox_exists -eq 1 ]; then
+        # Ensure registered MCP servers are loaded into the running sandbox
+        for srv in "${mcp_load_servers[@]}"; do
+            sbx mcp load "$srv" --sandbox "$sandbox_name" &>/dev/null || true
+        done
+
+        sbx run --name "$sandbox_name" -- "${cli_args[@]}"
+    else
+        sbx run "${mcp_static_args[@]}" "${sbx_prefix[@]}" -- "${cli_args[@]}"
+    fi
+}
+
+# =====================================================================
+# CLI wrappers
+# =====================================================================
+# Antigravity CLI (uses custom base sbx-kit)
+replace 'agy' '' 'launchAgent --kit "${PREFERENCES_AGY_SBX_KIT}" agy . --'
+
+# Future CLIs (e.g. Claude Code which doesn't need a custom base kit)
+# replace 'claude' '' 'launchAgent claude . --'
