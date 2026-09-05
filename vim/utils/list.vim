@@ -6,6 +6,49 @@ import "./menu.vim" as mu
 import "./richBuffer.vim" as rb
 import "./queryType.vim" as qt
 
+var saved_t_ve: string = ''
+var saved_guicursor: string = ''
+
+def HideCursor()
+    if has('gui_running')
+        if empty(saved_guicursor)
+            saved_guicursor = &guicursor
+        endif
+        &guicursor = 'a:hor0'
+    else
+        if empty(saved_t_ve)
+            saved_t_ve = &t_ve
+        endif
+        &t_ve = ''
+        echoraw(&t_vi != '' ? &t_vi : "\<Esc>[?25l")
+    endif
+enddef
+
+def ShowCursor()
+    if has('gui_running')
+        if !empty(saved_guicursor)
+            &guicursor = saved_guicursor
+            saved_guicursor = ''
+        else
+            execute 'set guicursor&'
+        endif
+    else
+        if !empty(saved_t_ve)
+            &t_ve = saved_t_ve
+            echoraw(saved_t_ve)
+            saved_t_ve = ''
+        else
+            execute 'set t_ve&'
+            echoraw("\<Esc>[?25h")
+        endif
+    endif
+enddef
+
+augroup ListCursorGuard
+    autocmd!
+    autocmd VimLeavePre * ShowCursor()
+augroup END
+
 export class List
     var _buffer: rb.RichBuffer
     var _menu: mu.Menu
@@ -13,9 +56,14 @@ export class List
     var _timer: ut.Timer
 
     var _heightRatio: float
+    var _dirty: bool = v:false
 
     var currentQuery: dict<any>
     var currentQueryType: qt.QueryType
+
+    def MarkDirty()
+        this._dirty = v:true
+    enddef
 
     def _Position(): list<number>
         var height = winheight(0)
@@ -51,6 +99,21 @@ export class List
         }
     enddef
 
+    def _RestoreCursor()
+        var currentQueryType = this.currentQueryType
+        if currentQueryType != null_object && currentQueryType.cursorLine > 0
+            var win_id = this._menu.menuArea.Get()
+            var target = currentQueryType.cursorLine
+            if line('$', win_id) >= target
+                var [height, width, popupHeight] = this._Position()
+                var fl = max([1, target - float2nr(popupHeight / 2)])
+                popup_setoptions(win_id, { firstline: fl })
+                win_execute(win_id, 'cursor(' .. target .. ', 1)')
+                currentQueryType.cursorLine = -1
+            endif
+        endif
+    enddef
+
     def new(heightRatio: float)
         this._heightRatio = heightRatio
 
@@ -62,10 +125,15 @@ export class List
             buffer: this._buffer.Get(),
             zindex: 200,
             onShow: () => {
+              HideCursor()
               this._timer.Restart(100)
             },
             onHide: () => {
+              ShowCursor()
               this._timer.Stop()
+              if this.currentQueryType != null_object
+                  this.currentQueryType.cursorLine = -1
+              endif
             },
         })
 
@@ -120,6 +188,7 @@ export class List
                 popup_setoptions(this._menu.menuArea.Get(), { title: newTitle })
             endif
 
+            this._RestoreCursor()
             this._menu.Update()
         })
     enddef
@@ -137,10 +206,6 @@ export class List
         elseif key ==# 'r'
             if currentQueryType.HasCustomKey(key)
                 shouldClose = currentQueryType.OnListKey(key, line)
-                if currentQueryType.cursorLine > 0
-                    win_execute(this._menu.menuArea.Get(), 'cursor(' .. currentQueryType.cursorLine .. ', 1)')
-                    currentQueryType.cursorLine = -1
-                endif
             else
                 this.Refresh()
                 shouldClose = v:false
@@ -148,10 +213,6 @@ export class List
         elseif key ==# "\<right>"
             if currentQueryType.HasCustomKey(key)
                 shouldClose = currentQueryType.OnListKey(key, line)
-                if currentQueryType.cursorLine > 0
-                    win_execute(this._menu.menuArea.Get(), 'cursor(' .. currentQueryType.cursorLine .. ', 1)')
-                    currentQueryType.cursorLine = -1
-                endif
             else
                 currentQueryType.NextMode(line)
                 shouldClose = v:false
@@ -159,21 +220,15 @@ export class List
         elseif key ==# "\<left>"
             if currentQueryType.HasCustomKey(key)
                 shouldClose = currentQueryType.OnListKey(key, line)
-                if currentQueryType.cursorLine > 0
-                    win_execute(this._menu.menuArea.Get(), 'cursor(' .. currentQueryType.cursorLine .. ', 1)')
-                    currentQueryType.cursorLine = -1
-                endif
             else
                 currentQueryType.PrevMode(line)
                 shouldClose = v:false
             endif
         else
             shouldClose = currentQueryType.OnListKey(key, line)
-            if currentQueryType.cursorLine > 0
-                win_execute(this._menu.menuArea.Get(), 'cursor(' .. currentQueryType.cursorLine .. ', 1)')
-                currentQueryType.cursorLine = -1
-            endif
         endif
+
+        this._RestoreCursor()
 
         return key ==# "\<cr>" && shouldClose
     enddef
@@ -186,6 +241,7 @@ export class List
     enddef
 
     def Call(queryType: qt.QueryType, query: dict<any>)
+        this._dirty = v:false
         this._buffer.Clear()
 
         this.currentQuery = query->copy()
@@ -194,6 +250,7 @@ export class List
         var currentQuery = this.currentQuery
         var currentQueryType = this.currentQueryType
 
+        currentQueryType.cursorLine = -1
         currentQueryType.toRefresh = []
         if currentQueryType.Start(query)
         else
@@ -203,13 +260,11 @@ export class List
         currentQuery.title = currentQueryType.GetTitle(query.keyword)
 
         this._menu.Open(this._MenuPosition())
-        if currentQueryType.cursorLine > 0
-            win_execute(this._menu.menuArea.Get(), 'cursor(' .. currentQueryType.cursorLine .. ', 1)')
-            currentQueryType.cursorLine = -1
-        endif
+        this._RestoreCursor()
     enddef
 
     def Refresh()
+        var last_line = getcurpos(this._menu.menuArea.Get())[1]
         this._buffer.Clear()
 
         var currentQuery = this.currentQuery
@@ -226,17 +281,17 @@ export class List
             popup_setoptions(this._menu.menuArea.Get(), { title: newTitle })
         endif
 
-        if currentQueryType.cursorLine > 0
-            win_execute(this._menu.menuArea.Get(), 'cursor(' .. currentQueryType.cursorLine .. ', 1)')
-            currentQueryType.cursorLine = -1
-        else
-            win_execute(this._menu.menuArea.Get(), 'cursor(1, 1)')
-        endif
+        var target_line = currentQueryType.cursorLine > 0 ? currentQueryType.cursorLine : last_line
+        currentQueryType.cursorLine = target_line > 0 ? target_line : 1
+        this._RestoreCursor()
     enddef
 
     def Resume()
         if this.currentQueryType != null_object
-            this.Refresh()
+            if this._dirty
+                this._dirty = v:false
+                this.Refresh()
+            endif
             this._menu.Show(this._MenuPosition())
         endif
     enddef

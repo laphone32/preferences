@@ -34,6 +34,8 @@ export class BufferQuery extends qt.QueryType
 
     def Start(query: dict<any>): bool
         var keyword = query->get('keyword')
+        var keep_path = query->get('keepPath', v:false)
+        var active_bufnr = bufnr('%')
 
         this.lookup = getbufinfo({ buflisted: v:true })->reduce((x, data) => {
             if getbufvar(data.bufnr, '&buftype') == 'terminal' || data.name =~ '^!'
@@ -44,6 +46,9 @@ export class BufferQuery extends qt.QueryType
             if len(keyword) == 0 || match[1] >= 0
                 data.match = match
                 data.filename = fnamemodify(path, ':t')
+                if !keep_path && data.bufnr == active_bufnr
+                    this.cursorLine = len(x)
+                endif
                 x->add(data)
             endif
             return x

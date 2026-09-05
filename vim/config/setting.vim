@@ -16,6 +16,10 @@ set expandtab
 set smarttab
 
 set nobackup
+set wildignore+=*.swp,*.swo,*.swn,*.bak
+set wildignore+=*.pyc,*.pyo,__pycache__
+set wildignore+=.DS_Store
+set wildignore+=*/target/*,*/node_modules/*,*/.pvenv/*,*/.workspace/*
 set smartindent
 set autoindent
 set nocursorline

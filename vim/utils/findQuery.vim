@@ -37,7 +37,7 @@ export class AsyncFindQuery extends aq.AsyncQuery
         if len(keyword) > 0
             this.lookup = [{}]
             this.asyncJob.Start({
-                \ cmd: ['/bin/sh', '-c', 'rg --files | rg --smart-case --fixed-strings --json -- ' .. shellescape(keyword)],
+                \ cmd: ['/bin/sh', '-c', 'rg --files --sort=path | rg --smart-case --fixed-strings --json -- ' .. shellescape(keyword)],
             \ })
         endif
 

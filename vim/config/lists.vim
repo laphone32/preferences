@@ -93,4 +93,9 @@ augroup NativeQuickfixIntercept
     autocmd BufWinEnter * if &buftype == 'quickfix' | g:InterceptQuickfixWindow() | endif
 augroup END
 
+augroup ListDirtyTracking
+    autocmd!
+    autocmd BufWritePost * list.MarkDirty()
+augroup END
+
 

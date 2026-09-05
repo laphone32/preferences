@@ -34,13 +34,17 @@ function loadTermFontType {
 }
 
 function loadTerms {
+    # Don't bother in non-interactive / headless environments (e.g. pipes, subshells, CI)
+    if [ ! -t 1 ] || [ "$TERM" == "dumb" ] || [ -n "$HEADLESS" ]; then
+        return 0
+    fi
+
     # Don't bother the shell within vim terminal or from ssh
     local ignoring_key=(VIM SSH_TTY)
 
     for key in "${ignoring_key[@]}"; do
         if [[ ! -z ${!key:+x} ]]; then
-            echo "Skip loading term utils because environment variable $key is not null"
-            return
+            return 0
         fi
     done
 

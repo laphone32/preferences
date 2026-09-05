@@ -4,6 +4,7 @@ import "./queryType.vim" as qt
 
 export class PathQuery extends qt.QueryType
     var currentPath: string
+    var showAll: bool = v:false
 
     def _FormatMode(line: number): dict<any>
         var data = this.lookup[line]
@@ -32,10 +33,41 @@ export class PathQuery extends qt.QueryType
         ]
         this.currentMode = 0
         this.currentPath = getcwd()
+        this.showAll = v:false
+    enddef
+
+    def _GetIgnoreRegex(): string
+        if empty(&wildignore)
+            return ''
+        endif
+        var patterns = split(&wildignore, ',')->filter((_, p) => !empty(p))
+        if empty(patterns)
+            return ''
+        endif
+        return '\%(' .. patterns->map((_, p) => glob2regpat(p))->join('\|') .. '\)'
+    enddef
+
+    def _GetFilter(parentPath: string, keyword: string = ''): func(dict<any>): bool
+        var ignore_regex = this.showAll ? '' : this._GetIgnoreRegex()
+        return (entry: dict<any>): bool => {
+            if !empty(ignore_regex)
+                var isdir = (entry.type ==# 'dir')
+                if entry.type ==# 'link'
+                    isdir = isdirectory(parentPath .. entry.name)
+                endif
+                var path_with_slash = parentPath .. entry.name .. (isdir ? '/' : '')
+                if entry.name =~? ignore_regex || (isdir && (entry.name .. '/') =~? ignore_regex) || path_with_slash =~? ignore_regex
+                    return v:false
+                endif
+            endif
+            return len(keyword) == 0 || entry.name =~? keyword
+        }
     enddef
 
     def GetTitle(keyword: string): string
-        return ' path: ' .. this.currentPath .. ' [a:add/m:modify/d:delete/c:current/r:refresh] '
+        var status = this.showAll ? '(all) ' : ''
+        var toggle_prompt = this.showAll ? 's:filter' : 's:all'
+        return ' ' .. status .. 'path: ' .. this.currentPath .. ' [' .. toggle_prompt .. '/a:add/m:modify/d:delete/c:current/r:refresh] '
     enddef
 
     def HasCustomKey(key: string): bool
@@ -45,41 +77,39 @@ export class PathQuery extends qt.QueryType
     def Start(query: dict<any>): bool
         var keyword = query->get('keyword', '')
         var keep_path = query->get('keepPath', v:false)
-        var active_file = expand('%:p')
+        var active_file = resolve(expand('%:p'))
 
         if !keep_path || empty(this.currentPath)
-            this.currentPath = getcwd()
+            this.currentPath = resolve(getcwd())
         endif
-        var raw_entries = readdirex(this.currentPath)
+        var parentPath = this.currentPath
+        if parentPath !~# '/$'
+            parentPath ..= '/'
+        endif
+        var raw_entries = readdirex(this.currentPath, this._GetFilter(parentPath, keyword))
 
         this.lookup = [{}] # 1-based index dummy
 
         var dirs = []
         var files = []
-        var parentPath = this.currentPath
-        if parentPath !~# '/$'
-            parentPath ..= '/'
-        endif
 
         for entry in raw_entries
             var isdir = (entry.type ==# 'dir')
             if entry.type ==# 'link'
                 isdir = isdirectory(parentPath .. entry.name)
             endif
-            if len(keyword) == 0 || entry.name =~? keyword
-                var fullpath = parentPath .. entry.name
-                var item = {
-                    name: entry.name,
-                    isdir: isdir,
-                    path: fullpath,
-                    depth: 0,
-                    expanded: v:false,
-                }
-                if isdir
-                    dirs->add(item)
-                else
-                    files->add(item)
-                endif
+            var fullpath = parentPath .. entry.name
+            var item = {
+                name: entry.name,
+                isdir: isdir,
+                path: fullpath,
+                depth: 0,
+                expanded: v:false,
+            }
+            if isdir
+                dirs->add(item)
+            else
+                files->add(item)
             endif
         endfor
 
@@ -88,11 +118,14 @@ export class PathQuery extends qt.QueryType
 
         # Automatically expand ancestors of active buffer file and position cursor on it
         if !keep_path && len(keyword) == 0 && !empty(active_file) && filereadable(active_file) && !isdirectory(active_file)
-            var root = parentPath
+            var root = resolve(parentPath)
+            if root !~# '/$'
+                root ..= '/'
+            endif
             if active_file[0 : len(root) - 1] ==# root
                 var rel_path = active_file[len(root) :]
                 var parts = split(rel_path, '/')
-                var accum = root[0 : len(root) - 2]
+                var accum = substitute(root, '/$', '', '')
 
                 for i in range(0, len(parts) - 1)
                     accum ..= '/' .. parts[i]
@@ -129,13 +162,13 @@ export class PathQuery extends qt.QueryType
 
         data.expanded = v:true
 
-        var raw_entries = readdirex(data.path)
-        var dirs = []
-        var files = []
         var parentPath = data.path
         if parentPath !~# '/$'
             parentPath ..= '/'
         endif
+        var raw_entries = readdirex(data.path, this._GetFilter(parentPath))
+        var dirs = []
+        var files = []
 
         for entry in raw_entries
             var isdir = (entry.type ==# 'dir')
@@ -229,6 +262,11 @@ export class PathQuery extends qt.QueryType
 
             this.currentPath = fnamemodify(this.currentPath, ':h')
             this.cursorLine = 1
+            this.Start({ keyword: '', keepPath: v:true })
+            return v:false
+        elseif key ==# 's'
+            this.showAll = !this.showAll
+            this.cursorLine = line
             this.Start({ keyword: '', keepPath: v:true })
             return v:false
         elseif key ==# 'a'

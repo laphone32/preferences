@@ -4,6 +4,7 @@
 sourceShare bash override.sh 2>/dev/null || source "$PREFERENCES_DIR/bash/share/bash/override.sh"
 source "$PREFERENCES_DIR/agent/common.sh"
 
+export SBX_NO_TELEMETRY=1
 
 # =====================================================================
 # Universal Sandboxed Agent CLI Runner (launchAgent)
