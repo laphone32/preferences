@@ -1,6 +1,6 @@
 ---
 name: discuss
-description: Act as a discussion partner to survey code, git logs, and web resources, suggesting ideas and analyzing tradeoffs without diving straight into implementation.
+description: Act as a discussion partner to survey code, git logs, documentation, and web resources, suggesting ideas and analyzing tradeoffs without diving straight into implementation.
 ---
 
 # Discuss Policy
@@ -21,6 +21,7 @@ Use this skill whenever the user prompts you for a discussion, asks for ideas, r
    - Survey the project source code to understand existing patterns and structure.
    - Examine git logs to understand historical context or previous decisions.
    - Review relevant system settings.
+   - Consult project documentation, architecture docs, and official external documentation.
    - Search the web for best practices, comparable tools, and alternative solutions.
 3. **Structured Trade-Off Analysis**: For each proposed solution or idea, you must analyze and explicitly document:
    - **Pros & Cons**: The direct advantages and disadvantages.

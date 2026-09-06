@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+export PREFERENCES_DIR="$PREFERENCES_DIR"
+export PATH="$PREFERENCES_PATH:$HOME/.local/bin:$HOME/bin:${PATH:-/usr/local/bin:/usr/bin:/bin}"
+
+
+input="${1:-}"
+if [ -z "$input" ]; then
+    exit 0
+fi
+
+# Trim leading/trailing quotes, brackets, and punctuation often captured from terminal text
+sq="'"
+input="${input#[\(\[$sq\"<]}"
+input="${input%[\)\]$sq\">.,:;!]}"
+
+# 1. Expand ~ to $HOME
+if [[ "$input" == "~"* ]]; then
+    input="${input/#\~/$HOME}"
+fi
+
+# 2. Normalize raw filesystem paths (or relative paths) to file:// protocol
+if [[ "$input" == /* ]]; then
+    input="file://$input"
+elif [[ "$input" == ./* ]] || [[ "$input" == ../* ]]; then
+    input="file://$(pwd)/$input"
+fi
+
+# 3. Parse <protocol>://<parameter>
+if [[ "$input" =~ ^([a-zA-Z0-9+.-]+)://(.*)$ ]]; then
+    protocol="${BASH_REMATCH[1]}"
+    parameter="${BASH_REMATCH[2]}"
+
+    # Clean optional 'localhost' in file://localhost/path
+    if [ "$protocol" = "file" ]; then
+        parameter="${parameter#localhost}"
+    fi
+
+    # Dispatch to specialized handler if available in PATH
+    if command -v "xdg-open-${protocol}" &>/dev/null; then
+        exec "xdg-open-${protocol}" "$parameter"
+    fi
+fi
+
+# 4. Default fallback for unhandled protocols (e.g. http, https)
+OPENER="xdg-open"
+if ! command -v xdg-open &>/dev/null && command -v open &>/dev/null; then
+    OPENER="open"
+fi
+
+exec "$OPENER" "$input"

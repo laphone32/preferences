@@ -70,10 +70,12 @@ function launchAgent {
         done < "$mcp_cache"
     fi
 
-    # 4. Resolve sandbox name and check if it already exists
+    # 4. Resolve kit, agent name, workspace argument, and sandbox name
     local sandbox_name=""
+    local kit_ref=""
     local agent_name=""
     local workspace_arg=""
+    local extra_create_flags=()
     local i=0
     while [ $i -lt ${#sbx_prefix[@]} ]; do
         local curr="${sbx_prefix[$i]}"
@@ -85,24 +87,43 @@ function launchAgent {
             sandbox_name="${BASH_REMATCH[1]}"
             i=$((i + 1))
             continue
-        elif [ "$curr" = "--kit" ]; then
+        elif [ "$curr" = "--kit" ] && [ $((i + 1)) -lt ${#sbx_prefix[@]} ]; then
+            kit_ref="${sbx_prefix[$((i + 1))]}"
             i=$((i + 2))
             continue
+        elif [[ "$curr" =~ ^--kit=(.*)$ ]]; then
+            kit_ref="${BASH_REMATCH[1]}"
+            i=$((i + 1))
+            continue
         elif [[ "$curr" =~ ^- ]]; then
+            extra_create_flags+=("$curr")
             i=$((i + 1))
             continue
         else
-            if [ -z "$agent_name" ]; then
-                agent_name="$curr"
+            if [ -z "$kit_ref" ]; then
+                kit_ref="$curr"
             elif [ -z "$workspace_arg" ]; then
-                workspace_arg="$curr"
+                if [ -n "$kit_ref" ] && [ -z "$agent_name" ] && [ "$curr" != "." ] && [ ! -d "$curr" ]; then
+                    agent_name="$curr"
+                else
+                    workspace_arg="$curr"
+                fi
             fi
             i=$((i + 1))
         fi
     done
 
+    # Resolve agent_name from kit_ref if needed
+    if [ -z "$agent_name" ] && [ -n "$kit_ref" ]; then
+        if [ -f "$kit_ref/spec.yaml" ]; then
+            agent_name="$(grep -E '^name:' "$kit_ref/spec.yaml" | head -n 1 | awk '{print $2}')"
+        else
+            agent_name="$(basename "$kit_ref")"
+        fi
+    fi
+
+    local target_dir="${workspace_arg:-.}"
     if [ -z "$sandbox_name" ] && [ -n "$agent_name" ]; then
-        local target_dir="${workspace_arg:-.}"
         local target_base="$(basename "$(cd "$target_dir" 2>/dev/null && pwd -P || pwd)")"
         sandbox_name="${agent_name}-${target_base}"
     fi
@@ -114,24 +135,58 @@ function launchAgent {
         fi
     fi
 
-    # 5. Launch sandboxed CLI: re-attach to existing sandbox or create with kits
-    if [ $sandbox_exists -eq 1 ]; then
-        # Ensure registered MCP servers are loaded into the running sandbox
-        for srv in "${mcp_load_servers[@]}"; do
-            sbx mcp load "$srv" --sandbox "$sandbox_name" &>/dev/null || true
-        done
+    # 5. Determine guest skills directory based on agent name
+    local guest_skills_dir=""
+    case "$agent_name" in
+        agy)
+            guest_skills_dir="/home/agent/.gemini/config/skills"
+            ;;
+        claude)
+            guest_skills_dir="/home/agent/.claude/skills"
+            ;;
+        *)
+            guest_skills_dir="/home/agent/.agents/skills"
+            ;;
+    esac
 
-        sbx run --name "$sandbox_name" -- "${cli_args[@]}"
-    else
-        sbx run "${mcp_static_args[@]}" "${sbx_prefix[@]}" -- "${cli_args[@]}"
+    # 6. Unified execution pipeline
+    # Step A: Ensure sandbox exists
+    if [ $sandbox_exists -eq 0 ]; then
+        local create_args=("$kit_ref" "$target_dir" --name "$sandbox_name")
+        if [ ${#extra_create_flags[@]} -gt 0 ]; then
+            create_args+=("${extra_create_flags[@]}")
+        fi
+
+        sbx create "${create_args[@]}"
     fi
+
+    # Step B: Ensure centralized skills are mounted in read-only mode
+    if [ -n "$guest_skills_dir" ] && [ -d "$PREFERENCES_AGENT_SKILLS" ]; then
+        sbx mount "$sandbox_name" "${PREFERENCES_AGENT_SKILLS}:${guest_skills_dir}:ro" &>/dev/null || true
+    fi
+
+    # Step B2: Ensure persistent conversation directory is mounted per sandbox
+    local guest_conv_dir="$(get_agent_guest_conversation_dir "$agent_name")"
+    if [ -n "$guest_conv_dir" ]; then
+        local host_conv_dir="$(get_agent_host_conversation_dir "$sandbox_name")"
+        mkdir -p "$host_conv_dir"
+        sbx mount "$sandbox_name" "${host_conv_dir}:${guest_conv_dir}:rw" &>/dev/null || true
+    fi
+
+    # Step C: Ensure registered MCP servers are loaded
+    for srv in "${mcp_load_servers[@]}"; do
+        sbx mcp load "$srv" --sandbox "$sandbox_name" &>/dev/null || true
+    done
+
+    # Step D: Attach and run CLI session
+    sbx run --name "$sandbox_name" -- "${cli_args[@]}"
 }
 
 # =====================================================================
 # CLI wrappers
 # =====================================================================
 # Antigravity CLI (uses custom base sbx-kit)
-replace 'agy' '' 'launchAgent --kit "${PREFERENCES_AGY_SBX_KIT}" agy . --'
+replace 'agy' '' 'launchAgent "${PREFERENCES_AGY_SBX_KIT}" . --'
 
 # Future CLIs (e.g. Claude Code which doesn't need a custom base kit)
 # replace 'claude' '' 'launchAgent claude . --'

@@ -47,8 +47,21 @@ function module_install() {
 
     local PREFERENCES_KITTY_CONFIG="$PREFERENCES_KITTY/config"
 
-    # shell
-    DEFAULT_SHELL=$(which bash) envsubst '$DEFAULT_SHELL' < "$PREFERENCES_KITTY_CONFIG/device.conf.template" > "$PREFERENCES_WORKSPACE_KITTY/device.conf"
+    # dispatcher compilation
+    source "$PREFERENCES_DIR/bash/common.sh"
+    [ -z "${PREFERENCES_PATH:-}" ] && aggregatePreferencesEnv
+
+    installPreferencesDir "$PREFERENCES_WORKSPACE_KITTY/bin"
+    PREFERENCES_PATH="$PREFERENCES_PATH" \
+    PREFERENCES_DIR="$PREFERENCES_DIR" \
+    envsubst '$PREFERENCES_PATH $PREFERENCES_DIR' < "$PREFERENCES_KITTY_CONFIG/kitty-open.template" > "$PREFERENCES_WORKSPACE_KITTY/bin/kitty-open"
+    chmod +x "$PREFERENCES_WORKSPACE_KITTY/bin/kitty-open"
+    installPreferencesSymlink "$PREFERENCES_WORKSPACE_KITTY/bin/kitty-open" "$HOME/.local/bin/kitty-open"
+
+    # shell & opener
+    DEFAULT_SHELL=$(which bash) \
+    PREFERENCES_KITTY_OPEN="$PREFERENCES_WORKSPACE_KITTY/bin/kitty-open" \
+    envsubst '$DEFAULT_SHELL $PREFERENCES_KITTY_OPEN' < "$PREFERENCES_KITTY_CONFIG/device.conf.template" > "$PREFERENCES_WORKSPACE_KITTY/device.conf"
     installPreferencesSymlink "$PREFERENCES_WORKSPACE_KITTY/device.conf" "$PREFERENCES_KITTY_LOCAL/device.conf"
 
     # themes

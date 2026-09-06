@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+RAW_PATH="${1:-}"
+if [ -z "$RAW_PATH" ]; then
+    exit 0
+fi
+
+# 1. Clean line/column numbers (e.g. :14, :14:5, #L10-L20) and punctuation
+clean_path="$(echo "$RAW_PATH" | sed -E 's/(:[0-9]+(:[0-9]+)?|#L[0-9]+(-L[0-9]+)?)$//')"
+sq="'"
+clean_path="${clean_path#[\(\[$sq\"<]}"
+clean_path="${clean_path%[\)\]$sq\">.,:;!]}"
+
+TO_OPEN=""
+
+if [ -e "$clean_path" ]; then
+    # 2. Host-First: Physical file exists on host
+    TO_OPEN="$clean_path"
+else
+    # 3. Sandbox Resolution: Check conversation cache via agent/common.sh
+    pref_dir="${PREFERENCES_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)}"
+    export PREFERENCES_DIR="$pref_dir"
+    source "$pref_dir/agent/common.sh" 2>/dev/null || true
+
+    conv_base="${PREFERENCES_AGENT_CONV_DIR:-${PREFERENCES_WORKSPACE_AGENT:-$pref_dir/.workspace/agent}/sbx/conversation}"
+    host_file=""
+
+    if [ -d "$conv_base" ]; then
+        uuid_regex='[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'
+
+        # Search by UUID directory + filename across sandbox folders
+        if [[ "$clean_path" =~ ($uuid_regex/[^/]+)$ ]]; then
+            host_file="$(find "$conv_base" -path "*/${BASH_REMATCH[1]}" -print -quit 2>/dev/null || true)"
+        fi
+
+        # Search relative path after 'brain/' or 'conversations/'
+        if [ -z "$host_file" ] && [[ "$clean_path" =~ brain/(.*)$ ]]; then
+            host_file="$(find "$conv_base" -path "*/${BASH_REMATCH[1]}" -print -quit 2>/dev/null || true)"
+        fi
+    fi
+
+    TO_OPEN="${host_file:-$clean_path}"
+fi
+
+# Detect default OS opener (xdg-open on Linux, open on macOS)
+OPENER="xdg-open"
+if ! command -v xdg-open &>/dev/null && command -v open &>/dev/null; then
+    OPENER="open"
+fi
+
+exec "$OPENER" "$TO_OPEN"

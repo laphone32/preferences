@@ -1,3 +1,12 @@
 
 # default shell
 shell $DEFAULT_SHELL --login
+
+# url and hints opener
+open_url_with $PREFERENCES_KITTY_OPEN
+
+# alt+x: Highlight any visible URL (any scheme), absolute path (/... or ~...), or relative path (./... or ../...)
+map alt+x kitten hints --type regex --regex '([a-zA-Z0-9+.-]+://[^\s<>\x22\x27]+|~?/[^\s:\x22\x27]+|\.{1,2}/[^\s:\x22\x27]+)' --program $PREFERENCES_KITTY_OPEN
+
+# alt+shift+x: Highlight masked OSC 8 terminal hyperlinks (where URL is hidden behind label text)
+map alt+shift+x kitten hints --type hyperlink --program $PREFERENCES_KITTY_OPEN

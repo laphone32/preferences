@@ -17,6 +17,15 @@ function module_install() {
     local modDir="${1:-$PREFERENCES_DIR/agent}"
     source "$PREFERENCES_DIR/agent/common.sh"
 
+    # Link centralized skills for host CLI usage
+    local skills_dir="$modDir/skills"
+    if [ -d "$skills_dir" ]; then
+        mkdir -p "$HOME/.gemini/config"
+        ln -sfn "$skills_dir" "$HOME/.gemini/config/skills"
+        mkdir -p "$HOME/.agents"
+        ln -sfn "$skills_dir" "$HOME/.agents/skills"
+    fi
+
     local cache_dir="${PREFERENCES_WORKSPACE:-$PREFERENCES_DIR/.workspace}/agent"
     local cache_file="$cache_dir/mcp_servers.list"
     local registered_servers=()

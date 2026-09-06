@@ -32,3 +32,12 @@ Whenever tasked with or considering modifying configuration settings:
 ## 4. Modification Explanation & Confirmation
 Whenever tending or requesting confirmation to perform any file or system modification, you must provide a brief explanation of the purpose and goal of the proposed modification along with the request.
 
+## 5. Code Cleanliness & Deduplication
+Whenever modifying code in a codebase:
+1. **Consolidate Duplication (DRY)**: Avoid duplication and maintain clean code by gathering duplicated logic into common functions, utilities, and shared libraries wherever feasible.
+2. **Scope Limitation (No Over-Engineering)**: Only refactor parts directly related to the main modification. Do not over-refactor, over-engineer, or restructure unrelated code without the user explicitly asking.
+3. **Confirm with User**: Always explain the proposed refactoring and obtain explicit user confirmation before extracting or consolidating code into shared functions, utils, or libraries.
+
+## 6. Avoid Hardcoding Paths, URLs, and Configuration
+1. **No Hardcoded Values**: Never hardcode machine-specific paths, URLs, endpoints, or environment-dependent settings directly in source code or scripts.
+2. **Centralized Management**: Manage constants and settings centrally using configuration files, environment variables, templates (e.g., via `envsubst`), or parameter arguments. This avoids duplication, maintenance drift, and broken portability across different environments.
