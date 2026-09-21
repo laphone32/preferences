@@ -139,5 +139,47 @@
       "*kitty*": "Ctrl + Shift + Backspace",
       "*chrome*": "Ctrl + 0"
     }
+  },
+  "Ctrl + Alt + T": {
+    "description": "Open Kitty",
+    "desktop": {
+      "action": "launch",
+      "command": "kitty"
+    }
+  },
+  "Ctrl + Alt + W": {
+    "description": "Open Web Browser",
+    "desktop": {
+      "action": "launch",
+      "command": "xdg-open https://"
+    }
+  },
+  "Ctrl + Alt + Up": {
+    "description": "Move window focus up",
+    "desktop": {
+      "action": "focus",
+      "direction": "up"
+    }
+  },
+  "Ctrl + Alt + Down": {
+    "description": "Move window focus down",
+    "desktop": {
+      "action": "focus",
+      "direction": "down"
+    }
+  },
+  "Super + Up": {
+    "description": "Scroll up",
+    "apps": {
+      "*kitty*": "Ctrl + Shift + Up",
+      "*chrome*": "Shift + Space"
+    }
+  },
+  "Super + Down": {
+    "description": "Scroll down",
+    "apps": {
+      "*kitty*": "Ctrl + Shift + Down",
+      "*chrome*": "Space"
+    }
   }
 }

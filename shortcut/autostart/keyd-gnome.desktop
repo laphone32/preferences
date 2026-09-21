@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Keyd GNOME Session Activator
+Comment=Starts keyd.service automatically upon logging into GNOME
+Exec=sh -c "systemctl start keyd.service"
+Hidden=false
+NoDisplay=true
+X-GNOME-Autostart-enabled=true
+OnlyShowIn=GNOME;

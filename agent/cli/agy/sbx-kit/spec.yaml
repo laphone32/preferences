@@ -28,6 +28,7 @@ permissions:
     - "www.googleapis.com:443"
     # Antigravity / Gemini Code Assist model + agent APIs
     - "cloudaicompanion.googleapis.com:443"
+    - "daily-cloudcode-pa.googleapis.com:443"
     - "cloudcode-pa.googleapis.com:443"
     - "generativelanguage.googleapis.com:443"
 
@@ -41,6 +42,7 @@ credentials:
       resourceHosts:
         - cloudaicompanion.googleapis.com
         - cloudcode-pa.googleapis.com
+        - daily-cloudcode-pa.googleapis.com:443
         - generativelanguage.googleapis.com
         - www.googleapis.com
       sentinels:

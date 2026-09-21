@@ -5,12 +5,23 @@ import os
 import sys
 
 
+def get_section_markers(file_path: str, section: str) -> tuple:
+    """Return language-compatible (head_note, foot_note) section delimiters."""
+    ext = os.path.splitext(file_path)[1].lower()
+    if ext in [".lua"]:
+        return f"-- ### {section} ###", f"-- ### end of {section} ###"
+    if ext in [".vim"]:
+        return f'" ### {section} ###', f'" ### end of {section} ###'
+    if ext in [".c", ".cpp", ".js", ".ts"]:
+        return f"// ### {section} ###", f"// ### end of {section} ###"
+    return f"### {section} ###", f"### end of {section} ###"
+
+
 def update_or_insert_section(
     file_path: str, section: str, content: str
 ) -> None:
     """Update existing marked section or insert a new one at EOF."""
-    head_note = f"### {section} ###"
-    foot_note = f"### end of {section} ###"
+    head_note, foot_note = get_section_markers(file_path, section)
     block = f"{head_note}\n{content}\n{foot_note}\n"
 
     if not os.path.exists(file_path):
@@ -46,8 +57,7 @@ def update_or_insert_section(
 
 def delete_section(file_path: str, section: str) -> None:
     """Delete a marked configuration section from a file."""
-    head_note = f"### {section} ###"
-    foot_note = f"### end of {section} ###"
+    head_note, foot_note = get_section_markers(file_path, section)
 
     if not os.path.exists(file_path):
         return

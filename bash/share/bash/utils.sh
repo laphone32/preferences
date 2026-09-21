@@ -72,6 +72,9 @@ function updateOrInsertSection {
     local scriptPath="$(sharePython install update_section.py)"
 
     local expectedBlock="### ${section} ###"$'\n'"${content}"$'\n'"### end of ${section} ###"
+    if [[ "$fileName" == *.lua ]]; then
+        expectedBlock="-- ### ${section} ###"$'\n'"${content}"$'\n'"-- ### end of ${section} ###"
+    fi
 
     if [ -f "$fileName" ] && [ -r "$fileName" ]; then
         local currentContent

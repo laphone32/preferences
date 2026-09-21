@@ -77,7 +77,7 @@ function currentDistroLike {
 PREFERENCES_DISTRO_LIKE=$(currentDistroLike)
 
 function currentLinuxDesktopEnvironment {
-    local checkTags=('xfc' 'kde' 'unity' 'gnome' 'cinnamon' 'mate' 'deepin' 'budgie' 'lxqt')
+    local checkTags=('xfc' 'kde' 'unity' 'gnome' 'cinnamon' 'mate' 'deepin' 'budgie' 'lxqt' 'hyprland')
     local de=''
 
     function checkVariable {

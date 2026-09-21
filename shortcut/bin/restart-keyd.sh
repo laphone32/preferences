@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# File: keyd/bin/restart-keyd.sh
+# File: shortcut/bin/restart-keyd.sh
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
@@ -17,9 +17,11 @@ python3 "$DIR/bin/compile-keybinds.py" "$DIR/keybinds.json" || {
 sudo mkdir -p /etc/keyd
 mkdir -p ~/.config/keyd
 
+local_workspace="${PREFERENCES_WORKSPACE_SHORTCUT:-$DIR/../.workspace/shortcut}"
+
 # Symlink generated configs to system locations
-sudo ln -sf "$DIR/../.workspace/keyd/default.conf" /etc/keyd/default.conf
-ln -sf "$DIR/../.workspace/keyd/app.conf" ~/.config/keyd/app.conf
+sudo ln -sf "$local_workspace/default.conf" /etc/keyd/default.conf
+ln -sf "$local_workspace/app.conf" ~/.config/keyd/app.conf
 
 echo "Reloading keyd configuration..."
 if [ -z "$KEYD_BIN" ]; then
@@ -31,7 +33,7 @@ sudo "$KEYD_BIN" reload || { echo "ERROR: Failed to reload keyd"; exit 1; }
 echo "keyd configuration reloaded."
 
 # Source environment and systemd utilities
-source "$DIR/../../bootstrap.sh" 2>/dev/null || true
+source "$DIR/../bootstrap.sh" 2>/dev/null || true
 
 if [ "$PREFERENCES_DESKTOP_ENVIRONMENT" == "gnome" ] && command -v gnome-extensions &> /dev/null; then
     echo "Restarting keyd GNOME extension..."
