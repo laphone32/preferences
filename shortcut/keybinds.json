@@ -168,6 +168,36 @@
       "direction": "down"
     }
   },
+  "Ctrl + Alt + Left": {
+    "description": "Switch to workspace on left",
+    "desktop": {
+      "action": "workspace",
+      "direction": "left"
+    }
+  },
+  "Ctrl + Alt + Right": {
+    "description": "Switch to workspace on right",
+    "desktop": {
+      "action": "workspace",
+      "direction": "right"
+    }
+  },
+  "Super + Alt + Left": {
+    "description": "Resize window left",
+    "desktop": {
+      "action": "resize",
+      "direction": "left",
+      "step": 20
+    }
+  },
+  "Super + Alt + Right": {
+    "description": "Resize window right",
+    "desktop": {
+      "action": "resize",
+      "direction": "right",
+      "step": 20
+    }
+  },
   "Super + Up": {
     "description": "Scroll up",
     "apps": {

@@ -134,6 +134,26 @@ def generate_gnome_script(desktop_entries):
                 lines.append("fi")
                 lines.append(f'gsettings set org.gnome.desktop.wm.keybindings switch-windows "[\'{gnome_accel}\']" 2>/dev/null || true')
             lines.append("")
+        elif action == "workspace":
+            direction = desktop.get("direction", "").lower()
+            lines.append(f"# {desc}")
+            if direction == "left":
+                lines.append(f'gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-left "[\'{gnome_accel}\']" 2>/dev/null || true')
+            elif direction == "right":
+                lines.append(f'gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-right "[\'{gnome_accel}\']" 2>/dev/null || true')
+            lines.append("")
+        elif action == "resize":
+            direction = desktop.get("direction", "").lower()
+            lines.append(f"# {desc}")
+            if direction == "left":
+                lines.append('if gsettings list-schemas | grep -q "org.gnome.shell.extensions.pop-shell"; then')
+                lines.append(f'    gsettings set org.gnome.shell.extensions.pop-shell tile-resize-left "[\'{gnome_accel}\']" 2>/dev/null || true')
+                lines.append("fi")
+            elif direction == "right":
+                lines.append('if gsettings list-schemas | grep -q "org.gnome.shell.extensions.pop-shell"; then')
+                lines.append(f'    gsettings set org.gnome.shell.extensions.pop-shell tile-resize-right "[\'{gnome_accel}\']" 2>/dev/null || true')
+                lines.append("fi")
+            lines.append("")
 
     lines.append('echo "GNOME desktop shortcuts applied successfully."')
     lines.append("")

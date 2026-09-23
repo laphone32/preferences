@@ -10,59 +10,133 @@ Generates:
 import os
 
 
+KEYSYM_MAP = {
+    # Punctuation and symbols
+    "=": "equal",
+    "-": "minus",
+    "+": "plus",
+    "_": "underscore",
+    "[": "bracketleft",
+    "]": "bracketright",
+    "{": "braceleft",
+    "}": "braceright",
+    ";": "semicolon",
+    ":": "colon",
+    "'": "apostrophe",
+    '"': "quotedbl",
+    ",": "comma",
+    ".": "period",
+    "/": "slash",
+    "?": "question",
+    "\\": "backslash",
+    "|": "bar",
+    "`": "grave",
+    "~": "asciitilde",
+    "!": "exclam",
+    "@": "at",
+    "#": "numbersign",
+    "$": "dollar",
+    "%": "percent",
+    "^": "asciicircum",
+    "&": "ampersand",
+    "*": "asterisk",
+    "(": "parenleft",
+    ")": "parenright",
+    "<": "less",
+    ">": "greater",
+
+    # Whitespace and editing keys
+    "space": "space",
+    "backspace": "BackSpace",
+    "tab": "Tab",
+    "return": "Return",
+    "enter": "Return",
+    "esc": "Escape",
+    "escape": "Escape",
+    "delete": "Delete",
+    "del": "Delete",
+    "insert": "Insert",
+    "ins": "Insert",
+
+    # Navigation keys
+    "home": "Home",
+    "end": "End",
+    "pageup": "Page_Up",
+    "pgup": "Page_Up",
+    "pagedown": "Page_Down",
+    "pgdn": "Page_Down",
+    "up": "Up",
+    "down": "Down",
+    "left": "Left",
+    "right": "Right",
+}
+
+MOD_MAP = {
+    "ctrl": "CTRL",
+    "control": "CTRL",
+    "shift": "SHIFT",
+    "alt": "ALT",
+    "super": "SUPER",
+    "meta": "SUPER",
+}
+
+
+def split_combo(combo_str):
+    """
+    Split a key combination string into (modifier_tokens, raw_key).
+    Safely handles combos where the key itself is '+' (e.g. 'Ctrl + +' or '++').
+    """
+    s = combo_str.strip()
+    if s == "+" or s.endswith("+ +") or s.endswith("++") or (s.endswith("+") and not s.endswith(" +")):
+        prefix = s[:-1].rstrip()
+        if prefix.endswith("+"):
+            prefix = prefix[:-1].rstrip()
+        parts = [p.strip() for p in prefix.split("+") if p.strip()]
+        return parts, "+"
+
+    parts = [p.strip() for p in s.split("+")]
+    return parts[:-1], parts[-1]
+
+
+def normalize_keysym(raw_key):
+    """Normalize a raw key string to a valid XKB keysym name."""
+    clean = raw_key.strip()
+    low = clean.lower()
+    if low in KEYSYM_MAP:
+        return KEYSYM_MAP[low]
+    if len(clean) == 1:
+        return clean.upper()
+    return clean.capitalize()
+
+
 def translate_hyprland_trigger(trigger_str):
     """
-    Translate human-readable trigger string to Lua modifiers array and key string.
+    Translate human-readable trigger string to Hyprland key combination string.
 
     Args:
-        trigger_str: e.g. 'Ctrl + Alt + T' or 'Super + C'
+        trigger_str: e.g. 'Ctrl + Alt + T' or 'Super + ='
 
     Returns:
-        tuple of (lua_mods_str, key_str), e.g. ('{"CTRL", "ALT"}', 'T')
+        Combined key string, e.g. 'CTRL + ALT + T', 'SUPER + equal'
     """
-    parts = [p.strip() for p in trigger_str.split("+")]
-    mod_map = {
-        "ctrl": "CTRL",
-        "control": "CTRL",
-        "shift": "SHIFT",
-        "alt": "ALT",
-        "super": "SUPER",
-        "meta": "SUPER",
-    }
-    mods = [mod_map[p.lower()] for p in parts[:-1] if p.lower() in mod_map]
-    raw_key = parts[-1]
-    if len(raw_key) == 1:
-        key = raw_key.upper()
-    else:
-        key = raw_key.lower()
-
-    mods_lua = "{" + ", ".join(f'"{m}"' for m in mods) + "}"
-    return mods_lua, key
+    mod_tokens, raw_key = split_combo(trigger_str)
+    mods = [MOD_MAP[p.lower()] for p in mod_tokens if p.lower() in MOD_MAP]
+    key = normalize_keysym(raw_key)
+    return " + ".join(mods + [key])
 
 
-def translate_action_hyprland(action_str):
+def parse_shortcut_action(action_str):
     """
-    Translate human action string (e.g. 'Ctrl + Shift + C') to Hyprland shortcut format
-    (e.g. 'CONTROL SHIFT, C').
-    """
-    parts = [p.strip() for p in action_str.split("+")]
-    mod_map = {
-        "ctrl": "CONTROL",
-        "control": "CONTROL",
-        "shift": "SHIFT",
-        "alt": "ALT",
-        "super": "SUPER",
-        "meta": "SUPER",
-    }
-    mods = [mod_map[p.lower()] for p in parts[:-1] if p.lower() in mod_map]
-    raw_key = parts[-1]
-    if len(raw_key) == 1:
-        key = raw_key.upper()
-    else:
-        key = raw_key.capitalize()
+    Parse human action string (e.g. 'Ctrl + Shift + C', 'Space', 'Ctrl + =') into (mods_str, key_str).
 
-    mods_str = " ".join(mods)
-    return f"{mods_str}, {key}"
+    Returns:
+        mods_str: space-separated modifiers, e.g. 'CTRL SHIFT'
+        key_str: XKB keysym name, e.g. 'equal'
+    """
+    mod_tokens, raw_key = split_combo(action_str)
+    mods = [MOD_MAP[p.lower()] for p in mod_tokens if p.lower() in MOD_MAP]
+    key = normalize_keysym(raw_key)
+    return " ".join(mods), key
 
 
 def app_to_windowrule(app_pattern):
@@ -90,23 +164,51 @@ def generate_lua_code(data):
         "        -- Fallback if hl API is not exposed globally",
         "        return",
         "    end",
+        "    local dsp = hl.dsp or _G.dsp or {}",
+        "",
+        "    local function bind_exec(keys, cmd)",
+        '        if type(dsp.exec_cmd) == "function" then',
+        "            hl.bind(keys, dsp.exec_cmd(cmd))",
+        "        end",
+        "    end",
+        "",
+        "    local function bind_focus(keys, direction)",
+        '        if type(dsp.focus) == "function" then',
+        "            hl.bind(keys, dsp.focus({ direction = direction }))",
+        "        end",
+        "    end",
+        "",
+        "    local function bind_workspace(keys, target)",
+        '        if type(dsp.focus) == "function" then',
+        "            hl.bind(keys, dsp.focus({ workspace = target }))",
+        "        end",
+        "    end",
+        "",
+        "    local function bind_resize(keys, dx, dy)",
+        '        if type(dsp.window) == "table" and type(dsp.window.resize) == "function" then',
+        "            hl.bind(keys, dsp.window.resize({ x = dx, y = dy, relative = true }), { repeating = true })",
+        '        elseif type(dsp.resize) == "function" then',
+        "            hl.bind(keys, dsp.resize({ x = dx, y = dy, relative = true }), { repeating = true })",
+        "        end",
+        "    end",
+        "",
+        "    local function bind_shortcut(keys, target_mods, target_key, rule)",
+        '        if type(dsp.send_shortcut) == "function" then',
+        "            local param = { mods = target_mods, key = target_key }",
+        '            if rule and rule ~= "" then param.window = rule end',
+        "            hl.bind(keys, dsp.send_shortcut(param))",
+        "        end",
+        "    end",
         "",
         "    -- ===========================================================",
         "    -- 1. Desktop Actions (App Launching & Window Management)",
         "    -- ===========================================================",
     ]
 
-    direction_map = {
-        "up": "u",
-        "down": "d",
-        "left": "l",
-        "right": "r",
-    }
-
     # 1. Desktop shortcuts
     for trigger, cfg in data.items():
         if "desktop" in cfg:
-            mods_lua, key = translate_hyprland_trigger(trigger)
+            key_combo = translate_hyprland_trigger(trigger)
             desktop = cfg["desktop"]
             action = desktop.get("action")
             desc = cfg.get("description", trigger)
@@ -114,11 +216,30 @@ def generate_lua_code(data):
             lines.append(f"    -- {desc}")
             if action == "launch":
                 cmd = desktop.get("command", "")
-                lines.append(f'    hl.bind({mods_lua}, "{key}", "exec", "{cmd}")')
+                if not cmd.startswith("uwsm "):
+                    cmd = f"uwsm app -- {cmd}"
+                lines.append(f'    bind_exec("{key_combo}", "{cmd}")')
             elif action == "focus":
                 direction = desktop.get("direction", "").lower()
-                d_code = direction_map.get(direction, direction)
-                lines.append(f'    hl.bind({mods_lua}, "{key}", "movefocus", "{d_code}")')
+                lines.append(f'    bind_focus("{key_combo}", "{direction}")')
+            elif action == "workspace":
+                direction = desktop.get("direction", "").lower()
+                target = desktop.get("target") or ("r+1" if direction == "right" else "r-1")
+                lines.append(f'    bind_workspace("{key_combo}", "{target}")')
+            elif action == "resize":
+                direction = desktop.get("direction", "").lower()
+                step = int(desktop.get("step", 20))
+                if direction == "left":
+                    dx, dy = -step, 0
+                elif direction == "right":
+                    dx, dy = step, 0
+                elif direction == "up":
+                    dx, dy = 0, -step
+                elif direction == "down":
+                    dx, dy = 0, step
+                else:
+                    dx, dy = step, 0
+                lines.append(f'    bind_resize("{key_combo}", {dx}, {dy})')
             lines.append("")
 
     lines.extend([
@@ -130,20 +251,20 @@ def generate_lua_code(data):
     # 2. App-specific shortcuts
     for trigger, cfg in data.items():
         if "apps" in cfg:
-            mods_lua, key = translate_hyprland_trigger(trigger)
+            key_combo = translate_hyprland_trigger(trigger)
             desc = cfg.get("description", trigger)
             lines.append(f"    -- {desc} ({trigger})")
 
             # App-specific mappings first
             for app_pattern, app_action_str in cfg["apps"].items():
                 rule = app_to_windowrule(app_pattern)
-                hypr_target = translate_action_hyprland(app_action_str)
-                lines.append(f'    hl.bind({mods_lua}, "{key}", "sendshortcut", "{hypr_target}, {rule}")')
+                target_mods, target_key = parse_shortcut_action(app_action_str)
+                lines.append(f'    bind_shortcut("{key_combo}", "{target_mods}", "{target_key}", "{rule}")')
 
             # Global fallback mapping
             if "global" in cfg:
-                hypr_global = translate_action_hyprland(cfg["global"])
-                lines.append(f'    hl.bind({mods_lua}, "{key}", "sendshortcut", "{hypr_global}")')
+                target_mods, target_key = parse_shortcut_action(cfg["global"])
+                lines.append(f'    bind_shortcut("{key_combo}", "{target_mods}", "{target_key}", "")')
             lines.append("")
 
     lines.extend([
