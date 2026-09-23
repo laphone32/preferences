@@ -135,21 +135,7 @@ function launchAgent {
         fi
     fi
 
-    # 5. Determine guest skills directory based on agent name
-    local guest_skills_dir=""
-    case "$agent_name" in
-        agy)
-            guest_skills_dir="/home/agent/.gemini/config/skills"
-            ;;
-        claude)
-            guest_skills_dir="/home/agent/.claude/skills"
-            ;;
-        *)
-            guest_skills_dir="/home/agent/.agents/skills"
-            ;;
-    esac
-
-    # 6. Unified execution pipeline
+    # 5. Unified execution pipeline
     # Step A: Ensure sandbox exists
     if [ $sandbox_exists -eq 0 ]; then
         local create_args=("$kit_ref" "$target_dir" --name "$sandbox_name")
@@ -160,12 +146,7 @@ function launchAgent {
         sbx create "${create_args[@]}"
     fi
 
-    # Step B: Ensure centralized skills are mounted in read-only mode
-    if [ -n "$guest_skills_dir" ] && [ -d "$PREFERENCES_AGENT_SKILLS" ]; then
-        sbx mount "$sandbox_name" "${PREFERENCES_AGENT_SKILLS}:${guest_skills_dir}:ro" &>/dev/null || true
-    fi
-
-    # Step B2: Ensure persistent conversation directory is mounted per sandbox
+    # Step B: Ensure persistent conversation directory is mounted per sandbox
     local guest_conv_dir="$(get_agent_guest_conversation_dir "$agent_name")"
     if [ -n "$guest_conv_dir" ]; then
         local host_conv_dir="$(get_agent_host_conversation_dir "$sandbox_name")"
@@ -180,6 +161,15 @@ function launchAgent {
 
     # Step D: Attach and run CLI session
     sbx run --name "$sandbox_name" -- "${cli_args[@]}"
+}
+
+function syncAgentSkills() {
+    if ! command -v sbx &>/dev/null; then
+        echo "❌ Error: 'sbx' command not found. Please install Docker Sandboxes (sbx)." >&2
+        return 1
+    fi
+    echo "🧠 [agent:skills] Synchronizing common skills into Docker Sandboxes (sbx)..."
+    sbx skills import --force
 }
 
 # =====================================================================

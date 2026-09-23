@@ -30,8 +30,17 @@ function module_install() {
     local cache_file="$cache_dir/mcp_servers.list"
     local registered_servers=()
 
-    # Register local MCP servers in Docker Sandboxes (sbx)
+    # Register skills & MCP servers in Docker Sandboxes (sbx)
     if command -v sbx &>/dev/null; then
+        # Ensure daemon matches current sbx version if running, preventing interactive restart prompts
+        if sbx daemon status 2>/dev/null | grep -qi "running"; then
+            sbx daemon restart </dev/null &>/dev/null || true
+        fi
+
+        echo "🧠 [agent:skills] Importing common skills into sbx..."
+        sbx skills import --force </dev/null &>/dev/null || true
+        sbx settings set skills.defaultMode readonly </dev/null &>/dev/null || true
+
         local mcp_base="$modDir/mcp"
         if [ -d "$mcp_base" ]; then
             for srv_dir in "$mcp_base"/*; do
@@ -57,17 +66,17 @@ function module_install() {
 
                 if [ -n "$py_bin" ] && [ -f "$srv_dir/server.py" ]; then
                     echo "🔌 [agent:mcp] Registering MCP server '$srv_name' in sbx..."
-                    sbx mcp rm "$srv_name" &>/dev/null || true
+                    sbx mcp rm --force "$srv_name" </dev/null &>/dev/null || true
                     sbx mcp add "$srv_name" \
                         --command "$py_bin" \
-                        --args "$srv_dir/server.py"
+                        --args "$srv_dir/server.py" </dev/null &>/dev/null || true
                     registered_servers+=("$srv_name")
                 elif [ -f "$srv_dir/run.sh" ]; then
                     echo "🔌 [agent:mcp] Registering MCP server '$srv_name' in sbx..."
-                    sbx mcp rm "$srv_name" &>/dev/null || true
+                    sbx mcp rm --force "$srv_name" </dev/null &>/dev/null || true
                     sbx mcp add "$srv_name" \
                         --command "bash" \
-                        --args "$srv_dir/run.sh"
+                        --args "$srv_dir/run.sh" </dev/null &>/dev/null || true
                     registered_servers+=("$srv_name")
                 fi
             done

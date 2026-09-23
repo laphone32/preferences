@@ -65,9 +65,9 @@ environment:
 
 setup:
   install:
-    - command: "curl -fsSL https://antigravity.google/cli/install.sh | bash && mkdir -p /home/agent/.gemini/antigravity/conversations"
+    - command: "curl -fsSL https://antigravity.google/cli/install.sh | bash && mkdir -p /home/agent/.gemini/antigravity/conversations /home/agent/.gemini/config && ln -sfn /home/agent/.agents/skills /home/agent/.gemini/config/skills"
       user: "1000"
-      description: Install the Antigravity CLI (agy) into ~/.local/bin
+      description: Install the Antigravity CLI (agy) into ~/.local/bin and bridge shared skills
   files:
     - path: /home/agent/.gemini/config/mcp_config.json
       content: |
