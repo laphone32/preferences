@@ -133,6 +133,14 @@ def generate_gnome_script(desktop_entries):
                 lines.append(f'    gsettings set org.gnome.shell.extensions.pop-shell focus-down "[\'{gnome_accel}\']" 2>/dev/null || true')
                 lines.append("fi")
                 lines.append(f'gsettings set org.gnome.desktop.wm.keybindings switch-windows "[\'{gnome_accel}\']" 2>/dev/null || true')
+            elif direction == "left":
+                lines.append('if gsettings list-schemas | grep -q "org.gnome.shell.extensions.pop-shell"; then')
+                lines.append(f'    gsettings set org.gnome.shell.extensions.pop-shell focus-left "[\'{gnome_accel}\']" 2>/dev/null || true')
+                lines.append("fi")
+            elif direction == "right":
+                lines.append('if gsettings list-schemas | grep -q "org.gnome.shell.extensions.pop-shell"; then')
+                lines.append(f'    gsettings set org.gnome.shell.extensions.pop-shell focus-right "[\'{gnome_accel}\']" 2>/dev/null || true')
+                lines.append("fi")
             lines.append("")
         elif action == "workspace":
             direction = desktop.get("direction", "").lower()

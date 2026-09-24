@@ -42,27 +42,32 @@ function module_install() {
     if [ "$PREFERENCES_DESKTOP_ENVIRONMENT" == "hyprland" ] || [ -d "$HOME/.config/hypr" ]; then
         echo "Setting up Hyprland shortcuts..."
         installPreferencesDir "$HOME/.config/hypr"
-        if [ -f "$PREFERENCES_WORKSPACE_SHORTCUT/preferences_keybind.lua" ]; then
-            installPreferencesSymlink "$PREFERENCES_WORKSPACE_SHORTCUT/preferences_keybind.lua" "$HOME/.config/hypr/preferences_keybind.lua"
+
+        # Symlink ~/.config/hypr/preferences -> $PREFERENCES_WORKSPACE_SHORTCUT/hypr
+        if [ -d "$PREFERENCES_WORKSPACE_SHORTCUT/hypr" ]; then
+            installPreferencesSymlink "$PREFERENCES_WORKSPACE_SHORTCUT/hypr" "$HOME/.config/hypr/preferences"
         fi
 
-        # Remove legacy keybinds.lua symlink if present
+        # Remove legacy symlinks if present
+        if [ -L "$HOME/.config/hypr/preferences_keybind.lua" ]; then
+            rm -f "$HOME/.config/hypr/preferences_keybind.lua"
+        fi
         if [ -L "$HOME/.config/hypr/keybinds.lua" ]; then
             rm -f "$HOME/.config/hypr/keybinds.lua"
         fi
 
-        # Determine target Hyprland Lua config file (hypr.lua preferred, fallback to hyprland.lua)
-        local hyprConfigFile="$HOME/.config/hypr/hypr.lua"
-        if [ ! -f "$hyprConfigFile" ] && [ -f "$HOME/.config/hypr/hyprland.lua" ]; then
-            hyprConfigFile="$HOME/.config/hypr/hyprland.lua"
+        # Determine target Hyprland Lua config file (hyprland.lua preferred, fallback to hypr.lua)
+        local hyprConfigFile="$HOME/.config/hypr/hyprland.lua"
+        if [ ! -f "$hyprConfigFile" ] && [ -f "$HOME/.config/hypr/hypr.lua" ]; then
+            hyprConfigFile="$HOME/.config/hypr/hypr.lua"
         fi
 
-        local hyprRequireContent='package.path = os.getenv("HOME") .. "/.config/hypr/?.lua;" .. package.path
-local ok, preferences_keybind = pcall(require, "preferences_keybind")
-if ok and type(preferences_keybind.setup) == "function" then
-    preferences_keybind.setup()
-end'
-        installPreferencesSection "$hyprConfigFile" "preferences_keybind" "$hyprRequireContent"
+        # Remove obsolete preferences_keybind section if present
+        undoPreferencesSection "$hyprConfigFile" "preferences_keybind"
+
+        local hyprRequireContent='package.path = os.getenv("HOME") .. "/.config/hypr/?.lua;" .. os.getenv("HOME") .. "/.config/hypr/?/init.lua;" .. package.path
+require("preferences").setup()'
+        installPreferencesSection "$hyprConfigFile" "preferences" "$hyprRequireContent"
     fi
 
     # Deploy keyd User Configuration (used in GNOME / X11)

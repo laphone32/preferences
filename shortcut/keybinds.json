@@ -154,31 +154,45 @@
       "command": "xdg-open https://"
     }
   },
-  "Ctrl + Alt + Up": {
-    "description": "Move window focus up",
-    "desktop": {
-      "action": "focus",
-      "direction": "up"
-    }
-  },
-  "Ctrl + Alt + Down": {
-    "description": "Move window focus down",
-    "desktop": {
-      "action": "focus",
-      "direction": "down"
-    }
-  },
-  "Ctrl + Alt + Left": {
+  "Super + Ctrl + Left": {
     "description": "Switch to workspace on left",
     "desktop": {
       "action": "workspace",
       "direction": "left"
     }
   },
-  "Ctrl + Alt + Right": {
+  "Super + Ctrl + Right": {
     "description": "Switch to workspace on right",
     "desktop": {
       "action": "workspace",
+      "direction": "right"
+    }
+  },
+  "Super + Up": {
+    "description": "Move window focus up",
+    "desktop": {
+      "action": "focus",
+      "direction": "up"
+    }
+  },
+  "Super + Down": {
+    "description": "Move window focus down",
+    "desktop": {
+      "action": "focus",
+      "direction": "down"
+    }
+  },
+  "Super + Left": {
+    "description": "Move window focus left",
+    "desktop": {
+      "action": "focus",
+      "direction": "left"
+    }
+  },
+  "Super + Right": {
+    "description": "Move window focus right",
+    "desktop": {
+      "action": "focus",
       "direction": "right"
     }
   },
@@ -196,20 +210,6 @@
       "action": "resize",
       "direction": "right",
       "step": 20
-    }
-  },
-  "Super + Up": {
-    "description": "Scroll up",
-    "apps": {
-      "*kitty*": "Ctrl + Shift + Up",
-      "*chrome*": "Shift + Space"
-    }
-  },
-  "Super + Down": {
-    "description": "Scroll down",
-    "apps": {
-      "*kitty*": "Ctrl + Shift + Down",
-      "*chrome*": "Space"
     }
   }
 }
