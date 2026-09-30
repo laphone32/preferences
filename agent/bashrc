@@ -31,6 +31,31 @@ function launchAgent {
         return 1
     fi
 
+    # Ensure daemon is responsive and version matches; disconnect stdin (< /dev/null) to prevent silent prompt hangs
+    local daemon_output
+    daemon_output=$(sbx ls -q </dev/null 2>&1)
+    local daemon_status=$?
+
+    if [ $daemon_status -ne 0 ]; then
+        if [[ "$daemon_output" =~ "needs to restart" ]] || [[ "$daemon_output" =~ "sbx daemon restart" ]]; then
+            echo "🔄 Docker Sandboxes (sbx) daemon version mismatch detected. Restarting daemon..." >&2
+            sbx daemon restart </dev/null &>/dev/null || true
+            daemon_output=$(sbx ls -q </dev/null 2>&1)
+            daemon_status=$?
+        elif [[ "$daemon_output" =~ "daemon is not running" ]] || ! sbx daemon status </dev/null 2>/dev/null | grep -qi "running"; then
+            echo "🔄 Docker Sandboxes (sbx) daemon is not running. Starting daemon..." >&2
+            sbx daemon start </dev/null &>/dev/null || true
+            daemon_output=$(sbx ls -q </dev/null 2>&1)
+            daemon_status=$?
+        fi
+
+        if [ $daemon_status -ne 0 ]; then
+            echo "❌ Error: Docker Sandboxes (sbx) daemon is not responding:" >&2
+            echo "$daemon_output" >&2
+            return 1
+        fi
+    fi
+
     # 2. Workspace safety checks (prevent $HOME as workspace)
     local cwd_real="$(pwd -P 2>/dev/null || pwd)"
     local home_real="$(cd "$HOME" 2>/dev/null && pwd -P || echo "$HOME")"
@@ -130,7 +155,7 @@ function launchAgent {
 
     local sandbox_exists=0
     if [ -n "$sandbox_name" ]; then
-        if sbx ls -q 2>/dev/null | grep -Fxq "$sandbox_name"; then
+        if echo "$daemon_output" | grep -Fxq "$sandbox_name"; then
             sandbox_exists=1
         fi
     fi
@@ -139,24 +164,30 @@ function launchAgent {
     # Step A: Ensure sandbox exists
     if [ $sandbox_exists -eq 0 ]; then
         local create_args=("$kit_ref" "$target_dir" --name "$sandbox_name")
+        if [ ${#mcp_static_args[@]} -gt 0 ]; then
+            create_args+=("${mcp_static_args[@]}")
+        fi
         if [ ${#extra_create_flags[@]} -gt 0 ]; then
             create_args+=("${extra_create_flags[@]}")
         fi
 
-        sbx create "${create_args[@]}"
+        sbx create "${create_args[@]}" </dev/null
     fi
 
     # Step B: Ensure persistent conversation directory is mounted per sandbox
     local guest_conv_dir="$(get_agent_guest_conversation_dir "$agent_name")"
-    if [ -n "$guest_conv_dir" ]; then
+    if [ $is_help_or_version -eq 0 ] && [ -n "$guest_conv_dir" ]; then
         local host_conv_dir="$(get_agent_host_conversation_dir "$sandbox_name")"
         mkdir -p "$host_conv_dir"
-        sbx mount "$sandbox_name" "${host_conv_dir}:${guest_conv_dir}:rw" &>/dev/null || true
+        if ! sbx inspect "$sandbox_name" </dev/null 2>/dev/null | grep -Fq "$guest_conv_dir"; then
+            sbx run -d --name "$sandbox_name" </dev/null &>/dev/null || true
+            sbx mount "$sandbox_name" "${host_conv_dir}:${guest_conv_dir}:rw" </dev/null &>/dev/null || true
+        fi
     fi
 
     # Step C: Ensure registered MCP servers are loaded
     for srv in "${mcp_load_servers[@]}"; do
-        sbx mcp load "$srv" --sandbox "$sandbox_name" &>/dev/null || true
+        sbx mcp load "$srv" --sandbox "$sandbox_name" </dev/null &>/dev/null || true
     done
 
     # Step D: Attach and run CLI session
