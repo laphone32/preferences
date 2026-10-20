@@ -13,7 +13,6 @@
       "mcp(*)",
       "read_file(*)",
       "read_url(*)",
-      "unsandboxed(*)",
       "write_file(*)"
     ]
   },

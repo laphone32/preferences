@@ -40,6 +40,9 @@ def translate_app_layer(trigger_str):
 
 def translate_action(action_str):
     """Translate human-readable action string to keyd RHS action string."""
+    norm = action_str.strip().lower().replace("_", "").replace(" ", "")
+    if norm in MEDIA_KEY_ACTIONS:
+        return norm
     parts = [p.strip().lower() for p in action_str.split("+")]
     mod_map = {"ctrl": "C", "shift": "S", "alt": "A", "super": "M"}
     mods = [mod_map[p] for p in parts[:-1] if p in mod_map]
@@ -69,7 +72,15 @@ def translate_gnome_trigger(trigger_str):
     return "".join(mods) + key
 
 
-def generate_gnome_script(desktop_entries):
+MEDIA_KEY_ACTIONS = {
+    "mute": "volume-mute",
+    "micmute": "mic-mute",
+    "volumedown": "volume-down",
+    "volumeup": "volume-up",
+}
+
+
+def generate_gnome_script(desktop_entries, media_entries=None):
     """Generate GNOME gsettings shell script for applying shortcuts."""
     lines = [
         "#!/usr/bin/env bash",
@@ -102,6 +113,22 @@ def generate_gnome_script(desktop_entries):
         '    gsettings set "org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$path" name "$name"',
         '    gsettings set "org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$path" command "$command"',
         '    gsettings set "org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$path" binding "$binding"',
+        "}",
+        "",
+        "# Helper to add media-keys keybinding idempotently",
+        "add_gnome_media_keybinding() {",
+        '    local schema="org.gnome.settings-daemon.plugins.media-keys"',
+        '    local key="$1"',
+        '    local binding="$2"',
+        "",
+        "    local current",
+        '    current=$(gsettings get "$schema" "$key" 2>/dev/null || echo "@as []")',
+        '    if [ "$current" == "@as []" ] || [ -z "$current" ]; then',
+        '        gsettings set "$schema" "$key" "[\'$binding\']" 2>/dev/null || true',
+        '    elif [[ "$current" != *"$binding"* ]]; then',
+        '        local updated="${current%]*}, \'$binding\']"',
+        '        gsettings set "$schema" "$key" "$updated" 2>/dev/null || true',
+        "    fi",
         "}",
         "",
         'echo "Applying GNOME desktop shortcuts..."',
@@ -163,6 +190,14 @@ def generate_gnome_script(desktop_entries):
                 lines.append("fi")
             lines.append("")
 
+    if media_entries:
+        lines.append("# Media keybindings")
+        for trigger, setting_name, desc in media_entries:
+            gnome_accel = translate_gnome_trigger(trigger)
+            lines.append(f"# {desc}")
+            lines.append(f'add_gnome_media_keybinding "{setting_name}" "{gnome_accel}"')
+            lines.append("")
+
     lines.append('echo "GNOME desktop shortcuts applied successfully."')
     lines.append("")
     return "\n".join(lines)
@@ -177,6 +212,7 @@ def compile(data, workspace_dir):
     default_layers = {}
     apps_dict = {}
     desktop_entries = []
+    media_entries = []
 
     for trigger, cfg in data.items():
         if "global" in cfg:
@@ -185,6 +221,10 @@ def compile(data, workspace_dir):
             if layer not in default_layers:
                 default_layers[layer] = []
             default_layers[layer].append(f"{key} = {action}")
+
+            action_norm = cfg["global"].strip().lower().replace("_", "").replace(" ", "")
+            if action_norm in MEDIA_KEY_ACTIONS:
+                media_entries.append((trigger, MEDIA_KEY_ACTIONS[action_norm], cfg.get("description", trigger)))
 
         if "apps" in cfg:
             app_lhs = translate_app_layer(trigger)
@@ -229,9 +269,9 @@ def compile(data, workspace_dir):
     with open(app_conf_path, "w", encoding="utf-8") as f:
         f.write("\n".join(app_lines))
 
-    # Write gnome-shortcuts.sh if desktop entries exist
-    if desktop_entries:
-        gnome_script = generate_gnome_script(desktop_entries)
+    # Write gnome-shortcuts.sh if desktop or media entries exist
+    if desktop_entries or media_entries:
+        gnome_script = generate_gnome_script(desktop_entries, media_entries)
         with open(gnome_sh_path, "w", encoding="utf-8") as f:
             f.write(gnome_script)
         os.chmod(gnome_sh_path, 0o755)

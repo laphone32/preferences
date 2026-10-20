@@ -140,6 +140,22 @@
       "*chrome*": "Ctrl + 0"
     }
   },
+  "Super + F9": {
+    "description": "Mic mute",
+    "global": "micmute"
+  },
+  "Super + F10": {
+    "description": "Mute",
+    "global": "mute"
+  },
+  "Super + F11": {
+    "description": "Volume down",
+    "global": "volumedown"
+  },
+  "Super + F12": {
+    "description": "Volume up",
+    "global": "volumeup"
+  },
   "Ctrl + Alt + T": {
     "description": "Open Kitty",
     "desktop": {

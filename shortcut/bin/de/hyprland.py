@@ -3,7 +3,7 @@
 """Hyprland desktop environment shortcut compiler.
 
 Generates:
-- hypr/keybind.lua: Native Lua shortcut module using hl.bind, sendshortcut, exec, and focus dispatchers.
+- hypr/keybind.lua: Native Lua shortcut module using Rebind (hl.unbind + hl.bind), focus-aware contextual shortcuts (sendshortcut), exec, and focus dispatchers.
 - hypr/init.lua: Aggregator entrypoint module for require("preferences").
 """
 
@@ -69,6 +69,12 @@ KEYSYM_MAP = {
     "down": "Down",
     "left": "Left",
     "right": "Right",
+
+    # Media keys
+    "mute": "XF86AudioMute",
+    "micmute": "XF86AudioMicMute",
+    "volumedown": "XF86AudioLowerVolume",
+    "volumeup": "XF86AudioRaiseVolume",
 }
 
 MOD_MAP = {
@@ -101,9 +107,9 @@ def split_combo(combo_str):
 def normalize_keysym(raw_key):
     """Normalize a raw key string to a valid XKB keysym name."""
     clean = raw_key.strip()
-    low = clean.lower()
-    if low in KEYSYM_MAP:
-        return KEYSYM_MAP[low]
+    norm = clean.lower().replace("_", "").replace(" ", "")
+    if norm in KEYSYM_MAP:
+        return KEYSYM_MAP[norm]
     if len(clean) == 1:
         return clean.upper()
     return clean.capitalize()
@@ -139,14 +145,6 @@ def parse_shortcut_action(action_str):
     return " ".join(mods), key
 
 
-def app_to_windowrule(app_pattern):
-    """Convert app pattern like '*kitty*' to Hyprland class regex 'class:^(kitty)$'."""
-    clean = app_pattern.strip("*")
-    if clean.lower() == "chrome":
-        return "class:^(google-chrome)$"
-    return f"class:^({clean})$"
-
-
 def generate_lua_code(data):
     """Generate complete keybinds.lua code."""
     lines = [
@@ -154,6 +152,36 @@ def generate_lua_code(data):
         "-- Source: shortcut/keybinds.json",
         "",
         "local M = {}",
+        "",
+        "-- Track unbound events during a session to avoid clearing newly-bound rules",
+        "-- when multiple mappings exist for the same key combination (e.g. app-specific rules).",
+        "local unbound = {}",
+        "",
+        "--- Rebind a key combination: unbinds existing binding on first encounter to avoid",
+        "--- conflicts/duplication, then binds the new action with optional flags.",
+        '--- @param event string Key combination, e.g. "SUPER + C"',
+        "--- @param action any Dispatcher action or handler",
+        "--- @param flags table|nil Optional flags, e.g. { repeating = true }",
+        "function Rebind(event, action, flags)",
+        "    local hl = hl or _G.hl or {}",
+        '    if type(hl.unbind) == "function" and not unbound[event] then',
+        "        pcall(hl.unbind, event)",
+        "        unbound[event] = true",
+        "    end",
+        '    if type(hl.bind) == "function" and action ~= nil then',
+        "        if flags ~= nil then",
+        "            hl.bind(event, action, flags)",
+        "        else",
+        "            hl.bind(event, action)",
+        "        end",
+        "    end",
+        "end",
+        "",
+        "local rebind = Rebind",
+        "M.rebind = Rebind",
+        "M.Rebind = Rebind",
+        "_G.Rebind = Rebind",
+        "_G.rebind = Rebind",
         "",
         "function M.setup()",
         "    -- Ensure keyd system service and user mapper are stopped in Hyprland (non-blocking)",
@@ -166,38 +194,82 @@ def generate_lua_code(data):
         "    end",
         "    local dsp = hl.dsp or _G.dsp or {}",
         "",
+        "    -- Reset unbound tracker so reloading the module reapplies unbind cleanly",
+        "    for k in pairs(unbound) do",
+        "        unbound[k] = nil",
+        "    end",
+        "",
+        '    if type(hl) == "table" then',
+        "        hl.rebind = Rebind",
+        "        hl.Rebind = Rebind",
+        "    end",
+        "    _G.Rebind = Rebind",
+        "    _G.rebind = Rebind",
+        "",
         "    local function bind_exec(keys, cmd)",
         '        if type(dsp.exec_cmd) == "function" then',
-        "            hl.bind(keys, dsp.exec_cmd(cmd))",
+        "            Rebind(keys, dsp.exec_cmd(cmd))",
         "        end",
         "    end",
         "",
         "    local function bind_focus(keys, direction)",
         '        if type(dsp.focus) == "function" then',
-        "            hl.bind(keys, dsp.focus({ direction = direction }))",
+        "            Rebind(keys, dsp.focus({ direction = direction }))",
         "        end",
         "    end",
         "",
         "    local function bind_workspace(keys, target)",
         '        if type(dsp.focus) == "function" then',
-        "            hl.bind(keys, dsp.focus({ workspace = target }))",
+        "            Rebind(keys, dsp.focus({ workspace = target }))",
         "        end",
         "    end",
         "",
         "    local function bind_resize(keys, dx, dy)",
         '        if type(dsp.window) == "table" and type(dsp.window.resize) == "function" then',
-        "            hl.bind(keys, dsp.window.resize({ x = dx, y = dy, relative = true }), { repeating = true })",
+        "            Rebind(keys, dsp.window.resize({ x = dx, y = dy, relative = true }), { repeating = true })",
         '        elseif type(dsp.resize) == "function" then',
-        "            hl.bind(keys, dsp.resize({ x = dx, y = dy, relative = true }), { repeating = true })",
+        "            Rebind(keys, dsp.resize({ x = dx, y = dy, relative = true }), { repeating = true })",
         "        end",
         "    end",
         "",
-        "    local function bind_shortcut(keys, target_mods, target_key, rule)",
+        "    local function match_app(win, pattern)",
+        "        if not win then return false end",
+        "        local ok, cls = pcall(function()",
+        '            return tostring(win.class or win.initialClass or win.initial_class or "")',
+        "        end)",
+        '        if not ok or not cls or cls == "" then return false end',
+        "        return string.find(string.lower(cls), string.lower(pattern), 1, true) ~= nil",
+        "    end",
+        "",
+        "    local function send_to_active(target_mods, target_key)",
         '        if type(dsp.send_shortcut) == "function" then',
-        "            local param = { mods = target_mods, key = target_key }",
-        '            if rule and rule ~= "" then param.window = rule end',
-        "            hl.bind(keys, dsp.send_shortcut(param))",
+        '            local action = dsp.send_shortcut({ mods = target_mods, key = target_key, window = "activewindow" })',
+        '            if type(hl.dispatch) == "function" then',
+        "                hl.dispatch(action)",
+        "            end",
         "        end",
+        "    end",
+        "",
+        "    local function bind_shortcut(keys, target_mods, target_key)",
+        '        if type(dsp.send_shortcut) == "function" then',
+        '            local param = { mods = target_mods, key = target_key, window = "activewindow" }',
+        "            Rebind(keys, dsp.send_shortcut(param))",
+        "        end",
+        "    end",
+        "",
+        "    local function bind_contextual(keys, app_rules, fallback)",
+        "        Rebind(keys, function()",
+        '            local win = type(hl.get_active_window) == "function" and hl.get_active_window() or nil',
+        "            for _, rule in ipairs(app_rules) do",
+        "                if match_app(win, rule.app) then",
+        "                    send_to_active(rule.mods, rule.key)",
+        "                    return",
+        "                end",
+        "            end",
+        "            if fallback then",
+        "                send_to_active(fallback.mods, fallback.key)",
+        "            end",
+        "        end)",
         "    end",
         "",
         "    -- ===========================================================",
@@ -248,23 +320,37 @@ def generate_lua_code(data):
         "    -- ===========================================================",
     ])
 
-    # 2. App-specific shortcuts
+    # 2. Contextual Application Hotkeys & Global Remappings
     for trigger, cfg in data.items():
         if "apps" in cfg:
             key_combo = translate_hyprland_trigger(trigger)
             desc = cfg.get("description", trigger)
             lines.append(f"    -- {desc} ({trigger})")
 
-            # App-specific mappings first
+            rules_entries = []
             for app_pattern, app_action_str in cfg["apps"].items():
-                rule = app_to_windowrule(app_pattern)
+                app_name = app_pattern.strip("*")
                 target_mods, target_key = parse_shortcut_action(app_action_str)
-                lines.append(f'    bind_shortcut("{key_combo}", "{target_mods}", "{target_key}", "{rule}")')
+                rules_entries.append(
+                    f'{{ app = "{app_name}", mods = "{target_mods}", key = "{target_key}" }}'
+                )
 
-            # Global fallback mapping
+            rules_str = "{\n        " + ",\n        ".join(rules_entries) + "\n    }"
+
             if "global" in cfg:
                 target_mods, target_key = parse_shortcut_action(cfg["global"])
-                lines.append(f'    bind_shortcut("{key_combo}", "{target_mods}", "{target_key}", "")')
+                fallback_str = f'{{ mods = "{target_mods}", key = "{target_key}" }}'
+            else:
+                fallback_str = "nil"
+
+            lines.append(f'    bind_contextual("{key_combo}", {rules_str}, {fallback_str})')
+            lines.append("")
+        elif "global" in cfg:
+            key_combo = translate_hyprland_trigger(trigger)
+            desc = cfg.get("description", trigger)
+            lines.append(f"    -- {desc} ({trigger})")
+            target_mods, target_key = parse_shortcut_action(cfg["global"])
+            lines.append(f'    bind_shortcut("{key_combo}", "{target_mods}", "{target_key}")')
             lines.append("")
 
     lines.extend([
@@ -293,6 +379,8 @@ def compile(data, workspace_dir):
         "-- Source: shortcut/keybinds.json\n\n"
         "local M = {}\n"
         'local keybind = require("preferences.keybind")\n\n'
+        "M.rebind = keybind.rebind\n"
+        "M.Rebind = keybind.Rebind\n\n"
         "function M.setup()\n"
         '    if type(keybind.setup) == "function" then\n'
         "        keybind.setup()\n"
