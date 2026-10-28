@@ -13,19 +13,35 @@ def g:AfterPlugLoad(confName: string)
     g:LoadConfig('plugin_setting/' .. confName .. '.config.vim')
 enddef
 
-def RepoToPlug(repo: string): list<string>
-    return [split(repo, '/')[1], substitute(repo, '/', '-', '')]
+def RepoToPlug(repo: string, property: dict<any> = {}): list<string>
+    var custom_as = get(property, 'as', '')
+    if repo =~# '^[.~/]'
+        var clean = substitute(repo, '/\+$', '', '')
+        var name = !empty(custom_as) ? custom_as : fnamemodify(clean, ':t')
+        return [name, '_local-' .. name]
+    endif
+
+    var parts = split(repo, '/')
+    var plugName = !empty(custom_as) ? custom_as : parts[1]
+    var confName = parts[0] .. '-' .. parts[1]
+    return [plugName, confName]
 enddef
 
-var plug = {toLoad: [], toHold: []}
+var plug: dict<list<list<string>>> = {toLoad: [], toHold: []}
 
-def g:PlugAdd(repo: string, property_arg = {})
+def g:PlugAdd(repo_arg: string, property_arg = {})
+    var repo = repo_arg
     var property = property_arg
+    var [plugName, confName] = RepoToPlug(repo, property)
+
+    if repo =~# '^\.'
+        repo = resolve(g:vimrcDir .. '/' .. repo)
+    endif
+
     if has_key(property, 'on') || has_key(property, 'for')
-        add(plug.toHold, repo)
+        add(plug.toHold, [plugName, confName])
     else
-        property.on = []
-        add(plug.toLoad, repo)
+        add(plug.toLoad, [plugName, confName])
     endif
 
     execute 'Plug ' .. string(repo) .. ', ' .. string(property)
@@ -39,28 +55,17 @@ enddef
 def InstallAutocmd()
     augroup PlugLoadGroup
         autocmd!
-        for repo in plug.toHold
-            var val = RepoToPlug(repo)
-            var plugName = val[0]
-            var confName = val[1]
+        for [plugName, confName] in plug.toHold
             execute 'autocmd User ' .. plugName .. ' call g:AfterPlugLoad(' .. string(confName) .. ')'
         endfor
     augroup END
 enddef
 
-def PlugLoad(repo: string)
-    var val = RepoToPlug(repo)
-    var plugName = val[0]
-    var confName = val[1]
-    plug#load(plugName)
-    g:AfterPlugLoad(confName)
-enddef
-
 def PlugEnd()
     InstallAutocmd()
     plug#end()
-    for repo in plug.toLoad
-        PlugLoad(repo)
+    for [_, confName] in plug.toLoad
+        g:AfterPlugLoad(confName)
     endfor
 enddef
 

@@ -87,5 +87,5 @@ enddef
 augroup lightlineGroup
     autocmd!
     autocmd User LspStatusChange call lightline#update()
-    autocmd BufRead call lightline#update()
+    autocmd BufRead * call lightline#update()
 augroup END

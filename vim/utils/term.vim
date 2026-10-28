@@ -11,7 +11,7 @@ export class Term extends cp.ConsistentPopup
     var width: number
     var saved_ambiwidth: string
 
-    def new(cmd: list<string> = [&shell], title: string = 'Terminal', closeOnEscCmd: string = '', width: number = 0)
+    def new(cmd: list<string> = [], title: string = 'Terminal', closeOnEscCmd: string = '', width: number = 0)
         this.cmd = cmd
         this.title = title
         this.closeOnEscCmd = closeOnEscCmd
@@ -24,8 +24,9 @@ export class Term extends cp.ConsistentPopup
         # Use exact width and height so popup_create doesn't trigger a resize
         var cols = this.width > 0 ? min([&columns - 4, this.width]) : &columns - 4
         var rows = &lines - 4
-        
-        this.buffer = term_start(this.cmd, {
+        var actual_cmd = !empty(this.cmd) ? this.cmd : [&shell]
+
+        this.buffer = term_start(actual_cmd, {
             hidden: 1,
             term_finish: 'close',
             exit_cb: (j, s) => {

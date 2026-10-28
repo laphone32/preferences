@@ -43,8 +43,9 @@ export class AsyncRgQuery extends aq.AsyncQuery
         var keyword = query->get('keyword', '')
         if len(keyword) > 0
             this.lookup = [{}]
+            var base_cmd = get(g:, 'consistent_popup_rg_cmd', ['rg', '--sort=path', '--follow', '--smart-case', '--fixed-strings', '--json', '--'])
             this.asyncJob.Start({
-                cmd: ['rg', '--sort=path', '--follow', '--smart-case', '--fixed-strings', '--json', '--', keyword, '.'],
+                cmd: copy(base_cmd)->extend([keyword, '.']),
             })
         endif
 

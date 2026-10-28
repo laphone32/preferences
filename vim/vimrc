@@ -20,8 +20,8 @@ function! g:LoadConfig(configPath) abort
 endfunction
 
 call g:LoadConfig('config/utils.vim')
-call g:LoadConfig('config/plugins.vim')
 call g:LoadConfig('config/setting.vim')
+call g:LoadConfig('config/plugins.vim')
 call g:LoadConfig('config/autocmd.vim')
 call g:LoadConfig('config/lists.vim')
 call g:LoadConfig('config/keymap.vim')
