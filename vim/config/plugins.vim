@@ -86,6 +86,7 @@ PlugAdd 'prabirshrestha/asyncomplete-lsp.vim'
 PlugAdd 'nordtheme/vim'
 # PlugAdd 'arcticicestudio/nord-vim'
 PlugAdd 'ap/vim-css-color'
+PlugAdd 'laphone32/consistent_popup.vim'
 # PlugAdd 'junegunn/fzf', { 'do': { -> fzf#install() }}
 # PlugAdd 'junegunn/fzf.vim'
 PlugEnd()

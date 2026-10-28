@@ -27,6 +27,3 @@ tnoremap <Plug>(hide-terminal-call) <c-w>:HideTerm<cr>
 nnoremap <Plug>(show-assistant-call) <c-w>:ShowAssistant<cr>
 tnoremap <Plug>(hide-assistant-call) <c-w>:HideAssistant<cr>
 vnoremap <Plug>(visual-assistant-call) :<C-u>AssistantSendVisual<cr>
-
-# 3. Load in-tree plugin entrypoint (remove once moved to dedicated plugin repo)
-g:LoadConfig('utils/consistent_popup.vim')
