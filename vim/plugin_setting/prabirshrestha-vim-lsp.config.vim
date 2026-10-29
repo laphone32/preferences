@@ -25,16 +25,17 @@ nnoremap <Plug>(normal-find-diagnostic-call) :LspDocumentDiagnostics<CR>
 g:lsp_code_action_ui = 'float'
 g:lsp_preview_float = 1
 g:lsp_diagnostics_enabled = 1
+g:lsp_work_done_progress_enabled = 1
 
 
 g:lsp_diagnostics_echo_cursor = 0
 g:lsp_diagnostics_float_cursor = 0
 g:lsp_diagnostics_virtual_text_enabled = 0
 g:lsp_diagnostics_signs_enabled = 1
-g:lsp_diagnostics_signs_error = {text: '>>'}
-g:lsp_diagnostics_signs_warning = {text: '!!'}
-g:lsp_diagnostics_signs_information = {text: '->'}
-g:lsp_diagnostics_signs_hint = {text: '**'}
+g:lsp_diagnostics_signs_error = {text: g:diagnostic_signs.error}
+g:lsp_diagnostics_signs_warning = {text: g:diagnostic_signs.warning}
+g:lsp_diagnostics_signs_information = {text: g:diagnostic_signs.information}
+g:lsp_diagnostics_signs_hint = {text: g:diagnostic_signs.hint}
 
 # Highlight reference symbols under cursor on hover
 g:lsp_document_highlight_enabled = 1
@@ -271,3 +272,49 @@ def g:LspCodeActionWrapper(query: string = '')
     endfor
     echo 'Retrieving code actions ...'
 enddef
+
+# 5. Statusline & Event Interface Implementation
+def! g:LspStatus(): dict<any>
+    var status = {
+        error: 0,
+        warning: 0,
+        information: 0,
+        hint: 0,
+        progress: '',
+    }
+
+    if !exists('*lsp#get_buffer_diagnostics_counts')
+        return status
+    endif
+
+    if get(g:, 'lsp_diagnostics_enabled', 1) == 1
+        var counts = lsp#get_buffer_diagnostics_counts()
+        status.error = get(counts, 'error', 0)
+        status.warning = get(counts, 'warning', 0)
+        status.information = get(counts, 'information', 0)
+        status.hint = get(counts, 'hint', 0)
+    endif
+
+    if exists('*lsp#get_progress')
+        var progress_list = lsp#get_progress()
+        if !empty(progress_list)
+            var p = progress_list[0]
+            var msg = '[' .. get(p, 'server', '') .. '] ' .. get(p, 'title', '')
+            if !empty(get(p, 'message', ''))
+                msg ..= ' ' .. p.message
+            endif
+            if has_key(p, 'percentage')
+                msg ..= printf(' (%d%%)', p.percentage)
+            endif
+            status.progress = msg
+        endif
+    endif
+
+    return status
+enddef
+
+augroup lspStatusBridgeGroup
+    autocmd!
+    autocmd User lsp_diagnostics_updated,lsp_progress_updated,lsp_server_init,lsp_server_exit,lsp_buffer_enabled
+        \ g:EmitLspStatusChange()
+augroup END

@@ -50,7 +50,7 @@ augroup cocGroup
     autocmd User CocJumpPlaceholder CocActionAsync('showSignatureHelp')
     # Highlight symbol under cursor on CursorHold
     autocmd CursorHold * silent CocActionAsync('highlight')
-    autocmd User CocStatusChange,CocDiagnosticChange doautocmd User LspStatusChange
+    autocmd User CocStatusChange,CocDiagnosticChange g:EmitLspStatusChange()
 augroup end
 
 g:coc_global_extensions = [
@@ -83,10 +83,10 @@ g:coc_user_config = {
     },
     diagnostic: {
         refreshOnInsertMode: true,
-        errorSign: '>>',
-        warningSign: '!!',
-        infoSign: '->',
-        hintSign: '**',
+        errorSign: g:diagnostic_signs.error,
+        warningSign: g:diagnostic_signs.warning,
+        infoSign: g:diagnostic_signs.information,
+        hintSign: g:diagnostic_signs.hint,
     },
     'list.source.files.args': ['--hidden', '--files'],
     'list.source.files.excludePatterns': ['**/.bloop/*'],
@@ -161,6 +161,13 @@ g:coc_filetype_map = {
     json5: 'jsonc',
 }
 
-def g:LspStatus(): string
-    return coc#status()
+def! g:LspStatus(): dict<any>
+    var info = get(b:, 'coc_diagnostic_info', {})
+    return {
+        error: get(info, 'error', 0),
+        warning: get(info, 'warning', 0),
+        information: get(info, 'information', 0),
+        hint: get(info, 'hint', 0),
+        progress: trim(get(g:, 'coc_status', '')),
+    }
 enddef

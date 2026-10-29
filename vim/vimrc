@@ -21,6 +21,7 @@ endfunction
 
 call g:LoadConfig('config/utils.vim')
 call g:LoadConfig('config/setting.vim')
+call g:LoadConfig('config/interface.vim')
 call g:LoadConfig('config/plugins.vim')
 call g:LoadConfig('config/autocmd.vim')
 call g:LoadConfig('config/keymap.vim')

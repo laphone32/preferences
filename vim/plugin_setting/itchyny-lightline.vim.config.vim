@@ -19,7 +19,7 @@ g:lightline = {
         fileencoding: 'LightLineFileencoding',
         mode: 'LightLineMode',
         lineinfo: 'LightLineLineInfo',
-        lspStatus: 'LspStatus'
+        lspStatus: 'LightLineLspStatus'
     },
     subseparator: { left: '|', right: '|' }
 }
@@ -82,6 +82,31 @@ enddef
 
 def g:LightLineLineInfo(): string
     return !g:FileIsNormal() ? '' : printf("%3d:%-2d", line('.'), col('.'))
+enddef
+
+def g:LightLineLspStatus(): string
+    if !g:FileIsNormal() || !g:WinWidthIsEnough()
+        return ''
+    endif
+
+    var status = g:LspStatus()
+    var parts: list<string> = []
+
+    var err = get(status, 'error', 0)
+    var warn = get(status, 'warning', 0)
+    var progress = get(status, 'progress', '')
+
+    if err > 0
+        parts->add(g:diagnostic_signs.error .. string(err))
+    endif
+    if warn > 0
+        parts->add(g:diagnostic_signs.warning .. string(warn))
+    endif
+    if !empty(progress)
+        parts->add(progress)
+    endif
+
+    return join(parts, ' ')
 enddef
 
 augroup lightlineGroup
