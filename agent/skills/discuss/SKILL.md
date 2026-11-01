@@ -29,3 +29,5 @@ Use this skill whenever the user prompts you for a discussion, asks for ideas, r
    - **Dependencies**: What components, packages, or systems it relies on.
    - **Trade-offs**: Structural or architectural compromises (e.g., complexity vs. performance).
    - **Potential Problems & Implementation Difficulties**: Architectural pitfalls, integration risks, or challenges during development.
+4. **Handling Blockers and Improvements**: If there is any block during the survey process due to limitations (e.g., extra permissions, utils/tools needed, context required, etc.) or needed for any possible improvement of the survey, feel free to ask for confirmation from the user with a clear explanation of purpose and reason. If it is rejected, apply available resources for the survey.
+

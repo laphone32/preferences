@@ -47,6 +47,22 @@ augroup diffGroup
 augroup END
 
 # Dynamic terminal title bridge
+def SetTitleAsync(args: list<string>)
+    if has('job')
+        job_start(['preferencesSetTitle.py'] + args, {
+            out_io: 'null',
+            err_io: 'null',
+            stoponexit: '',
+        })
+    else
+        var cmd = 'preferencesSetTitle.py'
+        for arg in args
+            cmd ..= ' ' .. shellescape(arg)
+        endfor
+        system(cmd)
+    endif
+enddef
+
 def UpdateTerminalTitle()
     # 1. Ignore popups, floating windows, preview, and non-normal/unlisted buffers
     if win_gettype() != '' || !&buflisted || &buftype != ''
@@ -58,19 +74,19 @@ def UpdateTerminalTitle()
 
     # 2. Empty buffer on startup (e.g. starting Vim without arguments)
     if empty(fName)
-        system('preferencesSetTitle.py vim')
+        SetTitleAsync(['vim'])
         return
     endif
 
     # 3. Any real file existing on disk is unconditionally accepted
     if filereadable(fullpath)
-        system('preferencesSetTitle.py vim ' .. shellescape(expand('%:~:.')))
+        SetTitleAsync(['vim', expand('%:~:.')])
         return
     endif
 
     # 4. New unsaved files (accepts standard paths, rejects pseudo-schemes & scratch buffers containing ':' or '!')
     if fName !~ '[:!]'
-        system('preferencesSetTitle.py vim ' .. shellescape(expand('%:~:.')))
+        SetTitleAsync(['vim', expand('%:~:.')])
     endif
 enddef
 

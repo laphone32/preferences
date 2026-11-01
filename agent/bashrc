@@ -152,6 +152,7 @@ function launchAgent {
         local target_base="$(basename "$(cd "$target_dir" 2>/dev/null && pwd -P || pwd)")"
         sandbox_name="${agent_name}-${target_base}"
     fi
+    sandbox_name="${sandbox_name//_/-}"
 
     local sandbox_exists=0
     if [ -n "$sandbox_name" ]; then
