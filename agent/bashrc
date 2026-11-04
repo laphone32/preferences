@@ -163,6 +163,10 @@ function launchAgent {
 
     # 5. Unified execution pipeline
     # Step A: Ensure sandbox exists
+    if [ $sandbox_exists -eq 0 ] && [ $is_help_or_version -eq 1 ]; then
+        echo "ℹ️  No sandbox '$sandbox_name' exists yet; skipping creation for help/version. Run without --help/--version to create it." >&2
+        return 0
+    fi
     if [ $sandbox_exists -eq 0 ]; then
         local create_args=("$kit_ref" "$target_dir" --name "$sandbox_name")
         if [ ${#mcp_static_args[@]} -gt 0 ]; then
@@ -210,5 +214,5 @@ function syncAgentSkills() {
 # Antigravity CLI (uses custom base sbx-kit)
 replace 'agy' '' 'launchAgent "${PREFERENCES_AGY_SBX_KIT}" . --'
 
-# Future CLIs (e.g. Claude Code which doesn't need a custom base kit)
-# replace 'claude' '' 'launchAgent claude . --'
+# Claude Code (built-in sbx kit, no custom base kit needed)
+replace 'claude' '' 'launchAgent claude . --'
