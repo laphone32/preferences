@@ -174,14 +174,16 @@
     "description": "Switch to workspace on left",
     "desktop": {
       "action": "workspace",
-      "direction": "left"
+      "direction": "left",
+      "target": "m-1"
     }
   },
   "Super + Ctrl + Right": {
     "description": "Switch to workspace on right",
     "desktop": {
       "action": "workspace",
-      "direction": "right"
+      "direction": "right",
+      "target": "m+1"
     }
   },
   "Super + Up": {
