@@ -77,6 +77,15 @@ KEYSYM_MAP = {
     "volumeup": "XF86AudioRaiseVolume",
 }
 
+# send_shortcut delivers keys straight to the focused client, bypassing compositor
+# binds, so media keys must run their action directly: (command, Lua bind flags).
+MEDIA_ACTIONS = {
+    "XF86AudioMicMute": ("noctalia msg mic-mute", "{ locked = true }"),
+    "XF86AudioMute": ("noctalia msg volume-mute", "{ locked = true }"),
+    "XF86AudioLowerVolume": ("noctalia msg volume-down", "{ locked = true, repeating = true }"),
+    "XF86AudioRaiseVolume": ("noctalia msg volume-up", "{ locked = true, repeating = true }"),
+}
+
 MOD_MAP = {
     "ctrl": "CTRL",
     "control": "CTRL",
@@ -206,9 +215,9 @@ def generate_lua_code(data):
         "    _G.Rebind = Rebind",
         "    _G.rebind = Rebind",
         "",
-        "    local function bind_exec(keys, cmd)",
+        "    local function bind_exec(keys, cmd, flags)",
         '        if type(dsp.exec_cmd) == "function" then',
-        "            Rebind(keys, dsp.exec_cmd(cmd))",
+        "            Rebind(keys, dsp.exec_cmd(cmd), flags)",
         "        end",
         "    end",
         "",
@@ -350,7 +359,11 @@ def generate_lua_code(data):
             desc = cfg.get("description", trigger)
             lines.append(f"    -- {desc} ({trigger})")
             target_mods, target_key = parse_shortcut_action(cfg["global"])
-            lines.append(f'    bind_shortcut("{key_combo}", "{target_mods}", "{target_key}")')
+            if not target_mods and target_key in MEDIA_ACTIONS:
+                cmd, flags = MEDIA_ACTIONS[target_key]
+                lines.append(f'    bind_exec("{key_combo}", "{cmd}", {flags})')
+            else:
+                lines.append(f'    bind_shortcut("{key_combo}", "{target_mods}", "{target_key}")')
             lines.append("")
 
     lines.extend([
